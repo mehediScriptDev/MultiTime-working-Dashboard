@@ -196,10 +196,10 @@ export default function HomePage() {
           
           {/* Empty state */}
           {timezones && timezones.length === 0 && !isLoading && (
-            <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center">
-              <Clock className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No timezones added</h3>
-              <p className="text-gray-500 mb-4">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 text-center">
+              <Clock className="h-12 w-12 mx-auto text-gray-400 dark:text-slate-300 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">No timezones added</h3>
+              <p className="text-gray-500 dark:text-slate-400 mb-4">
                 Add your first timezone to get started with TimeSync
               </p>
               <Button
