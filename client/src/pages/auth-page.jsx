@@ -8,9 +8,33 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Loader2, Mail, Lock, User, Globe, Briefcase, Eye, EyeOff } from "lucide-react";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Clock,
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  Globe,
+  Briefcase,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { ForgotPasswordDialog } from "@/components/ui/forgot-password-dialog";
 import { OAuthButtons } from "@/components/ui/oauth-buttons";
 
@@ -44,7 +68,10 @@ export default function AuthPage() {
   const onLoginSubmit = (data) => {
     // Store remember me preference
     if (rememberMe) {
-      localStorage.setItem("rememberMe", JSON.stringify({ email: data.email, timestamp: Date.now() }));
+      localStorage.setItem(
+        "rememberMe",
+        JSON.stringify({ email: data.email, timestamp: Date.now() }),
+      );
     }
     loginMutation.mutate(data);
   };
@@ -61,42 +88,55 @@ export default function AuthPage() {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950">
-      <div className="flex flex-1 h-screen">
-        <div className="flex flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-full lg:w-1/2 overflow-y-auto">
+    <div className="h-screen overflow-hidden animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950">
+      <div className="flex h-full">
+        <div className="flex flex-col justify-center px-4 py-6 sm:px-6 lg:flex-none lg:px-12 xl:px-16 w-full lg:w-1/2 overflow-y-auto">
           <div className="mx-auto w-full max-w-sm lg:max-w-md">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <div className="flex items-center justify-center group">
-                <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-3 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 ring-4 ring-blue-500/10">
-                  <Clock className="h-8 w-8 text-white" />
+                <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2.5 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 ring-4 ring-blue-500/10">
+                  <Clock className="h-7 w-7 text-white" />
                 </div>
-                <h2 className="ml-4 text-4xl font-black tracking-tighter text-gray-900 dark:text-white">
-                  Time<span className="text-blue-600 dark:text-blue-400">Sync</span>
+                <h2 className="ml-3 text-3xl font-black tracking-tighter text-gray-900 dark:text-white">
+                  Time
+                  <span className="text-blue-600 dark:text-blue-400">Sync</span>
                 </h2>
               </div>
-              <p className="mt-4 text-sm font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">
+              <p className="mt-3 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">
                 Master your global schedule
               </p>
             </div>
 
             <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-8 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-xl">
-                <TabsTrigger value="login" className="rounded-lg font-bold text-gray-700 dark:text-slate-200">Login</TabsTrigger>
-                <TabsTrigger value="register" className="rounded-lg font-bold text-gray-700 dark:text-slate-200">Register</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 mb-5 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-xl">
+                <TabsTrigger
+                  value="login"
+                  className="rounded-lg font-bold text-gray-700 dark:text-slate-200"
+                >
+                  Login
+                </TabsTrigger>
+                <TabsTrigger
+                  value="register"
+                  className="rounded-lg font-bold text-gray-700 dark:text-slate-200"
+                >
+                  Register
+                </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="login">
                 <Card className="border-none shadow-2xl bg-white dark:bg-slate-900 rounded-2xl">
-                  <CardHeader>
-                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Welcome back</CardTitle>
+                  <CardHeader className="pb-4 pt-6">
+                    <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">
+                      Welcome back
+                    </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-slate-400">
                       Sign in to manage your global team
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <OAuthButtons />
-                    
-                    <div className="relative my-6">
+
+                    <div className="relative my-4">
                       <div className="absolute inset-0 flex items-center">
                         <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
                       </div>
@@ -108,21 +148,26 @@ export default function AuthPage() {
                     </div>
 
                     <Form {...loginForm}>
-                      <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-5">
+                      <form
+                        onSubmit={loginForm.handleSubmit(onLoginSubmit)}
+                        className="space-y-3"
+                      >
                         <FormField
                           control={loginForm.control}
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">Email Address</FormLabel>
+                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">
+                                Email Address
+                              </FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Mail className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                                  <Input 
-                                    className="pl-12 h-12 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-base text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" 
-                                    placeholder="your@email.com" 
+                                  <Mail className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
+                                  <Input
+                                    className="pl-11 h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    placeholder="your@email.com"
                                     type="email"
-                                    {...field} 
+                                    {...field}
                                   />
                                 </div>
                               </FormControl>
@@ -136,7 +181,9 @@ export default function AuthPage() {
                           render={({ field }) => (
                             <FormItem>
                               <div className="flex items-center justify-between">
-                                <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">Password</FormLabel>
+                                <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">
+                                  Password
+                                </FormLabel>
                                 <Button
                                   type="button"
                                   variant="link"
@@ -148,19 +195,27 @@ export default function AuthPage() {
                               </div>
                               <FormControl>
                                 <div className="relative">
-                                  <Lock className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                                  <Input 
-                                    className="pl-12 pr-12 h-12 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-base text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" 
-                                    type={showLoginPassword ? "text" : "password"}
-                                    placeholder="••••••••" 
-                                    {...field} 
+                                  <Lock className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
+                                  <Input
+                                    className="pl-11 pr-11 h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    type={
+                                      showLoginPassword ? "text" : "password"
+                                    }
+                                    placeholder="••••••••"
+                                    {...field}
                                   />
                                   <button
                                     type="button"
-                                    onClick={() => setShowLoginPassword(!showLoginPassword)}
-                                    className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                                    onClick={() =>
+                                      setShowLoginPassword(!showLoginPassword)
+                                    }
+                                    className="absolute right-3.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                                   >
-                                    {showLoginPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    {showLoginPassword ? (
+                                      <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                      <Eye className="h-4 w-4" />
+                                    )}
                                   </button>
                                 </div>
                               </FormControl>
@@ -168,53 +223,67 @@ export default function AuthPage() {
                             </FormItem>
                           )}
                         />
-                        <div className="flex items-center space-x-2 pt-2">
+                        <div className="flex items-center space-x-2 pt-1">
                           <Checkbox
                             id="login-remember"
                             checked={rememberMe}
                             onCheckedChange={setRememberMe}
                             className="rounded"
                           />
-                          <Label htmlFor="login-remember" className="text-sm font-medium text-gray-700 dark:text-slate-300 cursor-pointer">
+                          <Label
+                            htmlFor="login-remember"
+                            className="text-xs font-medium text-gray-700 dark:text-slate-300 cursor-pointer"
+                          >
                             Remember me for 30 days
                           </Label>
                         </div>
-                        <Button 
-                          type="submit" 
-                          className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-600/30 rounded-xl font-bold text-lg text-white transition-all"
+                        <Button
+                          type="submit"
+                          className="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-600/30 rounded-xl font-bold text-base text-white transition-all"
                           disabled={loginMutation.isPending}
                         >
                           {loginMutation.isPending ? (
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           ) : null}
                           Sign In
                         </Button>
                       </form>
                     </Form>
                   </CardContent>
-                  <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800 mt-4 pt-6">
-                    <p className="text-sm font-medium text-gray-700 dark:text-slate-300">
-                      New to TimeSync?{' '}
-                      <Button variant="link" className="p-0 font-bold text-blue-600 dark:text-blue-400" onClick={() => { const el = document.querySelector('[data-value="register"]'); if (el && typeof el.click === 'function') el.click(); }}>
+                  <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800 mt-3 pt-4">
+                    <p className="text-xs font-medium text-gray-700 dark:text-slate-300">
+                      New to TimeSync?{" "}
+                      <Button
+                        variant="link"
+                        className="p-0 font-bold text-blue-600 dark:text-blue-400"
+                        onClick={() => {
+                          const el = document.querySelector(
+                            '[data-value="register"]',
+                          );
+                          if (el && typeof el.click === "function") el.click();
+                        }}
+                      >
                         Create account
                       </Button>
                     </p>
                   </CardFooter>
                 </Card>
               </TabsContent>
-              
+
               <TabsContent value="register">
-                <Card className="border-none shadow-2xl bg-white dark:bg-slate-900 rounded-2xl">
+                <Card className="border-none shadow-2xl bg-white dark:bg-slate-900 rounded-2xl max-h-screen overflow-y-auto">
                   <CardHeader>
-                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Get Started</CardTitle>
+                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+                      Get Started
+                    </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-slate-400">
                       Join the community of global professionals
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <OAuthButtons />
-                    
-                    <div className="relative my-6">
+
+                    <div className="relative my-4">
                       <div className="absolute inset-0 flex items-center">
                         <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
                       </div>
@@ -226,20 +295,25 @@ export default function AuthPage() {
                     </div>
 
                     <Form {...registerForm}>
-                      <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-5">
+                      <form
+                        onSubmit={registerForm.handleSubmit(onRegisterSubmit)}
+                        className="space-y-3"
+                      >
                         <FormField
                           control={registerForm.control}
                           name="username"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">Username</FormLabel>
+                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">
+                                Username
+                              </FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <User className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                                  <Input 
-                                    className="pl-12 h-12 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-base text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" 
-                                    placeholder="username" 
-                                    {...field} 
+                                  <User className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
+                                  <Input
+                                    className="pl-11 h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    placeholder="username"
+                                    {...field}
                                   />
                                 </div>
                               </FormControl>
@@ -252,15 +326,17 @@ export default function AuthPage() {
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">Email Address</FormLabel>
+                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">
+                                Email Address
+                              </FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Mail className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                                  <Input 
-                                    className="pl-12 h-12 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-base text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" 
-                                    placeholder="your@email.com" 
+                                  <Mail className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
+                                  <Input
+                                    className="pl-11 h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    placeholder="your@email.com"
                                     type="email"
-                                    {...field} 
+                                    {...field}
                                   />
                                 </div>
                               </FormControl>
@@ -273,22 +349,34 @@ export default function AuthPage() {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">Password</FormLabel>
+                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">
+                                Password
+                              </FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Lock className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                                  <Input 
-                                    className="pl-12 pr-12 h-12 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-base text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" 
-                                    type={showRegisterPassword ? "text" : "password"}
-                                    placeholder="••••••••" 
-                                    {...field} 
+                                  <Lock className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
+                                  <Input
+                                    className="pl-11 pr-11 h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    type={
+                                      showRegisterPassword ? "text" : "password"
+                                    }
+                                    placeholder="••••••••"
+                                    {...field}
                                   />
                                   <button
                                     type="button"
-                                    onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                                    className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                                    onClick={() =>
+                                      setShowRegisterPassword(
+                                        !showRegisterPassword,
+                                      )
+                                    }
+                                    className="absolute right-3.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                                   >
-                                    {showRegisterPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    {showRegisterPassword ? (
+                                      <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                      <Eye className="h-4 w-4" />
+                                    )}
                                   </button>
                                 </div>
                               </FormControl>
@@ -296,32 +384,52 @@ export default function AuthPage() {
                             </FormItem>
                           )}
                         />
-                        <div className="text-xs text-gray-600 dark:text-slate-400 bg-blue-50 dark:bg-slate-800/50 p-3 rounded-lg border border-blue-100 dark:border-slate-700">
-                          <p className="font-semibold mb-2 text-blue-900 dark:text-blue-300">Password Requirements:</p>
-                          <ul className="space-y-1">
-                            <li className={registerForm.watch("password")?.length >= 6 ? "text-green-600 dark:text-green-400 font-medium" : "text-gray-600 dark:text-slate-400"}>
+                        {/* <div className="text-xs text-gray-600 dark:text-slate-400 bg-blue-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-blue-100 dark:border-slate-700">
+                          <p className="font-semibold mb-1.5 text-blue-900 dark:text-blue-300">
+                            Password Requirements:
+                          </p>
+                          <ul className="space-y-0.5">
+                            <li
+                              className={
+                                registerForm.watch("password")?.length >= 6
+                                  ? "text-green-600 dark:text-green-400 font-medium"
+                                  : "text-gray-600 dark:text-slate-400"
+                              }
+                            >
                               ✓ At least 6 characters
                             </li>
-                            <li className="text-gray-600 dark:text-slate-400">• Mix of uppercase, lowercase, numbers (recommended)</li>
+                            <li className="text-gray-600 dark:text-slate-400">
+                              • Mix of uppercase, lowercase, numbers
+                              (recommended)
+                            </li>
                           </ul>
-                        </div>
-                        <Button 
-                          type="submit" 
-                          className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-600/30 rounded-xl font-bold text-lg text-white transition-all"
+                        </div> */}
+                        <Button
+                          type="submit"
+                          className="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-600/30 rounded-xl font-bold text-base text-white transition-all"
                           disabled={registerMutation.isPending}
                         >
                           {registerMutation.isPending ? (
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           ) : null}
                           Create Account
                         </Button>
                       </form>
                     </Form>
                   </CardContent>
-                  <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800 mt-4 pt-6">
-                    <p className="text-sm font-medium text-gray-700 dark:text-slate-300">
-                      Already have an account?{' '}
-                      <Button variant="link" className="p-0 font-bold text-blue-600 dark:text-blue-400" onClick={() => { const el = document.querySelector('[data-value="login"]'); if (el && typeof el.click === 'function') el.click(); }}>
+                  <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800 mt-2 pt-3">
+                    <p className="text-xs font-medium text-gray-700 dark:text-slate-300">
+                      Already have an account?{" "}
+                      <Button
+                        variant="link"
+                        className="p-0 font-bold text-blue-600 dark:text-blue-400"
+                        onClick={() => {
+                          const el = document.querySelector(
+                            '[data-value="login"]',
+                          );
+                          if (el && typeof el.click === "function") el.click();
+                        }}
+                      >
                         Sign in
                       </Button>
                     </p>
@@ -331,7 +439,7 @@ export default function AuthPage() {
             </Tabs>
           </div>
         </div>
-        
+
         <div className="hidden lg:flex relative w-0 flex-1 overflow-hidden h-screen">
           <div className="absolute inset-0 bg-slate-900">
             <div className="absolute inset-0 opacity-40 animate-gradient-x bg-gradient-to-br from-blue-600 via-indigo-900 to-slate-900"></div>
@@ -354,22 +462,40 @@ export default function AuthPage() {
               </div>
 
               <h2 className="text-6xl font-black mb-6 tracking-tighter leading-none">
-                Work <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">anywhere</span>,<br />
-                Sync <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">everywhere</span>.
+                Work{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                  anywhere
+                </span>
+                ,<br />
+                Sync{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">
+                  everywhere
+                </span>
+                .
               </h2>
-              
+
               <p className="text-xl text-slate-300 mb-10 font-medium leading-relaxed">
-                Empower your remote team with seamless timezone management. Schedule meetings with confidence and maintain perfect harmony across the globe.
+                Empower your remote team with seamless timezone management.
+                Schedule meetings with confidence and maintain perfect harmony
+                across the globe.
               </p>
-              
+
               <div className="grid grid-cols-2 gap-6">
                 <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
-                  <div className="font-black text-2xl text-blue-400 mb-1">3+</div>
-                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Free Timezones</div>
+                  <div className="font-black text-2xl text-blue-400 mb-1">
+                    3+
+                  </div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                    Free Timezones
+                  </div>
                 </div>
                 <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
-                  <div className="font-black text-2xl text-indigo-400 mb-1">100%</div>
-                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Remote Ready</div>
+                  <div className="font-black text-2xl text-indigo-400 mb-1">
+                    100%
+                  </div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                    Remote Ready
+                  </div>
                 </div>
               </div>
             </div>
@@ -378,7 +504,10 @@ export default function AuthPage() {
       </div>
 
       {/* Forgot Password Dialog */}
-      <ForgotPasswordDialog open={forgotPasswordOpen} onOpenChange={setForgotPasswordOpen} />
+      <ForgotPasswordDialog
+        open={forgotPasswordOpen}
+        onOpenChange={setForgotPasswordOpen}
+      />
     </div>
   );
 }
