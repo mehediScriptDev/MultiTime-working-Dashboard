@@ -1,4 +1,4 @@
-import { type ClassValue, clsx } from "clsx";
+import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -7,11 +7,11 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export function cn(...inputs: ClassValue[]) {
+export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-export function formatAMPM(hour: number, use24Hour = false): string {
+export function formatAMPM(hour, use24Hour = false) {
   if (use24Hour) {
     return `${hour.toString().padStart(2, "0")}:00`;
   }
@@ -21,43 +21,33 @@ export function formatAMPM(hour: number, use24Hour = false): string {
   return `${formattedHour}:00 ${isPM ? 'PM' : 'AM'}`;
 }
 
-export function getTimeInTimezone(offsetMinutes: number, use24Hour = false): {
-  time: string;
-  date: string;
-  isWorkingHours: boolean;
-} {
+export function getTimeInTimezone(offsetMinutes, use24Hour = false) {
   const now = dayjs().utcOffset(offsetMinutes);
-  
-  const time = use24Hour
-    ? now.format("HH:mm")
-    : now.format("h:mm A");
-  
+
+  const time = use24Hour ? now.format("HH:mm") : now.format("h:mm A");
+
   const date = now.format("ddd, MMM D, YYYY");
-  
+
   const hour = now.hour();
   const isWorkingHours = hour >= 9 && hour < 17;
-  
+
   return { time, date, isWorkingHours };
 }
 
-export function getWorkingHoursPercent(
-  currentOffsetMinutes: number,
-  workingHoursStart: number,
-  workingHoursEnd: number
-): number {
+export function getWorkingHoursPercent(currentOffsetMinutes, workingHoursStart, workingHoursEnd) {
   const now = dayjs().utcOffset(currentOffsetMinutes);
   const hour = now.hour();
   const minute = now.minute();
-  
+
   const currentTime = hour + minute / 60;
-  
+
   if (currentTime < workingHoursStart || currentTime >= workingHoursEnd) {
     return 0; // Outside working hours
   }
-  
+
   const totalWorkingHours = workingHoursEnd - workingHoursStart;
   const hoursPassed = currentTime - workingHoursStart;
-  
+
   return (hoursPassed / totalWorkingHours) * 100;
 }
 
@@ -110,11 +100,11 @@ export function getCommonTimezones() {
   ];
 }
 
-export function formatTimezoneOffset(offsetMinutes: number): string {
+export function formatTimezoneOffset(offsetMinutes) {
   const sign = offsetMinutes >= 0 ? "+" : "-";
   const absOffset = Math.abs(offsetMinutes);
   const hours = Math.floor(absOffset / 60);
   const minutes = absOffset % 60;
-  
+
   return `GMT${sign}${hours}${minutes > 0 ? `:${minutes}` : ""}`;
 }

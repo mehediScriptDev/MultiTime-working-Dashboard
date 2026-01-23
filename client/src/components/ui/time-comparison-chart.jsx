@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Timezone } from "@shared/schema";
 import { formatTimezoneOffset, formatAMPM } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";

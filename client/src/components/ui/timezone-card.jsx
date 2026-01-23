@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
-import { Timezone } from "@shared/schema";
 import { getTimeInTimezone, getWorkingHoursPercent, formatAMPM } from "@/lib/utils";
 
 export function TimezoneCard({ timezone, use24Hour, onEdit, onDelete }) {
