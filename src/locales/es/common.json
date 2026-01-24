@@ -1,0 +1,46 @@
+{
+  "header": {
+    "appName": "TimeSync",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "premium": "Premium",
+    "freePlan": "Plan gratuito"
+  },
+  "home": {
+    "title": "Mis zonas horarias",
+    "subtitle": "Administra y compara las zonas horarias de tu equipo con estilo",
+    "addTimezone": "Agregar zona horaria",
+    "workingHours": "Horario laboral",
+    "teamOffline": "El equipo está desconectado",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "currentTime": "Hora actual"
+  },
+  "dialog": {
+    "addTimezone": "Agregar zona horaria",
+    "editTimezone": "Editar zona horaria",
+    "addDescription": "Rastrea la hora y el horario laboral de una nueva ubicación",
+    "editDescription": "Actualiza los detalles de esta ubicación",
+    "searchPlaceholder": "Buscar una ciudad o país"
+  },
+  "auth": {
+    "welcomeBack": "¡Bienvenido de nuevo!",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "register": "Registrarse",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "language": "Idioma",
+    "allRightsReserved": "Todos los derechos reservados",
+    "timeComparison": "Comparación de tiempo",
+    "workingHoursLabel": "Horario laboral"
+  }
+}
