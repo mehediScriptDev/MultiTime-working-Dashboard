@@ -1,9 +1,6 @@
-import { createContext, useContext } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-import { DUMMY_USER } from "@/lib/dummy-data";
 
 export const registerSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -18,138 +15,184 @@ export const loginSchema = z.object({
 
 export const AuthContext = createContext(null);
 
-const DUMMY_USER_DEFINED = {
-  id: "dev-user-1",
-  email: "admin@example.com",
-  username: "admin",
-  isPremium: true,
-  createdAt: new Date().toISOString(),
-};
+// localStorage keys
+const USER_KEY = "auth_user_v1";
+const USERS_KEY = "auth_users_v1";
 
 export function AuthProvider({ children }) {
   const { toast } = useToast();
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // In development, use dummy user if no backend is available
-  const isDev = import.meta.env.DEV;
-  
-  const { data: user, error, isLoading } = useQuery({
-    queryKey: ["/api/user"],
-    queryFn: async () => {
-      try {
-        // If developer requested to skip auto-login (e.g. after signing out), respect it
-        if (isDev && typeof localStorage !== "undefined" && localStorage.getItem("skipAutoLogin") === "1") {
-          // consume the flag and return null (no user)
-          try { localStorage.removeItem("skipAutoLogin"); } catch (e) {}
-          return null;
-        }
-
-        const fn = getQueryFn({ on401: "returnNull" });
-        const result = await fn();
-        return result;
-      } catch (e) {
-        // If request fails in dev mode, return dummy user
-        if (isDev) {
-          console.log("Using dummy user for development");
-          return DUMMY_USER;
-        }
-        return null;
+  // Load user from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedUser = localStorage.getItem(USER_KEY);
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
       }
-    },
-  });
-
-  const loginMutation = useMutation({
-    mutationFn: async (credentials) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
-    },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/user"], user);
-      try { localStorage.removeItem("skipAutoLogin"); } catch (e) {}
-      toast({ title: "Welcome back!", description: "You have successfully logged in." });
-    },
-    onError: (error) => {
-      toast({ title: "Login failed", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const registerMutation = useMutation({
-    mutationFn: async (credentials) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
-      return await res.json();
-    },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/user"], user);
-      try { localStorage.removeItem("skipAutoLogin"); } catch (e) {}
-      toast({ title: "Registration successful!", description: "Your account has been created." });
-    },
-    onError: (error) => {
-      toast({ title: "Registration failed", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
-    },
-    onSuccess: () => {
-      queryClient.setQueryData(["/api/user"], null);
-      queryClient.invalidateQueries({ queryKey: ["/api/timezones"] });
-      toast({ title: "Logged out", description: "You have been successfully logged out." });
-    },
-    onError: (error) => {
-      toast({ title: "Logout failed", description: error.message, variant: "destructive" });
-    },
-  });
-
-  // signOut: frontend-only / dummy-safe sign out helper
-  const signOut = async () => {
-    // If a real backend exists, try calling logout but ignore failures.
-    if (!isDev) {
-      try {
-        await logoutMutation.mutateAsync();
-      } catch (e) {
-        // ignore
-      }
+    } catch (e) {
+      console.error("Failed to load user from localStorage", e);
+    } finally {
+      setIsLoading(false);
     }
+  }, []);
 
-    // For development (dummy) flow, prevent immediate auto-login
+  // Save user to localStorage whenever it changes
+  const saveUser = (userData) => {
     try {
-      if (isDev && typeof localStorage !== "undefined") {
-        localStorage.setItem("skipAutoLogin", "1");
+      if (userData) {
+        localStorage.setItem(USER_KEY, JSON.stringify(userData));
+        setUser(userData);
+      } else {
+        localStorage.removeItem(USER_KEY);
+        setUser(null);
       }
-    } catch (e) {}
-
-    // clear local react-query user and related caches
-    try {
-      queryClient.setQueryData(["/api/user"], null);
-      queryClient.invalidateQueries({ queryKey: ["/api/timezones"] });
-    } catch (e) {}
-
-    toast({ title: "Signed out", description: "You have been signed out." });
-
-    // navigate to auth page
-    try {
-      window.location.href = "/auth";
-    } catch (e) {}
+    } catch (e) {
+      console.error("Failed to save user to localStorage", e);
+    }
   };
 
-  const upgradeMutation = useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/upgrade");
-      return await res.json();
+  // Get all registered users from localStorage
+  const getAllUsers = () => {
+    try {
+      const users = localStorage.getItem(USERS_KEY);
+      return users ? JSON.parse(users) : [];
+    } catch (e) {
+      return [];
+    }
+  };
+
+  // Save all users to localStorage
+  const saveAllUsers = (users) => {
+    try {
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    } catch (e) {
+      console.error("Failed to save users to localStorage", e);
+    }
+  };
+
+  const loginMutation = {
+    mutate: async (credentials) => {
+      try {
+        const users = getAllUsers();
+        const foundUser = users.find(u => u.email === credentials.email);
+        
+        if (!foundUser) {
+          toast({ title: "Login failed", description: "No account found with this email.", variant: "destructive" });
+          return;
+        }
+        
+        if (foundUser.password !== credentials.password) {
+          toast({ title: "Login failed", description: "Incorrect password.", variant: "destructive" });
+          return;
+        }
+        
+        // Login successful
+        const { password, ...userWithoutPassword } = foundUser;
+        saveUser(userWithoutPassword);
+        toast({ title: "Welcome back!", description: "You have successfully logged in." });
+      } catch (error) {
+        toast({ title: "Login failed", description: error.message, variant: "destructive" });
+      }
     },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/user"], user);
-      toast({ title: "Upgrade successful!", description: "You now have access to premium features." });
+    mutateAsync: async (credentials) => {
+      return loginMutation.mutate(credentials);
     },
-    onError: (error) => {
-      toast({ title: "Upgrade failed", description: error.message, variant: "destructive" });
+    isPending: false,
+  };
+
+  const registerMutation = {
+    mutate: async (credentials) => {
+      try {
+        const users = getAllUsers();
+        
+        // Check if user already exists
+        if (users.find(u => u.email === credentials.email)) {
+          toast({ title: "Registration failed", description: "An account with this email already exists.", variant: "destructive" });
+          return;
+        }
+        
+        // Create new user
+        const newUser = {
+          id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          email: credentials.email,
+          username: credentials.username,
+          password: credentials.password,
+          isPremium: false,
+          createdAt: new Date().toISOString(),
+        };
+        
+        // Save to users list
+        saveAllUsers([...users, newUser]);
+        
+        // Login the new user
+        const { password, ...userWithoutPassword } = newUser;
+        saveUser(userWithoutPassword);
+        toast({ title: "Registration successful!", description: "Your account has been created." });
+      } catch (error) {
+        toast({ title: "Registration failed", description: error.message, variant: "destructive" });
+      }
     },
-  });
+    mutateAsync: async (credentials) => {
+      return registerMutation.mutate(credentials);
+    },
+    isPending: false,
+  };
+
+  const logoutMutation = {
+    mutate: () => {
+      saveUser(null);
+      toast({ title: "Logged out", description: "You have been successfully logged out." });
+    },
+    mutateAsync: async () => {
+      logoutMutation.mutate();
+    },
+    isPending: false,
+  };
+
+  const signOut = () => {
+    saveUser(null);
+    toast({ title: "Signed out", description: "You have been signed out." });
+    setTimeout(() => {
+      window.location.href = "/auth";
+    }, 100);
+  };
+
+  const upgradeMutation = {
+    mutate: () => {
+      if (user) {
+        const upgraded = { ...user, isPremium: true };
+        saveUser(upgraded);
+        
+        // Also update in users list
+        const users = getAllUsers();
+        const updatedUsers = users.map(u => 
+          u.id === user.id ? { ...u, isPremium: true } : u
+        );
+        saveAllUsers(updatedUsers);
+        
+        toast({ title: "Upgrade successful!", description: "You now have access to premium features." });
+      }
+    },
+    mutateAsync: async () => {
+      upgradeMutation.mutate();
+    },
+    isPending: false,
+  };
 
   return (
     <AuthContext.Provider
-      value={{ user: user ?? null, isLoading, error, loginMutation, logoutMutation, registerMutation, upgradeMutation, signOut }}
+      value={{ 
+        user, 
+        isLoading, 
+        error: null, 
+        loginMutation, 
+        logoutMutation, 
+        registerMutation, 
+        upgradeMutation, 
+        signOut 
+      }}
     >
       {children}
     </AuthContext.Provider>

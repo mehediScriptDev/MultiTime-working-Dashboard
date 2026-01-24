@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/ui/header";
@@ -22,10 +21,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-// types removed for plain JSX
-import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Clock, Loader2, AlertCircle } from "lucide-react";
+
+const TIMEZONES_KEY = "timezones_v1";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -36,99 +35,74 @@ export default function HomePage() {
   const [editingTimezone, setEditingTimezone] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [toDeleteTimezone, setToDeleteTimezone] = useState(null);
+  const [timezones, setTimezones] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch timezones
-  const {
-    data: timezones,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["/api/timezones"],
-    refetchInterval: 60000, // Refresh every minute
-  });
-
-  // Add timezone mutation
-  const addTimezoneMutation = useMutation({
-    mutationFn: async (timezone) => {
-      const res = await apiRequest("POST", "/api/timezones", timezone);
-      return await res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/timezones"] });
-      toast({
-        title: "Timezone added",
-        description: "The timezone has been added successfully.",
-      });
-    },
-    onError: (error) => {
-      if (error.message?.includes("PREMIUM_REQUIRED")) {
-        toast({
-          title: "Premium required",
-          description:
-            "You've reached the limit of 3 timezones. Upgrade to premium for unlimited timezones.",
-          variant: "destructive",
-        });
-        return;
+  // Load timezones from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(TIMEZONES_KEY);
+      if (saved) {
+        setTimezones(JSON.parse(saved));
       }
+    } catch (e) {
+      console.error("Failed to load timezones from localStorage", e);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
+  // Save timezones to localStorage whenever they change
+  const saveTimezones = (newTimezones) => {
+    try {
+      localStorage.setItem(TIMEZONES_KEY, JSON.stringify(newTimezones));
+      setTimezones(newTimezones);
+    } catch (e) {
+      console.error("Failed to save timezones to localStorage", e);
       toast({
-        title: "Failed to add timezone",
-        description:
-          error.message || "An error occurred while adding the timezone.",
+        title: "Failed to save",
+        description: "Could not save timezones to localStorage.",
         variant: "destructive",
       });
-    },
-  });
-
-  // Edit timezone mutation
-  const editTimezoneMutation = useMutation({
-    mutationFn: async ({ id, timezone }) => {
-      const res = await apiRequest("PUT", `/api/timezones/${id}`, timezone);
-      return await res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/timezones"] });
-      toast({
-        title: "Timezone updated",
-        description: "The timezone has been updated successfully.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Failed to update timezone",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Delete timezone mutation
-  const deleteTimezoneMutation = useMutation({
-    mutationFn: async (id) => {
-      await apiRequest("DELETE", `/api/timezones/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/timezones"] });
-      toast({
-        title: "Timezone deleted",
-        description: "The timezone has been deleted successfully.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Failed to delete timezone",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+    }
+  };
 
   const handleAddTimezone = (timezone) => {
-    addTimezoneMutation.mutate(timezone);
+    // Check if user has reached free plan limit
+    if (!user?.isPremium && timezones.length >= 3) {
+      toast({
+        title: "Premium required",
+        description: "You've reached the limit of 3 timezones. Upgrade to premium for unlimited timezones.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newTimezone = {
+      id: `tz-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ...timezone,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updated = [...timezones, newTimezone];
+    saveTimezones(updated);
+    toast({
+      title: "Timezone added",
+      description: "The timezone has been added successfully.",
+    });
+    setAddDialogOpen(false);
   };
 
   const handleEditTimezone = (id, timezone) => {
-    editTimezoneMutation.mutate({ id, timezone });
+    const updated = timezones.map((tz) =>
+      tz.id === id ? { ...tz, ...timezone } : tz
+    );
+    saveTimezones(updated);
+    toast({
+      title: "Timezone updated",
+      description: "The timezone has been updated successfully.",
+    });
+    setAddDialogOpen(false);
   };
 
   const handleDeleteTimezone = (timezone) => {
@@ -138,7 +112,12 @@ export default function HomePage() {
 
   const confirmDelete = () => {
     if (toDeleteTimezone) {
-      deleteTimezoneMutation.mutate(toDeleteTimezone.id);
+      const updated = timezones.filter((tz) => tz.id !== toDeleteTimezone.id);
+      saveTimezones(updated);
+      toast({
+        title: "Timezone deleted",
+        description: "The timezone has been deleted successfully.",
+      });
       setDeleteConfirmOpen(false);
       setToDeleteTimezone(null);
     }
@@ -171,9 +150,8 @@ export default function HomePage() {
                   setEditingTimezone(null);
                   setAddDialogOpen(true);
                 }}
-                disabled={addTimezoneMutation.isPending}
               >
-                {addTimezoneMutation.isPending ? (
+                {isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <Plus className="mr-2 h-4 w-4" />
@@ -196,16 +174,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Error state */}
-          {error && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>
-                Failed to load timezones. Please try again later.
-              </AlertDescription>
-            </Alert>
-          )}
+          {/* Error state - removed, no longer needed for localStorage */}
 
           {/* Loading state */}
           {isLoading && (
@@ -300,9 +269,6 @@ export default function HomePage() {
               onClick={confirmDelete}
               className="bg-red-600 hover:bg-red-700"
             >
-              {deleteTimezoneMutation.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

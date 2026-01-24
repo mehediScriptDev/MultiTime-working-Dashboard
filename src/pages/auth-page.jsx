@@ -90,8 +90,8 @@ export default function AuthPage() {
 
   return (
     <div className="h-screen overflow-hidden animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950">
-      <div className="flex h-full">
-        <div className="flex flex-col justify-center px-4 py-6 sm:px-6 lg:flex-none lg:px-12 xl:px-16 w-full lg:w-1/2 overflow-y-auto">
+      <div className={`flex h-full ${tabValue === "register" ? "lg:flex-row-reverse" : ""}`}>
+        <div className="flex flex-col justify-center px-4 py-6 sm:px-6 lg:flex-none lg:px-12 xl:px-16 w-full lg:w-1/2 overflow-y-auto transition-transform duration-700">
           <div className="mx-auto w-full max-w-sm lg:max-w-md">
             <div className="text-center mb-6">
               <div className="flex items-center justify-center">
@@ -433,7 +433,7 @@ export default function AuthPage() {
           </div>
         </div>
 
-        <div className="hidden lg:flex relative w-0 flex-1 overflow-hidden h-screen">
+        <div className="hidden lg:flex relative w-0 flex-1 justify-center overflow-hidden h-screen transition-transform duration-900">
           <div className="absolute inset-0 bg-slate-900">
             <div className="absolute inset-0 opacity-40 animate-gradient-x bg-gradient-to-br from-blue-600 via-indigo-900 to-slate-900"></div>
             {/* Animated Circles Decoration */}
@@ -443,15 +443,15 @@ export default function AuthPage() {
             </div>
           </div>
 
-          <div className="relative flex flex-col justify-center h-full px-16 text-white z-10">
-            <div className="max-w-xl">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl xl:rounded-3xl border border-white/20 shadow-2xl">
-                  <Globe className="xl:h-10 xl:w-10 text-blue-400 animate-[spin_10s_linear_infinite]" />
+          <div className="relative flex flex-col justify-center items-center h-full px-16 text-white z-10 text-center">
+            <div className="max-w-xl mx-auto">
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="p-4 rounded-2xl xl:rounded-3xl ">
+                  <img src="/logo.png" alt="TimeSync" className="xl:h-16 h-10 w-auto animate-[spin_10s_linear_infinite]" />
                 </div>
-                <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl xl:rounded-3xl border border-white/20 shadow-2xl">
-                  <Briefcase className="xl:h-10 xl:w-10 text-indigo-400" />
-                </div>
+                {/* <div className="rounded-2xl xl:rounded-3xl shadow-2xl">
+                  <Briefcase className="xl:h-16 xl:w-10 text-indigo-400" />
+                </div> */}
               </div>
 
               <h2 className="text-5xl xl:text-6xl font-black mb-6 tracking-tighter leading-none">
@@ -473,8 +473,8 @@ export default function AuthPage() {
                 across the globe.
               </p>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="p-4 xl:p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+              <div className="grid grid-cols-2 gap-6 justify-center mx-auto">
+                <div className="p-4 xl:p-6 bg-white/5 backdrop-blur-sm hover:rotate-3 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
                   <div className="font-black text-2xl text-blue-400 mb-1">
                     3+
                   </div>
@@ -482,7 +482,7 @@ export default function AuthPage() {
                     Free Timezones
                   </div>
                 </div>
-                <div className="p-4 xl:p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                <div className="p-4 xl:p-6 bg-white/5 backdrop-blur-sm rounded-2xl hover:-rotate-3 border border-white/10 hover:bg-white/10 transition-colors">
                   <div className="font-black text-2xl text-indigo-400 mb-1">
                     100%
                   </div>
