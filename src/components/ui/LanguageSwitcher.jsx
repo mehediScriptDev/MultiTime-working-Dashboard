@@ -21,12 +21,19 @@ const LanguageSwitcher = () => {
     <div className='relative'>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className='flex items-center space-x-1 px-2 py-1 !bg-transparent text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none rounded-md transition-colors hover:border-gray-300 dark:hover:border-gray-600'
+        aria-label={t ? t('common.language') : 'Language'}
+        className='flex items-center space-x-2 px-2 py-1 !bg-transparent text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none rounded-md transition-colors hover:border-gray-300 dark:hover:border-gray-600'
       >
-        {/* <HiGlobeAlt className='w-4 h-4 text-gray-600' /> */}
-        <span className='text-xs font-bold'>
-          {languages.find((lang) => lang.code === i18n.language)?.name || 'EN'}
-        </span>
+        {/* Show selected country flag instead of code */}
+        <ReactCountryFlag 
+          countryCode={languages.find((lang) => lang.code === i18n.language)?.flagCode || 'US'}
+          svg
+          style={{
+            width: '1.2em',
+            height: '1.2em',
+          }}
+          title={languages.find((lang) => lang.code === i18n.language)?.fullName || 'English'}
+        />
         <IoIosArrowDown  className='w-3 h-3' />
       </button>
 
