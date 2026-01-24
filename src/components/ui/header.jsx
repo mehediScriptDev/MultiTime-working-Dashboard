@@ -30,11 +30,9 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 lg:h-20">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center group">
-              <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2.5 rounded-xl lg:rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 ring-4 ring-blue-500/10">
-                <Clock className="lg:h-6 lg:w-6 h-4 w-4 text-white" />
-              </div>
-              <span className="lg:ml-3 ml-1 md:text-2xl text-xl font-black tracking-tighter text-gray-900 dark:text-white">
+            <Link href="/" className="flex items-center">
+              <img src="/logo.png" alt="TimeSync" className="h-8 w-auto" />
+              <span className="lg:ml-2 ml-1 md:text-2xl text-xl font-black tracking-tighter text-gray-900 dark:text-white">
                 Time<span className="text-blue-600 dark:text-blue-400">Sync</span>
               </span>
             </Link>
@@ -55,13 +53,12 @@ export function Header() {
               <>
                 <div className="hidden md:flex items-center px-4 py-2 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700 group">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold mr-3 shadow-md">
-                    {user.username.charAt(0).toUpperCase()}
+                    M
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold text-gray-900 dark:text-slate-100 leading-none">{user.username}</span>
-                    <span className={`text-[10px] font-black uppercase tracking-widest mt-1 ${user.isPremium ? 'text-amber-500 flex items-center gap-0.5' : 'text-gray-400 dark:text-slate-500'}`}>
-                      {user.isPremium ? <Zap className="w-2.5 h-2.5 text-amber-500" /> : null}
-                      {user.isPremium ? 'Premium' : 'Free Plan'}
+                    <span className="text-xs font-bold text-gray-900 dark:text-slate-100 leading-none">Mehedi</span>
+                    <span className={`text-[10px] font-black uppercase tracking-widest mt-1 text-gray-400 dark:text-slate-500`}>
+                      Free Plan
                     </span>
                   </div>
                 </div>

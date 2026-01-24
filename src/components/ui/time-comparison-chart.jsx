@@ -22,7 +22,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
   );
 
   return (
-    <Card className="mb-8 border-none shadow-xl overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+    <Card className="mb-5 lg:mb-6 border-none shadow-xl overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
       <CardHeader className="pb-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
         <CardTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <div className="w-2 h-6 bg-blue-600 rounded-full" />

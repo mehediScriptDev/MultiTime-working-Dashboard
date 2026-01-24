@@ -11,7 +11,7 @@ export function PremiumUpgrade({ timezoneCount }) {
   };
 
   return (
-    <div className="bg-gradient-to-r from-indigo-500 to-primary text-white rounded-lg shadow-lg overflow-hidden">
+    <div className="bg-gradient-to-r from-indigo-500 to-primary text-white rounded-lg shadow-lg overflow-hidden dark:from-slate-800 dark:to-slate-700 dark:text-slate-100">
       <div className="md:flex">
         <div className="p-6 flex-1">
           <h2 className="text-xl font-bold mb-2">Upgrade to Premium</h2>
@@ -20,21 +20,21 @@ export function PremiumUpgrade({ timezoneCount }) {
           </p>
           <ul className="mb-6 space-y-2">
             <li className="flex items-center">
-              <FiCheck className="mr-2 text-white" />
+              <FiCheck className="mr-2 text-white dark:text-slate-100" />
               <span>Unlimited timezones</span>
             </li>
             <li className="flex items-center">
-              <FiCheck className="mr-2 text-white" />
+              <FiCheck className="mr-2 text-white dark:text-slate-100" />
               <span>Advanced scheduling features</span>
             </li>
             <li className="flex items-center">
-              <FiCheck className="mr-2 text-white" />
+              <FiCheck className="mr-2 text-white dark:text-slate-100" />
               <span>Save meeting suggestions</span>
             </li>
           </ul>
           <Button
             variant="secondary"
-            className="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-primary-700 bg-white hover:bg-gray-100"
+            className="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium bg-white text-slate-900 hover:bg-slate-50 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
             onClick={handleUpgrade}
             disabled={upgradeMutation.isPending}
           >
@@ -42,11 +42,11 @@ export function PremiumUpgrade({ timezoneCount }) {
             {upgradeMutation.isPending ? "Processing..." : "Upgrade Now"}
           </Button>
         </div>
-        <div className="md:flex-1 md:flex md:items-center md:justify-center bg-white bg-opacity-10 p-6">
+        <div className="md:flex-1 md:flex md:items-center md:justify-center bg-indigo-600/20 p-6 dark:bg-slate-900/40">
           <div className="text-center">
-            <div className="text-6xl font-bold mb-2">$5</div>
-            <div className="text-lg mb-6">per month</div>
-            <div className="text-sm opacity-80">Cancel anytime</div>
+            <div className="text-5xl xl:text-6xl font-bold mb-2">$60</div>
+            <div className="text-lg mb-6">per year</div>
+            <div className="text-sm opacity-80">Billed annually • Cancel anytime</div>
           </div>
         </div>
       </div>

@@ -243,7 +243,7 @@ export default function HomePage() {
 
           {/* Timezone cards */}
           {timezones && timezones.length > 0 && (
-            <div className="mb-8">
+            <div className="mb-5 lg:mb-6">
               <div className="grid grid-cols-1 md:gap-5 gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {timezones.map((timezone) => (
                   <TimezoneCard
@@ -264,7 +264,7 @@ export default function HomePage() {
           )}
 
           {/* Premium upgrade */}
-          {user && !user.isPremium && timezones && timezones.length >= 3 && (
+          {user && timezones && timezones.length >= 3 && (
             <div id="upgrade">
               <PremiumUpgrade timezoneCount={timezones.length} />
             </div>

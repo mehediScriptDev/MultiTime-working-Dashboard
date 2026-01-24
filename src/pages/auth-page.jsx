@@ -40,7 +40,7 @@ import { OAuthButtons } from "@/components/ui/oauth-buttons";
 
 export default function AuthPage() {
   const [_, navigate] = useLocation();
-  const [tabValue, setTabValue] = useState('login');
+  const [tabValue, setTabValue] = useState("login");
   const { user, loginMutation, registerMutation, isLoading } = useAuth();
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -94,11 +94,9 @@ export default function AuthPage() {
         <div className="flex flex-col justify-center px-4 py-6 sm:px-6 lg:flex-none lg:px-12 xl:px-16 w-full lg:w-1/2 overflow-y-auto">
           <div className="mx-auto w-full max-w-sm lg:max-w-md">
             <div className="text-center mb-6">
-              <div className="flex items-center justify-center group">
-                <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2.5 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 ring-4 ring-blue-500/10">
-                  <Clock className="h-7 w-7 text-white" />
-                </div>
-                <h2 className="ml-3 text-3xl font-black tracking-tighter text-gray-900 dark:text-white">
+              <div className="flex items-center justify-center">
+                <img src="/logo.png" alt="TimeSync" className="h-10 w-auto" />
+                <h2 className="ml-2 text-2xl md:text-3xl font-black tracking-tighter text-gray-900 dark:text-white">
                   Time
                   <span className="text-blue-600 dark:text-blue-400">Sync</span>
                 </h2>
@@ -108,7 +106,11 @@ export default function AuthPage() {
               </p>
             </div>
 
-            <Tabs value={tabValue} onValueChange={(v) => setTabValue(v)} className="w-full">
+            <Tabs
+              value={tabValue}
+              onValueChange={(v) => setTabValue(v)}
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-2 mb-3 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-xl">
                 <TabsTrigger
                   value="login"
@@ -135,19 +137,6 @@ export default function AuthPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <OAuthButtons />
-
-                    <div className="relative my-3">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
-                      </div>
-                      <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-400 font-medium">
-                          Or continue with email
-                        </span>
-                      </div>
-                    </div>
-
                     <Form {...loginForm}>
                       <form
                         onSubmit={loginForm.handleSubmit(onLoginSubmit)}
@@ -250,6 +239,19 @@ export default function AuthPage() {
                         </Button>
                       </form>
                     </Form>
+
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-400 font-medium">
+                          Or continue with
+                        </span>
+                      </div>
+                    </div>
+
+                    <OAuthButtons />
                   </CardContent>
                   <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800">
                     <p className="text-xs font-medium text-gray-700 dark:text-slate-300">
@@ -257,7 +259,7 @@ export default function AuthPage() {
                       <Button
                         variant="link"
                         className="p-0 font-bold text-blue-600 dark:text-blue-400"
-                        onClick={() => setTabValue('register')}
+                        onClick={() => setTabValue("register")}
                       >
                         Create account
                       </Button>
@@ -419,7 +421,7 @@ export default function AuthPage() {
                       <Button
                         variant="link"
                         className="p-0 font-bold text-blue-600 dark:text-blue-400"
-                        onClick={() => setTabValue('login')}
+                        onClick={() => setTabValue("login")}
                       >
                         Sign in
                       </Button>
