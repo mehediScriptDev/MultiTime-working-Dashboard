@@ -36,6 +36,13 @@ export function AuthProvider({ children }) {
     queryKey: ["/api/user"],
     queryFn: async () => {
       try {
+        // If developer requested to skip auto-login (e.g. after signing out), respect it
+        if (isDev && typeof localStorage !== "undefined" && localStorage.getItem("skipAutoLogin") === "1") {
+          // consume the flag and return null (no user)
+          try { localStorage.removeItem("skipAutoLogin"); } catch (e) {}
+          return null;
+        }
+
         const fn = getQueryFn({ on401: "returnNull" });
         const result = await fn();
         return result;
@@ -57,6 +64,7 @@ export function AuthProvider({ children }) {
     },
     onSuccess: (user) => {
       queryClient.setQueryData(["/api/user"], user);
+      try { localStorage.removeItem("skipAutoLogin"); } catch (e) {}
       toast({ title: "Welcome back!", description: "You have successfully logged in." });
     },
     onError: (error) => {
@@ -71,6 +79,7 @@ export function AuthProvider({ children }) {
     },
     onSuccess: (user) => {
       queryClient.setQueryData(["/api/user"], user);
+      try { localStorage.removeItem("skipAutoLogin"); } catch (e) {}
       toast({ title: "Registration successful!", description: "Your account has been created." });
     },
     onError: (error) => {
@@ -92,6 +101,38 @@ export function AuthProvider({ children }) {
     },
   });
 
+  // signOut: frontend-only / dummy-safe sign out helper
+  const signOut = async () => {
+    // If a real backend exists, try calling logout but ignore failures.
+    if (!isDev) {
+      try {
+        await logoutMutation.mutateAsync();
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // For development (dummy) flow, prevent immediate auto-login
+    try {
+      if (isDev && typeof localStorage !== "undefined") {
+        localStorage.setItem("skipAutoLogin", "1");
+      }
+    } catch (e) {}
+
+    // clear local react-query user and related caches
+    try {
+      queryClient.setQueryData(["/api/user"], null);
+      queryClient.invalidateQueries({ queryKey: ["/api/timezones"] });
+    } catch (e) {}
+
+    toast({ title: "Signed out", description: "You have been signed out." });
+
+    // navigate to auth page
+    try {
+      window.location.href = "/auth";
+    } catch (e) {}
+  };
+
   const upgradeMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/upgrade");
@@ -108,7 +149,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user: user ?? null, isLoading, error, loginMutation, logoutMutation, registerMutation, upgradeMutation }}
+      value={{ user: user ?? null, isLoading, error, loginMutation, logoutMutation, registerMutation, upgradeMutation, signOut }}
     >
       {children}
     </AuthContext.Provider>

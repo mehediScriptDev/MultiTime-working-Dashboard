@@ -5,7 +5,7 @@ import { Clock, LogOut, User, Zap, Moon, Sun } from "lucide-react";
 import { Link } from "wouter";
 
 export function Header() {
-  const { user, logoutMutation } = useAuth();
+  const { user, logoutMutation, signOut } = useAuth();
   const [theme, setTheme] = useState(
     () => (localStorage.getItem('theme') ||
     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
@@ -66,7 +66,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => logoutMutation.mutate()}
+                  onClick={() => (typeof signOut === "function" ? signOut() : logoutMutation.mutate())}
                   disabled={logoutMutation.isPending}
                   className="text-gray-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold rounded-xl"
                 >
