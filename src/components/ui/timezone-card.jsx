@@ -1,9 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import { getTimeInTimezone, getWorkingHoursPercent, formatAMPM } from "@/lib/utils";
 
 export function TimezoneCard({ timezone, use24Hour, onEdit, onDelete }) {
+  const { t } = useTranslation();
   const { time, date, isWorkingHours } = getTimeInTimezone(timezone.offset, use24Hour);
   
   const workingHoursPercent = getWorkingHoursPercent(
@@ -52,7 +54,7 @@ export function TimezoneCard({ timezone, use24Hour, onEdit, onDelete }) {
         
         <div className="mt-8 pt-6 border-t border-gray-100 dark:border-slate-800">
           <div className="flex justify-between items-center mb-3">
-            <div className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Working Hours</div>
+            <div className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">{t('home.workingHours')}</div>
             <div className="px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold">
               {workingHoursText}
             </div>

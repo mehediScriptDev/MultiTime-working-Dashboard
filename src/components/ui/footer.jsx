@@ -1,7 +1,9 @@
 import { Link } from "wouter";
+import { useTranslation } from 'react-i18next';
 import { HelpCircle, Shield, FileText } from "lucide-react";
 
 export function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800">
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -22,7 +24,7 @@ export function Footer() {
           </div>
           <div className="mt-8 md:mt-0">
             <p className="text-center md:text-right text-sm text-gray-400 dark:text-slate-300">
-              &copy; {new Date().getFullYear()} TimeSync. All rights reserved.
+              &copy; {new Date().getFullYear()} TimeSync. {t('common.allRightsReserved')}.
             </p>
           </div>
         </div>

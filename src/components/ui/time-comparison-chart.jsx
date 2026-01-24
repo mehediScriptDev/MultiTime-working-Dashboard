@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatTimezoneOffset, formatAMPM } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import dayjs from "dayjs";
 
 export function TimeComparisonChart({ timezones, use24Hour }) {
+  const { t } = useTranslation();
   const [currentTime, setCurrentTime] = useState(dayjs());
 
   // Update time every minute
@@ -24,7 +26,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
       <CardHeader className="pb-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
         <CardTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <div className="w-2 h-6 bg-blue-600 rounded-full" />
-          Time Comparison
+          {t('common.timeComparison')}
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
@@ -108,11 +110,11 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
         <div className="mt-8 pt-6 border-t border-gray-100 dark:border-slate-800 flex flex-wrap gap-6 text-xs font-bold uppercase tracking-widest text-gray-400">
           <div className="flex items-center">
             <div className="w-4 h-4 bg-blue-600/20 border border-blue-600/30 rounded-md mr-2.5"></div>
-            <span>Working hours</span>
+            <span>{t('common.workingHoursLabel')}</span>
           </div>
           <div className="flex items-center">
             <div className="w-4 h-4 bg-red-500 rounded-full ring-4 ring-red-50 dark:ring-red-900/20 mr-2.5"></div>
-            <span>Current time</span>
+            <span>{t('home.currentTime')}</span>
           </div>
         </div>
       </CardContent>

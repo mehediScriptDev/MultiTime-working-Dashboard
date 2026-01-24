@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslation } from 'react-i18next';
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { TimezoneCard } from "@/components/ui/timezone-card";
@@ -20,6 +21,7 @@ import { Plus, Clock, Loader2, AlertCircle } from "lucide-react";
 export default function HomePage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [use24Hour, setUse24Hour] = useState(true);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editingTimezone, setEditingTimezone] = useState(null);
@@ -141,9 +143,9 @@ export default function HomePage() {
           {/* Dashboard Header */}
           <div className="border-b border-gray-200 dark:border-slate-800 pb-5 mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">My Timezones</h1>
+              <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">{t('home.title')}</h1>
               <p className="mt-1 text-sm text-gray-500 dark:text-slate-400 font-medium">
-                Manage and compare your team's timezones with style
+                {t('home.subtitle')}
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
@@ -159,7 +161,7 @@ export default function HomePage() {
                 ) : (
                   <Plus className="mr-2 h-4 w-4" />
                 )}
-                Add Timezone
+                {t('home.addTimezone')}
               </Button>
               <div className="inline-flex items-center">
                 <span className="mr-3 text-sm font-medium text-gray-700 dark:text-slate-300">24h</span>
@@ -209,7 +211,7 @@ export default function HomePage() {
                 }}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Add Timezone
+                {t('home.addTimezone')}
               </Button>
             </div>
           )}

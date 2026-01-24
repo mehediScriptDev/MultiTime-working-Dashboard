@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Clock, LogOut, User, Zap, Moon, Sun } from "lucide-react";
 import { Link } from "wouter";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export function Header() {
   const { user, logoutMutation, signOut } = useAuth();
@@ -40,6 +41,7 @@ export function Header() {
           </div>
           
           <div className="flex items-center space-x-4 md:space-x-6">
+            <LanguageSwitcher />
             <Button
               variant="ghost"
               size="icon"

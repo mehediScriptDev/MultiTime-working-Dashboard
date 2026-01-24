@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ export function AddTimezoneDialog({
   editingTimezone,
   use24Hour,
 }) {
+  const { t } = useTranslation();
   const commonTimezones = getCommonTimezones();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTimezone, setSelectedTimezone] = useState(null);
@@ -95,16 +97,16 @@ export function AddTimezoneDialog({
             <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
               <Globe className="h-6 w-6 text-white" />
             </div>
-            {editingTimezone ? "Edit Timezone" : "Add Timezone"}
+            {editingTimezone ? t('dialog.editTimezone') : t('dialog.addTimezone')}
           </DialogTitle>
           <p className="text-blue-100 text-sm mt-2 font-medium">
-            {editingTimezone ? "Update details for this location" : "Track time and working hours for a new location"}
+            {editingTimezone ? t('dialog.editDescription') : t('dialog.addDescription')}
           </p>
         </div>
 
         <div className="p-6 space-y-6">
           <div className="space-y-3">
-            <Label htmlFor="timezone-search" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Search for a city or country</Label>
+            <Label htmlFor="timezone-search" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{t('dialog.searchPlaceholder')}</Label>
             <div className="relative group">
               <Input
                 id="timezone-search"
@@ -170,7 +172,7 @@ export function AddTimezoneDialog({
               </div>
 
               <div className="space-y-3">
-                <Label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Working Hours</Label>
+                <Label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{t('home.workingHours')}</Label>
                 <div className="flex items-center gap-2">
                   <Select
                     value={workingHoursStart.toString()}
