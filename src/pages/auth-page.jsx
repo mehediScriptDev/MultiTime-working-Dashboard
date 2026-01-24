@@ -40,6 +40,7 @@ import { OAuthButtons } from "@/components/ui/oauth-buttons";
 
 export default function AuthPage() {
   const [_, navigate] = useLocation();
+  const [tabValue, setTabValue] = useState('login');
   const { user, loginMutation, registerMutation, isLoading } = useAuth();
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -102,13 +103,13 @@ export default function AuthPage() {
                   <span className="text-blue-600 dark:text-blue-400">Sync</span>
                 </h2>
               </div>
-              <p className="mt-3 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">
+              <p className="mt-2 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">
                 Master your global schedule
               </p>
             </div>
 
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-5 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-xl">
+            <Tabs value={tabValue} onValueChange={(v) => setTabValue(v)} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-3 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-xl">
                 <TabsTrigger
                   value="login"
                   className="rounded-lg font-bold text-gray-700 dark:text-slate-200"
@@ -126,7 +127,7 @@ export default function AuthPage() {
               <TabsContent value="login">
                 <Card className="border-none shadow-2xl bg-white dark:bg-slate-900 rounded-2xl">
                   <CardHeader className="pb-4 pt-6">
-                    <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">
+                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
                       Welcome back
                     </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-slate-400">
@@ -136,7 +137,7 @@ export default function AuthPage() {
                   <CardContent>
                     <OAuthButtons />
 
-                    <div className="relative my-4">
+                    <div className="relative my-3">
                       <div className="absolute inset-0 flex items-center">
                         <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
                       </div>
@@ -250,18 +251,13 @@ export default function AuthPage() {
                       </form>
                     </Form>
                   </CardContent>
-                  <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800 mt-3 pt-4">
+                  <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800">
                     <p className="text-xs font-medium text-gray-700 dark:text-slate-300">
                       New to TimeSync?{" "}
                       <Button
                         variant="link"
                         className="p-0 font-bold text-blue-600 dark:text-blue-400"
-                        onClick={() => {
-                          const el = document.querySelector(
-                            '[data-value="register"]',
-                          );
-                          if (el && typeof el.click === "function") el.click();
-                        }}
+                        onClick={() => setTabValue('register')}
                       >
                         Create account
                       </Button>
@@ -274,16 +270,16 @@ export default function AuthPage() {
                 <Card className="border-none shadow-2xl bg-white dark:bg-slate-900 rounded-2xl max-h-screen overflow-y-auto">
                   <CardHeader>
                     <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                      Get Started
+                      Create Account
                     </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-slate-400">
                       Join the community of global professionals
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <OAuthButtons />
+                    {/* <OAuthButtons /> */}
 
-                    <div className="relative my-4">
+                    {/* <div className="relative my-4">
                       <div className="absolute inset-0 flex items-center">
                         <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
                       </div>
@@ -292,7 +288,7 @@ export default function AuthPage() {
                           Or register with email
                         </span>
                       </div>
-                    </div>
+                    </div> */}
 
                     <Form {...registerForm}>
                       <form
@@ -417,18 +413,13 @@ export default function AuthPage() {
                       </form>
                     </Form>
                   </CardContent>
-                  <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800 mt-2 pt-3">
+                  <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800">
                     <p className="text-xs font-medium text-gray-700 dark:text-slate-300">
                       Already have an account?{" "}
                       <Button
                         variant="link"
                         className="p-0 font-bold text-blue-600 dark:text-blue-400"
-                        onClick={() => {
-                          const el = document.querySelector(
-                            '[data-value="login"]',
-                          );
-                          if (el && typeof el.click === "function") el.click();
-                        }}
+                        onClick={() => setTabValue('login')}
                       >
                         Sign in
                       </Button>
@@ -453,15 +444,15 @@ export default function AuthPage() {
           <div className="relative flex flex-col justify-center h-full px-16 text-white z-10">
             <div className="max-w-xl">
               <div className="flex items-center gap-4 mb-8">
-                <div className="p-4 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 shadow-2xl">
-                  <Globe className="h-12 w-12 text-blue-400 animate-[spin_10s_linear_infinite]" />
+                <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl xl:rounded-3xl border border-white/20 shadow-2xl">
+                  <Globe className="xl:h-10 xl:w-10 text-blue-400 animate-[spin_10s_linear_infinite]" />
                 </div>
-                <div className="p-4 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 shadow-2xl">
-                  <Briefcase className="h-12 w-12 text-indigo-400" />
+                <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl xl:rounded-3xl border border-white/20 shadow-2xl">
+                  <Briefcase className="xl:h-10 xl:w-10 text-indigo-400" />
                 </div>
               </div>
 
-              <h2 className="text-6xl font-black mb-6 tracking-tighter leading-none">
+              <h2 className="text-5xl xl:text-6xl font-black mb-6 tracking-tighter leading-none">
                 Work{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
                   anywhere
@@ -474,14 +465,14 @@ export default function AuthPage() {
                 .
               </h2>
 
-              <p className="text-xl text-slate-300 mb-10 font-medium leading-relaxed">
+              <p className="text-lg xl:text-xl text-slate-300 mb-10 font-medium leading-relaxed">
                 Empower your remote team with seamless timezone management.
                 Schedule meetings with confidence and maintain perfect harmony
                 across the globe.
               </p>
 
               <div className="grid grid-cols-2 gap-6">
-                <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                <div className="p-4 xl:p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
                   <div className="font-black text-2xl text-blue-400 mb-1">
                     3+
                   </div>
@@ -489,7 +480,7 @@ export default function AuthPage() {
                     Free Timezones
                   </div>
                 </div>
-                <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                <div className="p-4 xl:p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
                   <div className="font-black text-2xl text-indigo-400 mb-1">
                     100%
                   </div>

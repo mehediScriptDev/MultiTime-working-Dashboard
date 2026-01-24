@@ -91,8 +91,8 @@ export function AddTimezoneDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] bg-white dark:bg-slate-900 border-none shadow-2xl rounded-3xl overflow-hidden p-0">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-8">
+      <DialogContent className="sm:max-w-[550px] w-11/12 bg-white dark:bg-slate-900 border-none shadow-2xl rounded-xl overflow-hidden p-0">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 lg:py-8">
           <DialogTitle className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
             <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
               <Globe className="h-6 w-6 text-white" />
@@ -104,7 +104,7 @@ export function AddTimezoneDialog({
           </p>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="px-3 space-y-4 lg:space-y-6">
           <div className="space-y-3">
             <Label htmlFor="timezone-search" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{t('dialog.searchPlaceholder')}</Label>
             <div className="relative group">
@@ -113,9 +113,9 @@ export function AddTimezoneDialog({
                 placeholder="e.g. London, Paris, United States..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus-visible:ring-blue-500/30 transition-all text-base"
+                className="pl-12 lg:h-12 h-10 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus-visible:ring-blue-500/30 transition-all text-base"
               />
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 lg:h-5 lg:w-5 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
             </div>
           </div>
 
@@ -159,26 +159,26 @@ export function AddTimezoneDialog({
           </div>
 
           {selectedTimezone && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="lg:space-y-3 space-y-2">
                 <Label htmlFor="timezone-label" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Label (optional)</Label>
                 <Input
                   id="timezone-label"
                   placeholder="e.g. Sales Team"
                   value={label}
                   onChange={(e) => setLabel(e.target.value)}
-                  className="h-12 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus-visible:ring-blue-500/30"
+                  className="lg:h-12 h-10 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus-visible:ring-blue-500/30"
                 />
               </div>
 
-              <div className="space-y-3">
+              <div className="lg:space-y-3 space-y-2">
                 <Label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{t('home.workingHours')}</Label>
                 <div className="flex items-center gap-2">
                   <Select
                     value={workingHoursStart.toString()}
                     onValueChange={(val) => setWorkingHoursStart(parseInt(val))}
                   >
-                    <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-blue-500/30">
+                    <SelectTrigger className="lg:h-12 h-10 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-blue-500/30">
                       <SelectValue placeholder="Start" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 shadow-xl">
@@ -194,7 +194,7 @@ export function AddTimezoneDialog({
                     value={workingHoursEnd.toString()}
                     onValueChange={(val) => setWorkingHoursEnd(parseInt(val))}
                   >
-                    <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-blue-500/30">
+                    <SelectTrigger className="lg:h-12 h-10 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-blue-500/30">
                       <SelectValue placeholder="End" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 shadow-xl">
@@ -211,7 +211,7 @@ export function AddTimezoneDialog({
           )}
         </div>
 
-        <DialogFooter className="p-6 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800">
+        <DialogFooter className="px-6 py-3 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800">
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl font-bold text-slate-500 hover:text-slate-900 transition-colors">
             Cancel
           </Button>

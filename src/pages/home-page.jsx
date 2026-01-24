@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { TimezoneCard } from "@/components/ui/timezone-card";
@@ -12,7 +12,16 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 // types removed for plain JSX
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -29,7 +38,11 @@ export default function HomePage() {
   const [toDeleteTimezone, setToDeleteTimezone] = useState(null);
 
   // Fetch timezones
-  const { data: timezones, isLoading, error } = useQuery({
+  const {
+    data: timezones,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["/api/timezones"],
     refetchInterval: 60000, // Refresh every minute
   });
@@ -51,15 +64,17 @@ export default function HomePage() {
       if (error.message?.includes("PREMIUM_REQUIRED")) {
         toast({
           title: "Premium required",
-          description: "You've reached the limit of 3 timezones. Upgrade to premium for unlimited timezones.",
+          description:
+            "You've reached the limit of 3 timezones. Upgrade to premium for unlimited timezones.",
           variant: "destructive",
         });
         return;
       }
-      
+
       toast({
         title: "Failed to add timezone",
-        description: error.message || "An error occurred while adding the timezone.",
+        description:
+          error.message || "An error occurred while adding the timezone.",
         variant: "destructive",
       });
     },
@@ -137,15 +152,17 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 transition-colors duration-500">
       <Header />
-      
+
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
           {/* Dashboard Header */}
           <div className="border-b border-gray-200 dark:border-slate-800 pb-5 mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">{t('home.title')}</h1>
+              <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                {t("home.title")}
+              </h1>
               <p className="mt-1 text-sm text-gray-500 dark:text-slate-400 font-medium">
-                {t('home.subtitle')}
+                {t("home.subtitle")}
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
@@ -161,20 +178,24 @@ export default function HomePage() {
                 ) : (
                   <Plus className="mr-2 h-4 w-4" />
                 )}
-                {t('home.addTimezone')}
+                {t("home.addTimezone")}
               </Button>
               <div className="inline-flex items-center">
-                <span className="mr-3 text-sm font-medium text-gray-700 dark:text-slate-300">24h</span>
+                <span className="mr-3 text-sm font-medium text-gray-700 dark:text-slate-300">
+                  24h
+                </span>
                 <Switch
                   checked={!use24Hour}
                   onCheckedChange={(checked) => setUse24Hour(!checked)}
                   id="timeFormatToggle"
                 />
-                <span className="ml-3 text-sm font-medium text-gray-700 dark:text-slate-300">12h</span>
+                <span className="ml-3 text-sm font-medium text-gray-700 dark:text-slate-300">
+                  12h
+                </span>
               </div>
             </div>
           </div>
-          
+
           {/* Error state */}
           {error && (
             <Alert variant="destructive" className="mb-6">
@@ -185,22 +206,26 @@ export default function HomePage() {
               </AlertDescription>
             </Alert>
           )}
-          
+
           {/* Loading state */}
           {isLoading && (
             <div className="flex justify-center items-center h-60">
               <div className="flex flex-col items-center">
                 <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-                <p className="text-gray-500 dark:text-slate-400">Loading timezones...</p>
+                <p className="text-gray-500 dark:text-slate-400">
+                  Loading timezones...
+                </p>
               </div>
             </div>
           )}
-          
+
           {/* Empty state */}
           {timezones && timezones.length === 0 && !isLoading && (
             <div className="bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 text-center">
               <Clock className="h-12 w-12 mx-auto text-gray-400 dark:text-slate-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">No timezones added</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
+                No timezones added
+              </h3>
               <p className="text-gray-500 dark:text-slate-400 mb-4">
                 Add your first timezone to get started with TimeSync
               </p>
@@ -211,11 +236,11 @@ export default function HomePage() {
                 }}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                {t('home.addTimezone')}
+                {t("home.addTimezone")}
               </Button>
             </div>
           )}
-          
+
           {/* Timezone cards */}
           {timezones && timezones.length > 0 && (
             <div className="mb-8">
@@ -232,12 +257,12 @@ export default function HomePage() {
               </div>
             </div>
           )}
-          
+
           {/* Time comparison chart */}
           {timezones && timezones.length > 0 && (
             <TimeComparisonChart timezones={timezones} use24Hour={use24Hour} />
           )}
-          
+
           {/* Premium upgrade */}
           {user && !user.isPremium && timezones && timezones.length >= 3 && (
             <div id="upgrade">
@@ -246,9 +271,9 @@ export default function HomePage() {
           )}
         </div>
       </main>
-      
+
       <Footer />
-      
+
       {/* Add/Edit Timezone Dialog */}
       <AddTimezoneDialog
         open={addDialogOpen}
@@ -258,19 +283,23 @@ export default function HomePage() {
         editingTimezone={editingTimezone}
         use24Hour={use24Hour}
       />
-      
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Timezone</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {toDeleteTimezone?.name}? This action cannot be undone.
+              Are you sure you want to delete {toDeleteTimezone?.name}? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               {deleteTimezoneMutation.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}

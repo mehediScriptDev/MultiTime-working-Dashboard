@@ -20,7 +20,7 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email) {
       toast({
         title: "Email required",
@@ -40,16 +40,16 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
     }
 
     setIsLoading(true);
-    
+
     try {
       // Simulate API call - backend will handle actual email sending
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       toast({
         title: "Email sent!",
         description: "Check your inbox for password reset instructions.",
       });
-      
+
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
@@ -77,20 +77,24 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-slate-900 rounded-2xl">
+      <DialogContent className="sm:max-w-[500px] w-11/12 bg-white dark:bg-slate-900 rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
             Reset Password
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-slate-400">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we'll send you a link to reset your
+            password.
           </DialogDescription>
         </DialogHeader>
 
         {!submitted ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 lg:space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="reset-email" className="font-bold text-gray-600 dark:text-slate-400">
+              <Label
+                htmlFor="reset-email"
+                className="font-bold text-gray-600 dark:text-slate-400"
+              >
                 Email Address
               </Label>
               <div className="relative">
@@ -107,29 +111,31 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 shadow-lg shadow-blue-600/20 rounded-xl font-bold text-lg"
-            >
-              {isLoading ? (
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              ) : null}
-              Send Reset Link
-            </Button>
+            <div className="flex flex-col items-center gap-1.5">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-10 lg:h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 shadow-lg shadow-blue-600/20 rounded-lg lg:rounded-xl font-bold text-sm lg:text-base"
+              >
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : null}
+                Send Reset Link
+              </Button>
 
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              className="w-full"
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                className="w-full"
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+            </div>
           </form>
         ) : (
-          <div className="flex flex-col items-center justify-center py-8 space-y-4">
+          <div className="flex flex-col items-center justify-center py-6 space-y-4">
             <CheckCircle className="h-16 w-16 text-green-500 animate-bounce" />
             <div className="text-center">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
