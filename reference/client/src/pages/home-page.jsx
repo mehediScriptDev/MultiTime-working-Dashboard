@@ -217,7 +217,7 @@ export default function HomePage() {
           {/* Timezone cards */}
           {timezones && timezones.length > 0 && (
             <div className="mb-8">
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-1 md:gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {timezones.map((timezone) => (
                   <TimezoneCard
                     key={timezone.id}

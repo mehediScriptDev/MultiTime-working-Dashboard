@@ -48,7 +48,7 @@ export function TimezoneCard({ timezone, use24Hour, onEdit, onDelete }) {
         </div>
         
         <div className="mt-8 text-center py-4 bg-gray-50/50 dark:bg-slate-800/50 rounded-2xl border border-gray-100/50 dark:border-slate-700/50">
-          <div className="text-5xl font-black text-gray-800 dark:text-slate-100 tracking-tighter">{time}</div>
+          <div className="lg:text-5xl text-4xl font-black text-gray-800 dark:text-slate-100 tracking-tighter">{time}</div>
           <div className="mt-2 text-xs font-bold text-primary/70 dark:text-blue-400 uppercase tracking-widest">{date}</div>
         </div>
         

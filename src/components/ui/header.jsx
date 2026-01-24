@@ -28,19 +28,19 @@ export function Header() {
   return (
     <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-indigo-100 dark:border-slate-800 shadow-sm transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16 lg:h-20">
           <div className="flex items-center">
             <Link href="/" className="flex items-center group">
-              <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2.5 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 ring-4 ring-blue-500/10">
-                <Clock className="h-6 w-6 text-white" />
+              <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2.5 rounded-xl lg:rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 ring-4 ring-blue-500/10">
+                <Clock className="lg:h-6 lg:w-6 h-4 w-4 text-white" />
               </div>
-              <span className="ml-3 text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
+              <span className="lg:ml-3 ml-1 md:text-2xl text-xl font-black tracking-tighter text-gray-900 dark:text-white">
                 Time<span className="text-blue-600 dark:text-blue-400">Sync</span>
               </span>
             </Link>
           </div>
           
-          <div className="flex items-center space-x-4 md:space-x-6">
+          <div className="flex items-center -space-x-1 sm:space-x-3 lg:space-x-4">
             <LanguageSwitcher />
             <Button
               variant="ghost"
