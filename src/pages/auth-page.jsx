@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth, loginSchema, registerSchema } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,18 @@ export default function AuthPage() {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
 
   // Login form
   const loginForm = useForm({
@@ -88,10 +101,34 @@ export default function AuthPage() {
     }
   }, [user, navigate]);
 
+  // Animation variants for sliding effect (only on desktop)
+  const formVariants = {
+    login: { x: 0 },
+    register: { x: isDesktop ? '100%' : 0 }
+  };
+
+  const imageVariants = {
+    login: { x: 0 },
+    register: { x: isDesktop ? '-100%' : 0 }
+  };
+
+  const transition = {
+    type: 'spring',
+    stiffness: 100,
+    damping: 20
+  };
+
   return (
     <div className="h-screen overflow-hidden animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950">
-      <div className={`flex h-full ${tabValue === "register" ? "lg:flex-row-reverse" : ""}`}>
-        <div className="flex flex-col justify-center px-4 py-6 sm:px-6 lg:flex-none lg:px-12 xl:px-16 w-full lg:w-1/2 overflow-y-auto transition-transform duration-700">
+      <div className="flex h-full relative">
+        <motion.div
+          className="flex flex-col justify-center px-4 py-6 sm:px-6 lg:flex-none lg:px-12 xl:px-16 w-full lg:w-1/2 overflow-y-auto lg:absolute lg:inset-y-0 lg:left-0"
+          initial={false}
+          animate={tabValue}
+          variants={formVariants}
+          transition={transition}
+          style={{ zIndex: tabValue === 'register' ? 10 : 5 }}
+        >
           <div className="mx-auto w-full max-w-sm lg:max-w-md">
             <div className="text-center mb-6">
               <div className="flex items-center justify-center">
@@ -431,9 +468,16 @@ export default function AuthPage() {
               </TabsContent>
             </Tabs>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="hidden lg:flex relative w-0 flex-1 justify-center overflow-hidden h-screen transition-transform duration-900">
+        <motion.div
+          className="hidden lg:flex relative w-1/2 justify-center overflow-hidden h-screen lg:absolute lg:inset-y-0 lg:right-0"
+          initial={false}
+          animate={tabValue}
+          variants={imageVariants}
+          transition={transition}
+          style={{ zIndex: tabValue === 'login' ? 10 : 5 }}
+        >
           <div className="absolute inset-0 bg-slate-900">
             <div className="absolute inset-0 opacity-40 animate-gradient-x bg-gradient-to-br from-blue-600 via-indigo-900 to-slate-900"></div>
             {/* Animated Circles Decoration */}
@@ -493,7 +537,7 @@ export default function AuthPage() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Forgot Password Dialog */}
