@@ -47,6 +47,18 @@ export default function AuthPage() {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
 
   // Login form
   const loginForm = useForm({
@@ -89,15 +101,15 @@ export default function AuthPage() {
     }
   }, [user, navigate]);
 
-  // Animation variants for sliding effect
+  // Animation variants for sliding effect (only on desktop)
   const formVariants = {
     login: { x: 0 },
-    register: { x: '100%' }
+    register: { x: isDesktop ? '100%' : 0 }
   };
 
   const imageVariants = {
     login: { x: 0 },
-    register: { x: '-100%' }
+    register: { x: isDesktop ? '-100%' : 0 }
   };
 
   const transition = {
