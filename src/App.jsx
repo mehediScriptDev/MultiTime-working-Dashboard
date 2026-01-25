@@ -6,12 +6,23 @@ import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import { ProtectedRoute } from "./lib/protected-route";
-import { AuthProvider } from "./hooks/use-auth";
+import { AuthProvider, useAuth } from "./hooks/use-auth";
+import { Loader2 } from "lucide-react";
 
 function Router() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-gray-600 dark:text-gray-300" />
+      </div>
+    );
+  }
+
   return (
     <Switch>
-      <ProtectedRoute path="/" component={HomePage} />
+      <Route path="/" component={() => (user ? <HomePage /> : <AuthPage />)} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
     </Switch>
