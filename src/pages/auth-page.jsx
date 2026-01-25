@@ -122,23 +122,23 @@ export default function AuthPage() {
     <div className="h-screen overflow-hidden animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950">
       <div className="flex h-full relative">
         <motion.div
-          className="flex flex-col justify-center px-4 py-6 sm:px-6 lg:flex-none lg:px-12 xl:px-16 w-full lg:w-1/2 overflow-y-auto lg:absolute lg:inset-y-0 lg:left-0"
+          className="flex flex-col items-center justify-center px-4 py-4 sm:px-6 lg:flex-none lg:px-10 xl:px-12 w-full lg:w-1/2 overflow-y-hidden lg:absolute lg:inset-y-0 lg:left-0"
           initial={false}
           animate={tabValue}
           variants={formVariants}
           transition={transition}
           style={{ zIndex: tabValue === 'register' ? 10 : 5 }}
         >
-          <div className="mx-auto w-full max-w-sm lg:max-w-md">
-            <div className="text-center mb-6">
-              <div className="flex items-center justify-center">
-                <img src="/logo.png" alt="TimeSync" className="h-10 w-auto" />
-                <h2 className="ml-2 text-2xl md:text-3xl font-black tracking-tighter text-gray-900 dark:text-white">
+          <div className="w-full max-w-sm lg:max-w-md">
+            <div className="text-center mb-2">
+              <div className="flex items-center justify-center lg:mb-0">
+                <img src="/logo.png" alt="TimeSync" className="h-6 lg:h-7 w-auto" />
+                <h2 className="ml-2 text-2xl md:text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
                   Time
                   <span className="text-blue-600 dark:text-blue-400">Sync</span>
                 </h2>
               </div>
-              <p className="mt-2 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">
+              <p className="lg:mt-1 text-[11px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 Master your global schedule
               </p>
             </div>
@@ -148,7 +148,7 @@ export default function AuthPage() {
               onValueChange={(v) => setTabValue(v)}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-2 mb-3 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-xl">
+              <TabsList className="grid w-full grid-cols-2 mb-2 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-lg">
                 <TabsTrigger
                   value="login"
                   className="rounded-lg font-bold text-gray-700 dark:text-slate-200"
@@ -164,8 +164,8 @@ export default function AuthPage() {
               </TabsList>
 
               <TabsContent value="login">
-                <Card className="border-none shadow-2xl bg-white dark:bg-slate-900 rounded-2xl">
-                  <CardHeader className="pb-4 pt-6">
+                <Card className="border-none shadow-lg bg-white dark:bg-slate-900 rounded-xl">
+                  <CardHeader className="py-2">
                     <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
                       Welcome back
                     </CardTitle>
@@ -177,7 +177,7 @@ export default function AuthPage() {
                     <Form {...loginForm}>
                       <form
                         onSubmit={loginForm.handleSubmit(onLoginSubmit)}
-                        className="space-y-3"
+                        className="space-y-2"
                       >
                         <FormField
                           control={loginForm.control}
@@ -191,7 +191,7 @@ export default function AuthPage() {
                                 <div className="relative">
                                   <Mail className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
                                   <Input
-                                    className="pl-11 h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="pl-11 h-9 sm:h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                     placeholder="your@email.com"
                                     type="email"
                                     {...field}
@@ -224,7 +224,7 @@ export default function AuthPage() {
                                 <div className="relative">
                                   <Lock className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
                                   <Input
-                                    className="pl-11 pr-11 h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="pl-11 pr-11 h-9 sm:h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                     type={
                                       showLoginPassword ? "text" : "password"
                                     }
@@ -266,7 +266,7 @@ export default function AuthPage() {
                         </div>
                         <Button
                           type="submit"
-                          className="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-600/30 rounded-xl font-bold text-base text-white transition-all"
+                          className="w-full h-9 sm:h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg font-bold text-sm sm:text-base text-white transition-all"
                           disabled={loginMutation.isPending}
                         >
                           {loginMutation.isPending ? (
@@ -277,7 +277,7 @@ export default function AuthPage() {
                       </form>
                     </Form>
 
-                    <div className="relative my-4">
+                    <div className="relative my-2">
                       <div className="absolute inset-0 flex items-center">
                         <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
                       </div>
@@ -306,7 +306,7 @@ export default function AuthPage() {
               </TabsContent>
 
               <TabsContent value="register">
-                <Card className="border-none shadow-2xl bg-white dark:bg-slate-900 rounded-2xl max-h-screen overflow-y-auto">
+                <Card className="border-none shadow-2xl bg-white dark:bg-slate-900 rounded-2xl">
                   <CardHeader>
                     <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
                       Create Account
