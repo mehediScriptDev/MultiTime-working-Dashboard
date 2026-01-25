@@ -128,6 +128,23 @@ export default function HomePage() {
     setAddDialogOpen(true);
   };
 
+  // Group timezones by label
+  const groupTimezonesByLabel = () => {
+    const grouped = {};
+    
+    timezones.forEach(timezone => {
+      const label = timezone.label || 'General';
+      if (!grouped[label]) {
+        grouped[label] = [];
+      }
+      grouped[label].push(timezone);
+    });
+
+    return grouped;
+  };
+
+  const groupedTimezones = groupTimezonesByLabel();
+
   return (
     <div className="min-h-screen flex flex-col animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 transition-colors duration-500">
       <Header />
@@ -210,20 +227,35 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Timezone cards */}
+          {/* Grouped Timezone cards */}
           {timezones && timezones.length > 0 && (
-            <div className="mb-5 lg:mb-6">
-              <div className="grid grid-cols-1 md:gap-5 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {timezones.map((timezone) => (
-                  <TimezoneCard
-                    key={timezone.id}
-                    timezone={timezone}
-                    use24Hour={use24Hour}
-                    onEdit={handleEditClick}
-                    onDelete={handleDeleteTimezone}
-                  />
-                ))}
-              </div>
+            <div className="mb-5 lg:mb-6 space-y-8">
+              {Object.entries(groupedTimezones).map(([label, zones]) => (
+                <div key={label} className="space-y-4">
+                  {/* Group Header */}
+                  <div className="border-b-2 border-gray-300 dark:border-slate-700 pb-3">
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-slate-200">
+                      {label}
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+                      {zones.length} {zones.length === 1 ? 'timezone' : 'timezones'}
+                    </p>
+                  </div>
+
+                  {/* Responsive Grid */}
+                  <div className="grid grid-cols-1 md:gap-5 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    {zones.map((timezone) => (
+                      <TimezoneCard
+                        key={timezone.id}
+                        timezone={timezone}
+                        use24Hour={use24Hour}
+                        onEdit={handleEditClick}
+                        onDelete={handleDeleteTimezone}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
