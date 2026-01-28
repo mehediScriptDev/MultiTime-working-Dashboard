@@ -44,7 +44,7 @@ export function PremiumUpgrade({ timezoneCount }) {
         </div>
         <div className="md:flex-1 md:flex md:items-center md:justify-center bg-indigo-600/20 p-6 dark:bg-slate-900/40">
           <div className="text-center">
-            <div className="text-5xl xl:text-6xl font-bold mb-2">$60</div>
+            <div className="text-5xl xl:text-6xl font-bold mb-2">$18</div>
             <div className="text-lg mb-6">per year</div>
             <div className="text-sm opacity-80">Billed annually • Cancel anytime</div>
           </div>
