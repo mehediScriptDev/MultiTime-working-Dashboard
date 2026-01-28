@@ -135,7 +135,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                       }}
                     >
                       <div className="w-full h-full bg-white/10 flex items-center justify-center">
-                        <span className="text-[8px] font-bold text-white drop-shadow-md uppercase tracking-tighter hidden md:block">Active</span>
+                        <span className="text-[8px] font-bold dark:text-white text-[#2563eb] drop-shadow-md uppercase tracking-tighter hidden md:block">Active</span>
                       </div>
                     </div>
 

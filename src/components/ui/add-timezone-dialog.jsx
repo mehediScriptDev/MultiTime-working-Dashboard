@@ -115,11 +115,12 @@ export function AddTimezoneDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] w-11/12 bg-white dark:bg-slate-900 border-none shadow-2xl rounded-xl overflow-hidden p-0">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 lg:py-8">
+      <DialogContent className="sm:max-w-[550px] w-11/12 h-auto bg-white dark:bg-slate-900 border-none shadow-2xl rounded-xl overflow-hidden p-0">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 ">
           <DialogTitle className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
-              <Globe className="h-6 w-6 text-white" />
+            <div className="p-2 rounded-xl backdrop-blur-md">
+              {/* <Globe className="h-6 w-6 text-white" /> */}
+              <img src="/logo.png" className="h-6 w-6" alt="Timezone Icon" />
             </div>
             {editingTimezone
               ? t("dialog.editTimezone")
@@ -132,8 +133,8 @@ export function AddTimezoneDialog({
           </p>
         </div>
 
-        <div className="px-3 space-y-4 lg:space-y-6">
-          <div className="space-y-3">
+        <div className="px-3 space-y-4 ">
+          <div className="space-y-1.5">
             <Label
               htmlFor="timezone-search"
               className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400"
@@ -146,7 +147,7 @@ export function AddTimezoneDialog({
                 placeholder="e.g. London, Paris, United States..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 lg:h-12 h-10 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus-visible:ring-blue-500/30 transition-all text-base"
+                className="pl-12  h-10 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus-visible:ring-blue-500/30 transition-all text-base"
               />
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 lg:h-5 lg:w-5 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
             </div>
@@ -213,7 +214,7 @@ export function AddTimezoneDialog({
           {selectedTimezone && (
             <div className="flex flex-col gap-2 lg:gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
               <div className="flex justify-between items-center gap-6">
-                <div className="lg:space-y-3 space-y-2 w-full">
+                <div className=" space-y-1.5 w-full">
                   <Label
                     htmlFor="timezone-label"
                     className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400"
@@ -222,14 +223,14 @@ export function AddTimezoneDialog({
                   </Label>
                   <Input
                     id="timezone-label"
-                    placeholder="e.g. Rafi"
+                    placeholder="e.g. Office"
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
                     className="lg:h-12 h-10 bg-slate-50 dark:bg-slate-800 w-full border-none rounded-xl focus-visible:ring-blue-500/30"
                   />
                 </div>
 
-                <div className="lg:space-y-3 space-y-2 w-full">
+                <div className=" space-y-1.5 w-full">
                   <Label
                     htmlFor="timezone-group"
                     className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400"
