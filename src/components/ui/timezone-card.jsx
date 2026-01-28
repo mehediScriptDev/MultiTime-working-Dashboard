@@ -23,7 +23,7 @@ export function TimezoneCard({ timezone, use24Hour, onEdit, onDelete }) {
       <CardContent className="p-4 sm:p-6">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-xl leading-6 font-bold text-gray-900 dark:text-white tracking-tight">{timezone.name}</h3>
+            <h3 className="text-xl leading-6 font-bold text-gray-900 dark:text-white tracking-tight">{timezone.label || timezone.name}</h3>
             <p className="mt-1 max-w-2xl text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
               {timezone.region} • {timezone.abbreviation}
             </p>

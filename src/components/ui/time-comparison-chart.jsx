@@ -1,12 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatTimezoneOffset, formatAMPM } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from 'react-i18next';
 import dayjs from "dayjs";
 
 export function TimeComparisonChart({ timezones, use24Hour }) {
   const { t } = useTranslation();
   const [currentTime, setCurrentTime] = useState(dayjs());
+  const [hoverPosition, setHoverPosition] = useState(null); // percent 0-100
+  const containerRef = useRef(null);
 
   // Update time every minute
   useEffect(() => {
@@ -31,7 +33,19 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
       </CardHeader>
       <CardContent className="pt-6">
         <div className="overflow-x-auto">
-          <div className="min-w-[800px] px-2">
+          <div
+            ref={containerRef}
+            onMouseMove={(e) => {
+              const el = containerRef.current;
+              if (!el) return;
+              const rect = el.getBoundingClientRect();
+              const x = e.clientX - rect.left;
+              const pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
+              setHoverPosition(pct);
+            }}
+            onMouseLeave={() => setHoverPosition(null)}
+            className="min-w-[800px] px-2"
+          >
             {/* Time scale (24 hour) */}
             <div className="flex h-12 border-b border-gray-100 dark:border-slate-800 mb-6 bg-gray-50/30 dark:bg-slate-800/20 rounded-t-lg">
               {timeScale.map((hour, i) => (
@@ -49,10 +63,16 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
               const currentTimePercent = ((hour * 60 + minute) / (24 * 60)) * 100;
               
               // Calculate working hours positions
-              const workingHoursStart = timezone.workingHoursStart;
-              const workingHoursEnd = timezone.workingHoursEnd;
+              const workingHoursStart = timezone.workingHoursStart ?? 9;
+              const workingHoursEnd = timezone.workingHoursEnd ?? 17;
               const workingHoursStartPercent = (workingHoursStart / 24) * 100;
-              const workingHoursWidthPercent = ((workingHoursEnd - workingHoursStart) / 24) * 100;
+              // handle overnight shifts
+              let workingHoursWidthPercent = 0;
+              if (workingHoursEnd >= workingHoursStart) {
+                workingHoursWidthPercent = ((workingHoursEnd - workingHoursStart) / 24) * 100;
+              } else {
+                workingHoursWidthPercent = ((24 - workingHoursStart + workingHoursEnd) / 24) * 100;
+              }
               
               // Dynamic blue/indigo colors for rows
               const rowColors = [
@@ -64,12 +84,38 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
               ];
               const accentColor = rowColors[idx % rowColors.length];
               
+              // Determine if current time in this timezone falls within working hours
+              const currentHourDecimal = now.hour() + now.minute() / 60;
+              let isActive = false;
+              if (workingHoursStart <= workingHoursEnd) {
+                isActive = currentHourDecimal >= workingHoursStart && currentHourDecimal < workingHoursEnd;
+              } else {
+                isActive = currentHourDecimal >= workingHoursStart || currentHourDecimal < workingHoursEnd;
+              }
+
+              // calculate hover time for this timezone
+              let hoverTimeLabel = null;
+              if (hoverPosition !== null) {
+                const minutesAtPos = (hoverPosition / 100) * 24 * 60;
+                const hoverLocal = dayjs().startOf('day').add(Math.round(minutesAtPos), 'minute').utcOffset(timezone.offset / 60);
+                hoverTimeLabel = hoverLocal.format(use24Hour ? 'HH:mm' : 'h:mm A');
+              }
+
               return (
                 <div key={timezone.id} className="flex items-center mb-6 group">
                   <div className="w-40 pr-6 shrink-0">
-                    <div className="font-bold text-gray-800 dark:text-slate-200 truncate group-hover:text-blue-600 transition-colors">{timezone.name}</div>
+                    {timezone.label && (
+                      <div className="text-xs text-blue-500 dark:text-blue-400 font-medium mb-1 truncate">{timezone.label}</div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <div
+                        title={isActive ? 'Active Now' : 'Inactive'}
+                        className={`w-3 h-3 rounded-full ${isActive ? 'bg-green-500 shadow-md' : 'bg-gray-300'}`}
+                      />
+                      <div className="font-bold text-gray-800 dark:text-slate-200 truncate group-hover:text-blue-600 transition-colors">{timezone.name}</div>
+                    </div>
                     <div className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">
-                      {formatTimezoneOffset(timezone.offset)}
+                      {formatTimezoneOffset(timezone.offset)}{hoverTimeLabel ? ` · ${hoverTimeLabel}` : ''}
                     </div>
                   </div>
                   <div className="flex-1 h-8 bg-gray-100/50 dark:bg-slate-800/50 rounded-xl relative shadow-inner border border-gray-200/50 dark:border-slate-700/50 overflow-hidden">
@@ -81,21 +127,28 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                     </div>
 
                     {/* Working hours */}
-                    <div 
+                    <div
                       className={`h-full absolute transition-all duration-700 ease-out border-x ${accentColor}`}
-                      style={{ 
-                        left: `${workingHoursStartPercent}%`, 
-                        width: `${workingHoursWidthPercent}%` 
+                      style={{
+                        left: `${workingHoursStartPercent}%`,
+                        width: `${workingHoursWidthPercent}%`,
                       }}
                     >
                       <div className="w-full h-full bg-white/10 flex items-center justify-center">
-                        <span className="text-[8px] font-bold text-gray-500/50 uppercase tracking-tighter hidden md:block">Active</span>
+                        <span className="text-[8px] font-bold text-white drop-shadow-md uppercase tracking-tighter hidden md:block">Active</span>
                       </div>
                     </div>
 
                     {/* Current time indicator */}
-                    <div 
-                      className="absolute w-0.5 h-full bg-red-500 z-10 shadow-[0_0_8px_rgba(239,68,68,0.5)] transition-all duration-1000 ease-in-out" 
+                    {/* Hover position dashed line (shared) */}
+                    {hoverPosition !== null && (
+                      <div className="absolute inset-y-0 z-20 pointer-events-none" style={{ left: `${hoverPosition}%` }}>
+                        <div className="h-full border-l-2 border-dashed border-gray-400/60 dark:border-slate-400/40" />
+                      </div>
+                    )}
+
+                    <div
+                      className="absolute w-0.5 h-full bg-red-500 z-10 shadow-[0_0_8px_rgba(239,68,68,0.5)] transition-all duration-1000 ease-in-out"
                       style={{ left: `${currentTimePercent}%` }}
                     >
                       <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-4 ring-red-100 dark:ring-red-900/50 shadow-sm"></div>
