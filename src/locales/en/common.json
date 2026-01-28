@@ -1,0 +1,46 @@
+{
+  "header": {
+    "appName": "TimeSync",
+    "signIn": "Sign In",
+    "signOut": "Sign out",
+    "premium": "Premium",
+    "freePlan": "Free Plan"
+  },
+  "home": {
+    "title": "My Timezones",
+    "subtitle": "Manage and compare your team's timezones with style",
+    "addTimezone": "Add Timezone",
+    "workingHours": "Working Hours",
+    "teamOffline": "Team is currently offline",
+    "edit": "Edit",
+    "delete": "Delete",
+    "currentTime": "Current time"
+  },
+  "dialog": {
+    "addTimezone": "Add Timezone",
+    "editTimezone": "Edit Timezone",
+    "addDescription": "Track time and working hours for a new location",
+    "editDescription": "Update details for this location",
+    "searchPlaceholder": "Search for a city or country"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back!",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "register": "Register",
+    "alreadyHaveAccount": "Already have an account?"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "language": "Language",
+    "allRightsReserved": "All rights reserved",
+    "timeComparison": "Time Comparison",
+    "workingHoursLabel": "Working hours"
+  }
+}
