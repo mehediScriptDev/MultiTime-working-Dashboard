@@ -8,8 +8,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 export function Header() {
   const { user, logoutMutation, signOut } = useAuth();
   const [theme, setTheme] = useState(
-    () => (localStorage.getItem('theme') ||
-    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+    () => (localStorage.getItem('theme') || 'dark')
   );
 
   useEffect(() => {

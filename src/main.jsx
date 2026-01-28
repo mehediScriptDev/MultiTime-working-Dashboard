@@ -8,7 +8,8 @@ import "./i18n";
 	try {
 		const stored = localStorage.getItem('theme');
 		const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-		const theme = stored || (prefersDark ? 'dark' : 'light');
+		// Default to dark when no stored preference is available
+		const theme = stored || 'dark';
 		if (theme === 'dark') {
 			document.documentElement.classList.add('dark');
 		} else {
