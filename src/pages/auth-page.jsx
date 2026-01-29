@@ -27,6 +27,8 @@ import {
   Briefcase,
   Eye,
   EyeOff,
+  Moon,
+  Sun,
 } from "lucide-react";
 import {
   Form,
@@ -38,6 +40,7 @@ import {
 } from "@/components/ui/form";
 import { ForgotPasswordDialog } from "@/components/ui/forgot-password-dialog";
 import { OAuthButtons } from "@/components/ui/oauth-buttons";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 
 export default function AuthPage() {
   const [_, navigate] = useLocation();
@@ -48,6 +51,23 @@ export default function AuthPage() {
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+
+  const [theme, setTheme] = useState(
+    () => (localStorage.getItem("theme") || "dark")
+  );
+
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
 
   
   useEffect(() => {
@@ -120,6 +140,17 @@ export default function AuthPage() {
 
   return (
     <div className="h-screen overflow-hidden animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950">
+      <div className="absolute top-4 right-4 z-50 flex items-center space-x-3">
+        {/* <LanguageSwitcher /> */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          className="rounded-xl text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all duration-300"
+        >
+          {theme === "light" ? <Moon className="h-5 lg:h-6 w-5 lg:w-6 " /> : <Sun className="h-5 lg:h-6 w-5 lg:w-6 " />}
+        </Button>
+      </div>
       <div className="flex h-full relative">
         <motion.div
           className="flex flex-col items-center justify-center px-4 py-4 sm:px-6 lg:flex-none lg:px-10 xl:px-12 w-full lg:w-1/2 overflow-y-hidden lg:absolute lg:inset-y-0 lg:left-0"
