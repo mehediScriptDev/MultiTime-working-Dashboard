@@ -96,11 +96,11 @@ export default function AuthForm({
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none z-10" />
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                             <Input
                               placeholder="write your email"
                               type="email"
-                              className="pl-11 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base relative z-20"
+                              className="pl-10 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base bg-transparent"
                               {...field}
                             />
                           </div>
@@ -122,11 +122,11 @@ export default function AuthForm({
                         </div>
                         <FormControl>
                           <div className="relative">
-                            <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none z-10" />
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                             <Input
                               placeholder="••••••••"
                               type={showLoginPassword ? "text" : "password"}
-                              className="pl-11 pr-11 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base relative z-20"
+                              className="pl-10 pr-10 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base bg-transparent"
                               {...field}
                             />
                             <button
@@ -134,7 +134,7 @@ export default function AuthForm({
                               onClick={() =>
                                 setShowLoginPassword(!showLoginPassword)
                               }
-                              className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 z-10"
                               aria-label={
                                 showLoginPassword
                                   ? "Hide password"
@@ -219,10 +219,10 @@ export default function AuthForm({
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <User className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none z-10" />
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                             <Input
                               placeholder="username"
-                              className="pl-11 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base relative z-20"
+                              className="pl-10 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base bg-transparent"
                               {...field}
                             />
                           </div>
@@ -242,11 +242,11 @@ export default function AuthForm({
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none z-10" />
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                             <Input
                               placeholder="write your email"
                               type="email"
-                              className="pl-11 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base relative z-20"
+                              className="pl-10 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base bg-transparent"
                               {...field}
                             />
                           </div>
@@ -266,11 +266,11 @@ export default function AuthForm({
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none z-10" />
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                             <Input
                               placeholder="••••••••"
                               type={showRegisterPassword ? "text" : "password"}
-                              className="pl-11 pr-11 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base relative z-20"
+                              className="pl-10 pr-10 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base bg-transparent"
                               {...field}
                             />
                             <button
@@ -278,7 +278,7 @@ export default function AuthForm({
                               onClick={() =>
                                 setShowRegisterPassword(!showRegisterPassword)
                               }
-                              className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 z-10"
                               aria-label={
                                 showRegisterPassword
                                   ? "Hide password"
