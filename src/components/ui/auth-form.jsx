@@ -81,7 +81,7 @@ export default function AuthForm({
 
           <CardContent className="px-6 sm:px-8 pb-4 sm:pb-6">
             {mode === "login" ? (
-              <Form {...loginForm}>
+              <Form key="login-form" {...loginForm}>
                 <form
                   onSubmit={loginForm.handleSubmit(onLoginSubmit)}
                   className="space-y-4 sm:space-y-5"
@@ -204,7 +204,7 @@ export default function AuthForm({
                 </form>
               </Form>
             ) : (
-              <Form {...registerForm}>
+              <Form key="register-form" {...registerForm}>
                 <form
                   onSubmit={registerForm.handleSubmit(onRegisterSubmit)}
                   className="space-y-4 sm:space-y-5"
