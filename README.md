@@ -68,7 +68,7 @@ If you're unsure where to start, check the `src/lib` and `src/components` folder
 
 ## Logo
 
-A placeholder SVG logo lives at `logo.png`. Replace it with your final artwork (same path) to update the repository logo.
+A placeholder SVG logo lives at `logo1.png`. Replace it with your final artwork (same path) to update the repository logo.
 
 ## License
 
