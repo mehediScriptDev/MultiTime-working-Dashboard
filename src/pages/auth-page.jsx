@@ -104,7 +104,7 @@ export default function AuthPage() {
             <div className="text-center lg:mb-3 lg:hidden xl:block">
               <div className="flex items-center justify-center lg:mb-0">
                 <img
-                  src="/logo1.png"
+                  src="/Logo.png"
                   alt="TimeSync"
                   className="h-8 lg:h-10 w-auto"
                 />
@@ -145,7 +145,7 @@ export default function AuthPage() {
               <div className="flex items-center justify-center gap-4 mb-4">
                 <div className="p-4 rounded-2xl xl:rounded-3xl ">
                   <img
-                    src="/logo1.png"
+                    src="/Logo.png"
                     alt="TimeSync"
                     className="xl:h-16 h-10 w-auto animate-[spin_10s_linear_infinite]"
                   />

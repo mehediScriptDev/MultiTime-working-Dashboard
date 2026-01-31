@@ -30,7 +30,7 @@ export function Header() {
         <div className="flex justify-between items-center h-16 lg:h-20">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <img src="/logo1.png" alt="TimeSync" className="h-10 w-auto" />
+              <img src="/Logo.png" alt="TimeSync" className="h-10 w-auto" />
               <span className="lg:ml-2 ml-1 md:text-2xl text-xl font-black tracking-tighter text-gray-900 dark:text-white">
                 Time
                 <span className="text-blue-600 dark:text-blue-400">Sync</span>

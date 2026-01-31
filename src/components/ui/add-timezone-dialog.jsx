@@ -119,7 +119,7 @@ export function AddTimezoneDialog({
         <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-4 sm:py-5 flex-shrink-0">
           <DialogTitle className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2 sm:gap-3">
             <img
-              src="/logo1.png"
+              src="/Logo.png"
               className="h-9 w-9"
               alt="TimeSync"
             />
