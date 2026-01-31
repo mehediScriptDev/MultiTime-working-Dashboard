@@ -65,42 +65,42 @@ export default function AuthForm({
   return (
     <div className="min-h-[520px] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
-        <Card className="rounded-2xl shadow-lg border-none overflow-visible">
-          <CardHeader className="relative pt-6 px-6 pb-4">
+        <Card className="rounded-3xl shadow-2xl border border-slate-200/60 dark:border-slate-700/60 overflow-visible bg-white dark:bg-slate-900 w-full">
+          <CardHeader className="relative pt-6 sm:pt-8 px-6 sm:px-8 pb-4 sm:pb-6">
             {/* Tabs/segmented control moved to the right-side panel; header kept minimal */}
 
-            <CardTitle className="text-2xl font-extrabold text-slate-900 dark:text-white">
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
               {mode === "login" ? "Welcome back" : "Create your account"}
             </CardTitle>
-            <CardDescription className="text-sm text-slate-600 dark:text-slate-400">
+            <CardDescription className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
               {mode === "login"
                 ? "Enter your credentials to access your account."
                 : "Start your free account — join global teams in seconds."}
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="px-6 lg:pt-4 pb-2">
+          <CardContent className="px-6 sm:px-8 pb-4 sm:pb-6">
             {mode === "login" ? (
               <Form {...loginForm}>
                 <form
                   onSubmit={loginForm.handleSubmit(onLoginSubmit)}
-                  className="space-y-4"
+                  className="space-y-4 sm:space-y-5"
                 >
                   <FormField
                     control={loginForm.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Email
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                            <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                             <Input
-                              placeholder="you@company.com"
+                              placeholder="write your email"
                               type="email"
-                              className="pl-11 h-11 rounded-lg border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500"
+                              className="pl-11 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base relative z-20"
                               {...field}
                             />
                           </div>
@@ -116,17 +116,17 @@ export default function AuthForm({
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center justify-between">
-                          <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                             Password
                           </FormLabel>
                         </div>
                         <FormControl>
                           <div className="relative">
-                            <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                             <Input
                               placeholder="••••••••"
                               type={showLoginPassword ? "text" : "password"}
-                              className="pl-11 pr-11 h-11 rounded-lg border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500"
+                              className="pl-11 pr-11 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base relative z-20"
                               {...field}
                             />
                             <button
@@ -179,7 +179,7 @@ export default function AuthForm({
                   <div>
                     <Button
                       type="submit"
-                      className="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold"
+                      className="w-full h-11 sm:h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm sm:text-base shadow-sm hover:shadow-md transition-all"
                       disabled={loginMutation.isPending}
                     >
                       {loginMutation.isPending ? (
@@ -207,22 +207,22 @@ export default function AuthForm({
               <Form {...registerForm}>
                 <form
                   onSubmit={registerForm.handleSubmit(onRegisterSubmit)}
-                  className="space-y-4"
+                  className="space-y-4 sm:space-y-5"
                 >
                   <FormField
                     control={registerForm.control}
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Username
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                            <User className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                             <Input
                               placeholder="username"
-                              className="pl-11 h-11 rounded-lg border-2 border-slate-100 dark:border-slate-700 focus:ring-2 focus:ring-blue-500"
+                              className="pl-11 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base relative z-20"
                               {...field}
                             />
                           </div>
@@ -237,16 +237,16 @@ export default function AuthForm({
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Email
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                            <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                             <Input
-                              placeholder="you@company.com"
+                              placeholder="write your email"
                               type="email"
-                              className="pl-11 h-11 rounded-lg border-2 border-slate-100 dark:border-slate-700 focus:ring-2 focus:ring-blue-500"
+                              className="pl-11 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base relative z-20"
                               {...field}
                             />
                           </div>
@@ -261,16 +261,16 @@ export default function AuthForm({
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Password
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                             <Input
                               placeholder="••••••••"
                               type={showRegisterPassword ? "text" : "password"}
-                              className="pl-11 pr-11 h-11 rounded-lg border-2 border-slate-100 dark:border-slate-700 focus:ring-2 focus:ring-blue-500"
+                              className="pl-11 pr-11 h-11 sm:h-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base relative z-20"
                               {...field}
                             />
                             <button
@@ -301,7 +301,7 @@ export default function AuthForm({
                   <div>
                     <Button
                       type="submit"
-                      className="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-md"
+                      className="w-full h-11 sm:h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm sm:text-base shadow-sm hover:shadow-md transition-all"
                       disabled={registerMutation.isPending}
                     >
                       {registerMutation.isPending ? (
@@ -315,7 +315,7 @@ export default function AuthForm({
             )}
           </CardContent>
 
-          <CardFooter className="px-6 pb-6 pt-2 border-t border-slate-50 dark:border-slate-800">
+          <CardFooter className="px-6 sm:px-8 pb-6 sm:pb-8 pt-3 sm:pt-4 border-t border-slate-100 dark:border-slate-800">
             <div className="w-full text-center text-sm text-slate-600 dark:text-slate-400">
               {mode === "login" ? (
                 <>

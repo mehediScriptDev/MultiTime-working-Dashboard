@@ -10,7 +10,9 @@ import AuthForm from "@/components/ui/auth-form";
 
 export default function AuthPage() {
   const [_, navigate] = useLocation();
-  const [tabValue, setTabValue] = useState("login");
+  const [tabValue, setTabValue] = useState(
+    () => localStorage.getItem("authTab") || "login",
+  );
   const { user } = useAuth();
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -18,6 +20,11 @@ export default function AuthPage() {
   const [theme, setTheme] = useState(
     () => localStorage.getItem("theme") || "dark",
   );
+
+  // Persist tab value to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("authTab", tabValue);
+  }, [tabValue]);
 
   useEffect(() => {
     if (theme === "dark") {
@@ -69,19 +76,18 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="h-screen overflow-hidden animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950">
-      <div className="absolute top-4 right-4 z-50 flex items-center space-x-3">
-        {/* <LanguageSwitcher /> */}
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="absolute top-6 right-6 z-50">
         <Button
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
-          className="rounded-xl text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all duration-300"
+          className="rounded-full h-11 w-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 shadow-sm hover:shadow transition-all"
         >
           {theme === "light" ? (
-            <Moon className="h-5 lg:h-6 w-5 lg:w-6 " />
+            <Moon className="h-5 w-5 text-slate-600" />
           ) : (
-            <Sun className="h-5 lg:h-6 w-5 lg:w-6 " />
+            <Sun className="h-5 w-5 text-slate-400" />
           )}
         </Button>
       </div>
@@ -92,7 +98,7 @@ export default function AuthPage() {
           animate={tabValue}
           variants={formVariants}
           transition={transition}
-          style={{ zIndex: tabValue === "register" ? 10 : 5 }}
+          style={{ zIndex: tabValue === "register" ? 20 : 5 }}
         >
           <div className="w-full max-w-sm lg:max-w-md">
             <div className="text-center lg:mb-3 lg:hidden xl:block">
@@ -135,7 +141,6 @@ export default function AuthPage() {
 
           <div className="relative flex flex-col justify-center items-center h-full px-16 text-white z-10 text-center">
             <div className="max-w-xl mx-auto">
-              
               {/* animated logo */}
               <div className="flex items-center justify-center gap-4 mb-4">
                 <div className="p-4 rounded-2xl xl:rounded-3xl ">
@@ -150,8 +155,8 @@ export default function AuthPage() {
                 </div> */}
               </div>
 
-{/* tabs */}
-<div className="flex justify-center mb-6">
+              {/* tabs */}
+              <div className="flex justify-center mb-6">
                 <div className="relative w-56 bg-white/10 dark:bg-white/6 rounded-full p-1">
                   <div
                     aria-hidden
