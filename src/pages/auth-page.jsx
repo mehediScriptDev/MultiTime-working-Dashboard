@@ -135,7 +135,23 @@ export default function AuthPage() {
 
           <div className="relative flex flex-col justify-center items-center h-full px-16 text-white z-10 text-center">
             <div className="max-w-xl mx-auto">
-              <div className="flex justify-center mb-6">
+              
+              {/* animated logo */}
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="p-4 rounded-2xl xl:rounded-3xl ">
+                  <img
+                    src="/logo.png"
+                    alt="TimeSync"
+                    className="xl:h-16 h-10 w-auto animate-[spin_10s_linear_infinite]"
+                  />
+                </div>
+                {/* <div className="rounded-2xl xl:rounded-3xl shadow-2xl">
+                  <Briefcase className="xl:h-16 xl:w-10 text-indigo-400" />
+                </div> */}
+              </div>
+
+{/* tabs */}
+<div className="flex justify-center mb-6">
                 <div className="relative w-56 bg-white/10 dark:bg-white/6 rounded-full p-1">
                   <div
                     aria-hidden
@@ -160,20 +176,6 @@ export default function AuthPage() {
                   </div>
                 </div>
               </div>
-
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <div className="p-4 rounded-2xl xl:rounded-3xl ">
-                  <img
-                    src="/logo.png"
-                    alt="TimeSync"
-                    className="xl:h-16 h-10 w-auto animate-[spin_10s_linear_infinite]"
-                  />
-                </div>
-                {/* <div className="rounded-2xl xl:rounded-3xl shadow-2xl">
-                  <Briefcase className="xl:h-16 xl:w-10 text-indigo-400" />
-                </div> */}
-              </div>
-
               <h2 className="text-5xl xl:text-6xl font-black mb-6 tracking-tighter leading-none">
                 Work{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
