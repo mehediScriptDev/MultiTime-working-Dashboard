@@ -43,4 +43,20 @@
     "timeComparison": "Time Comparison",
     "workingHoursLabel": "Working hours"
   }
+  ,
+  "guide": {
+    "back": "Back",
+    "title": "How to use TimeSync",
+    "intro": "This guide explains how to add and manage timezone cards, and how the free vs premium limits work.",
+    "addTitle": "Add a timezone",
+    "addDescription": "Click 'Add Timezone' and search for a city. Set working hours and a label, then save to add it to your list.",
+    "editTitle": "Edit or remove a timezone",
+    "editDescription": "Use the edit button on a timezone card to change details, or delete it to remove it from your list.",
+    "premiumTitle": "Free tier limits and upgrades",
+    "premiumDescription": "On the free plan you can save up to 3 timezones. To save more, upgrade to Premium using the upgrade panel.",
+    "tipsTitle": "Tips & best practices",
+    "tip1": "Use meaningful labels for team members or offices.",
+    "tip2": "Keep working hours accurate so meeting suggestions are useful.",
+    "tip3": "Sign in to sync your timezones across devices (requires a backend session)."
+  }
 }

@@ -191,8 +191,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Error state - removed, no longer needed for localStorage */}
-
           {/* Loading state */}
           {isLoading && (
             <div className="flex justify-center items-center h-60">

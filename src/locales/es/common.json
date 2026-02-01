@@ -43,4 +43,20 @@
     "timeComparison": "Comparación de tiempo",
     "workingHoursLabel": "Horario laboral"
   }
+  ,
+  "guide": {
+    "back": "Atrás",
+    "title": "Cómo usar TimeSync",
+    "intro": "Esta guía explica cómo agregar y administrar tarjetas de zona horaria, y cómo funcionan los límites del plan gratuito y premium.",
+    "addTitle": "Agregar una zona horaria",
+    "addDescription": "Haga clic en 'Agregar zona horaria' y busque una ciudad. Establezca el horario laboral y una etiqueta, luego guarde para agregarla a su lista.",
+    "editTitle": "Editar o eliminar una zona horaria",
+    "editDescription": "Use el botón de editar en una tarjeta de zona horaria para cambiar detalles, o elimínela para quitarla de su lista.",
+    "premiumTitle": "Límites del plan gratuito y mejoras",
+    "premiumDescription": "En el plan gratuito puede guardar hasta 3 zonas horarias. Para guardar más, actualice a Premium usando el panel de actualización.",
+    "tipsTitle": "Consejos y buenas prácticas",
+    "tip1": "Use etiquetas significativas para miembros del equipo u oficinas.",
+    "tip2": "Mantenga los horarios laborales precisos para que las sugerencias de reuniones sean útiles.",
+    "tip3": "Inicie sesión para sincronizar sus zonas horarias entre dispositivos (requiere sesión en el backend)."
+  }
 }
