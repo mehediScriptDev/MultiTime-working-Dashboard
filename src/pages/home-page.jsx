@@ -52,6 +52,12 @@ export default function HomePage() {
     }
   }, []);
 
+  useEffect(() => {
+    // Debug: log when the add dialog open state changes
+    // eslint-disable-next-line no-console
+    console.log("HomePage: addDialogOpen =", addDialogOpen);
+  }, [addDialogOpen]);
+
   // Save timezones to localStorage whenever they change
   const saveTimezones = (newTimezones) => {
     try {

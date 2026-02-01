@@ -43,6 +43,12 @@ export function AddTimezoneDialog({
   const [workingHoursEnd, setWorkingHoursEnd] = useState(17);
 
   useEffect(() => {
+    // Debug: track open state for flaky dialog close issues
+    // eslint-disable-next-line no-console
+    console.log("AddTimezoneDialog: open prop =", open);
+  }, [open]);
+
+  useEffect(() => {
     if (editingTimezone) {
       // Find the corresponding common timezone or create a custom one
       const matchingTimezone = commonTimezones.find(

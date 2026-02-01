@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import { ProtectedRoute } from "./lib/protected-route";
+import GuidePage from "@/pages/guide";
 import { AuthProvider, useAuth } from "./hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
@@ -24,6 +25,7 @@ function Router() {
     <Switch>
       <Route path="/" component={() => (user ? <HomePage /> : <AuthPage />)} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/guide" component={GuidePage} />
       <Route component={NotFound} />
     </Switch>
   );
