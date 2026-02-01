@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import { HelpCircle, Shield, FileText } from "lucide-react";
 
 export function Footer() {
@@ -17,14 +17,15 @@ export function Footer() {
               <span className="sr-only">Privacy</span>
               <Shield className="h-5 w-5 text-gray-400 hover:text-gray-500 dark:text-slate-300 dark:hover:text-white" />
             </Link>
-            <Link href="#">
-              <span className="sr-only">Terms</span>
+            <Link to="guide">
+              <span className="sr-only">Guide</span>
               <FileText className="h-5 w-5 text-gray-400 hover:text-gray-500 dark:text-slate-300 dark:hover:text-white" />
             </Link>
           </div>
           <div className="mt-8 md:mt-0">
             <p className="text-center md:text-right text-sm text-gray-400 dark:text-slate-300">
-              &copy; {new Date().getFullYear()} TimeSync. {t('common.allRightsReserved')}.
+              &copy; {new Date().getFullYear()} TimeSync.{" "}
+              {t("common.allRightsReserved")}.
             </p>
           </div>
         </div>
