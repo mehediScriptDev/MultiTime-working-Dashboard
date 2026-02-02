@@ -8,18 +8,10 @@ import AuthPage from "@/pages/auth-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import GuidePage from "@/pages/guide";
 import { AuthProvider, useAuth } from "./hooks/use-auth";
-import { Loader2 } from "lucide-react";
+// No global full-screen loader — pages handle their own loading states
 
 function Router() {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-12 h-12 animate-spin text-gray-600 dark:text-gray-300" />
-      </div>
-    );
-  }
+  const { user } = useAuth();
 
   return (
     <Switch>
