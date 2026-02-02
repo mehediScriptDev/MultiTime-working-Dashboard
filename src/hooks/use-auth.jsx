@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/lib/auth-service";
 import { z } from "zod";
 
 export const registerSchema = z.object({
@@ -16,8 +17,8 @@ export const loginSchema = z.object({
 export const AuthContext = createContext(null);
 
 // localStorage keys
-const USER_KEY = "auth_user_v1";
-const USERS_KEY = "auth_users_v1";
+const USER_KEY = "auth_user_v2";
+const TOKEN_KEY = "accessToken";
 
 export function AuthProvider({ children }) {
   const { toast } = useToast();
@@ -28,8 +29,12 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem(USER_KEY);
-      if (savedUser) {
+      const token = localStorage.getItem(TOKEN_KEY);
+      
+      if (savedUser && token) {
         setUser(JSON.parse(savedUser));
+      } else {
+        setUser(null);
       }
     } catch (e) {
       console.error("Failed to load user from localStorage", e);
@@ -38,14 +43,16 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Save user to localStorage whenever it changes
-  const saveUser = (userData) => {
+  // Save user to localStorage
+  const saveUser = (userData, token) => {
     try {
-      if (userData) {
+      if (userData && token) {
         localStorage.setItem(USER_KEY, JSON.stringify(userData));
+        localStorage.setItem(TOKEN_KEY, token);
         setUser(userData);
       } else {
         localStorage.removeItem(USER_KEY);
+        localStorage.removeItem(TOKEN_KEY);
         setUser(null);
       }
     } catch (e) {
@@ -53,45 +60,19 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Get all registered users from localStorage
-  const getAllUsers = () => {
-    try {
-      const users = localStorage.getItem(USERS_KEY);
-      return users ? JSON.parse(users) : [];
-    } catch (e) {
-      return [];
-    }
-  };
-
-  // Save all users to localStorage
-  const saveAllUsers = (users) => {
-    try {
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    } catch (e) {
-      console.error("Failed to save users to localStorage", e);
-    }
-  };
-
   const loginMutation = {
     mutate: async (credentials) => {
       try {
-        const users = getAllUsers();
-        const foundUser = users.find(u => u.email === credentials.email);
+        const response = await authService.login(credentials);
         
-        if (!foundUser) {
-          toast({ title: "Login failed", description: "No account found with this email.", variant: "destructive" });
-          return;
+        if (response.success && response.data) {
+          const { user: userData, accessToken } = response.data;
+          saveUser(userData, accessToken);
+          toast({ title: "Welcome back!", description: "You have successfully logged in." });
+          return response;
+        } else {
+          toast({ title: "Login failed", description: response.message || "Unable to login", variant: "destructive" });
         }
-        
-        if (foundUser.password !== credentials.password) {
-          toast({ title: "Login failed", description: "Incorrect password.", variant: "destructive" });
-          return;
-        }
-        
-        // Login successful
-        const { password, ...userWithoutPassword } = foundUser;
-        saveUser(userWithoutPassword);
-        toast({ title: "Welcome back!", description: "You have successfully logged in." });
       } catch (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       }
@@ -105,31 +86,16 @@ export function AuthProvider({ children }) {
   const registerMutation = {
     mutate: async (credentials) => {
       try {
-        const users = getAllUsers();
+        const response = await authService.register(credentials);
         
-        // Check if user already exists
-        if (users.find(u => u.email === credentials.email)) {
-          toast({ title: "Registration failed", description: "An account with this email already exists.", variant: "destructive" });
-          return;
+        if (response.success && response.data) {
+          const { user: userData, accessToken } = response.data;
+          saveUser(userData, accessToken);
+          toast({ title: "Registration successful!", description: "Your account has been created." });
+          return response;
+        } else {
+          toast({ title: "Registration failed", description: response.message || "Unable to register", variant: "destructive" });
         }
-        
-        // Create new user
-        const newUser = {
-          id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          email: credentials.email,
-          username: credentials.username,
-          password: credentials.password,
-          isPremium: false,
-          createdAt: new Date().toISOString(),
-        };
-        
-        // Save to users list
-        saveAllUsers([...users, newUser]);
-        
-        // Login the new user
-        const { password, ...userWithoutPassword } = newUser;
-        saveUser(userWithoutPassword);
-        toast({ title: "Registration successful!", description: "Your account has been created." });
       } catch (error) {
         toast({ title: "Registration failed", description: error.message, variant: "destructive" });
       }
@@ -142,7 +108,8 @@ export function AuthProvider({ children }) {
 
   const logoutMutation = {
     mutate: () => {
-      saveUser(null);
+      authService.logout();
+      saveUser(null, null);
       toast({ title: "Logged out", description: "You have been successfully logged out." });
     },
     mutateAsync: async () => {
@@ -152,7 +119,8 @@ export function AuthProvider({ children }) {
   };
 
   const signOut = () => {
-    saveUser(null);
+    authService.logout();
+    saveUser(null, null);
     toast({ title: "Signed out", description: "You have been signed out." });
     setTimeout(() => {
       window.location.href = "/auth";
@@ -163,15 +131,8 @@ export function AuthProvider({ children }) {
     mutate: () => {
       if (user) {
         const upgraded = { ...user, isPremium: true };
-        saveUser(upgraded);
-        
-        // Also update in users list
-        const users = getAllUsers();
-        const updatedUsers = users.map(u => 
-          u.id === user.id ? { ...u, isPremium: true } : u
-        );
-        saveAllUsers(updatedUsers);
-        
+        const token = localStorage.getItem(TOKEN_KEY);
+        saveUser(upgraded, token);
         toast({ title: "Upgrade successful!", description: "You now have access to premium features." });
       }
     },

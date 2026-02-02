@@ -23,7 +23,9 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={() => (user ? <HomePage /> : <AuthPage />)} />
+      <Route path="/">
+        {user ? <HomePage /> : <AuthPage />}
+      </Route>
       <Route path="/auth" component={AuthPage} />
       <Route path="/guide" component={GuidePage} />
       <Route component={NotFound} />

@@ -43,12 +43,6 @@ export function AddTimezoneDialog({
   const [workingHoursEnd, setWorkingHoursEnd] = useState(17);
 
   useEffect(() => {
-    // Debug: track open state for flaky dialog close issues
-    // eslint-disable-next-line no-console
-    console.log("AddTimezoneDialog: open prop =", open);
-  }, [open]);
-
-  useEffect(() => {
     if (editingTimezone) {
       // Find the corresponding common timezone or create a custom one
       const matchingTimezone = commonTimezones.find(
@@ -120,7 +114,11 @@ export function AddTimezoneDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[580px] w-[95%] sm:w-11/12 max-h-[85vh] sm:max-h-[90vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl rounded-2xl overflow-hidden p-0 flex flex-col">
+      <DialogContent
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        className="sm:max-w-[580px] w-[95%] sm:w-11/12 max-h-[85vh] sm:max-h-[90vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl rounded-2xl overflow-hidden p-0 flex flex-col"
+      >
         {/* Header - Light mode friendly */}
         <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-4 sm:py-5 flex-shrink-0">
           <DialogTitle className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2 sm:gap-3">
