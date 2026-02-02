@@ -82,4 +82,26 @@ export const authService = {
       return null;
     }
   },
+
+  // Get user profile
+  async getProfile(token) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Profile fetch error:', error);
+      return null;
+    }
+  },
 };

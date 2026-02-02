@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export function Header() {
-  const { user, logoutMutation, signOut } = useAuth();
+  const { user, subscription, logoutMutation, signOut } = useAuth();
   const [theme, setTheme] = useState(
     () => localStorage.getItem("theme") || "dark",
   );
@@ -57,16 +57,20 @@ export function Header() {
               <>
                 <div className="hidden md:flex items-center px-4 py-2 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700 group">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold mr-3 shadow-md">
-                    M
+                    {user.username?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-gray-900 dark:text-slate-100 leading-none">
-                      Mehedi
+                      {user.username || user.email?.split("@")[0]}
                     </span>
                     <span
-                      className={`text-[10px] font-black uppercase tracking-widest mt-1 text-gray-400 dark:text-slate-500`}
+                      className={`text-[10px] font-black uppercase tracking-widest mt-1 ${
+                        user.isPremium || subscription?.plan === "premium"
+                          ? "text-yellow-600 dark:text-yellow-400"
+                          : "text-gray-400 dark:text-slate-500"
+                      }`}
                     >
-                      Free Plan
+                      {user.isPremium || subscription?.plan === "premium" ? "Premium" : "Free Plan"}
                     </span>
                   </div>
                 </div>
