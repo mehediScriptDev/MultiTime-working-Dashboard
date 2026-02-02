@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Clock, LogOut, User, Zap, Moon, Sun } from "lucide-react";
 import { Link } from "wouter";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { AccountModal } from "@/components/ui/account-modal";
 
 export function Header() {
   const { user, subscription, logoutMutation, signOut } = useAuth();
   const [theme, setTheme] = useState(
     () => localStorage.getItem("theme") || "dark",
   );
+  const [accountModalOpen, setAccountModalOpen] = useState(false);
 
   useEffect(() => {
     if (theme === "dark") {
@@ -55,8 +57,11 @@ export function Header() {
 
             {user ? (
               <>
-                <div className="hidden md:flex items-center px-4 py-2 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700 group">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold mr-3 shadow-md">
+                <button
+                  onClick={() => setAccountModalOpen(true)}
+                  className="hidden md:flex items-center px-4 py-2 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200 cursor-pointer group"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold mr-3 shadow-md group-hover:shadow-lg transition-shadow">
                     {user.username?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <div className="flex flex-col">
@@ -73,7 +78,7 @@ export function Header() {
                       {user.isPremium || subscription?.plan === "premium" ? "Premium" : "Free Plan"}
                     </span>
                   </div>
-                </div>
+                </button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -99,6 +104,9 @@ export function Header() {
           </div>
         </div>
       </div>
+
+      {/* Account Modal */}
+      <AccountModal open={accountModalOpen} onOpenChange={setAccountModalOpen} />
     </header>
   );
 }

@@ -22,12 +22,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Clock, Loader2, AlertCircle } from "lucide-react";
+import { Plus, Clock, Loader2, AlertCircle, Crown, Zap } from "lucide-react";
 
 const TIMEZONES_KEY = "timezones_v1";
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, subscription, upgradeMutation } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
   const [use24Hour, setUse24Hour] = useState(true);
@@ -37,6 +37,9 @@ export default function HomePage() {
   const [toDeleteTimezone, setToDeleteTimezone] = useState(null);
   const [timezones, setTimezones] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const isPremium = user?.isPremium || subscription?.plan === "premium";
+  const isAtFreeLimit = !isPremium && timezones.length >= 3;
 
   // Load timezones from localStorage on mount
   useEffect(() => {
@@ -69,7 +72,7 @@ export default function HomePage() {
 
   const handleAddTimezone = (timezone) => {
     // Check if user has reached free plan limit
-    if (!user?.isPremium && timezones.length >= 3) {
+    if (isAtFreeLimit) {
       toast({
         title: "Premium required",
         description: "You've reached the limit of 3 timezones. Upgrade to premium for unlimited timezones.",
@@ -145,6 +148,27 @@ export default function HomePage() {
 
   const groupedTimezones = groupTimezonesByGroupName();
 
+  const handleUpgrade = () => {
+    const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+    upgradeMutation.mutate({
+      returnUrl: `${apiBase}/docs`,
+      cancelUrl: `${apiBase}/docs`,
+    });
+  };
+
+  const handleAddOrUpgrade = () => {
+    if (isAtFreeLimit) {
+      // Scroll to premium upgrade section
+      const upgradeSection = document.getElementById("upgrade");
+      if (upgradeSection) {
+        upgradeSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    } else {
+      setEditingTimezone(null);
+      setAddDialogOpen(true);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 transition-colors duration-500">
       <Header />
@@ -163,17 +187,26 @@ export default function HomePage() {
             </div>
             <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
               <Button
-                onClick={() => {
-                  setEditingTimezone(null);
-                  setAddDialogOpen(true);
-                }}
+                onClick={handleAddOrUpgrade}
+                disabled={isLoading}
+                className={isAtFreeLimit 
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                  : ""
+                }
               >
                 {isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : isAtFreeLimit ? (
+                  <>
+                    <Crown className="mr-2 h-4 w-4" />
+                    Upgrade to Premium
+                  </>
                 ) : (
-                  <Plus className="mr-2 h-4 w-4" />
+                  <>
+                    <Plus className="mr-2 h-4 w-4 " />
+                    {t("home.addTimezone")}
+                  </>
                 )}
-                {t("home.addTimezone")}
               </Button>
               <div className="inline-flex items-center">
                 <span className="mr-3 text-sm font-medium text-gray-700 dark:text-slate-300">
@@ -219,7 +252,7 @@ export default function HomePage() {
                   setAddDialogOpen(true);
                 }}
               >
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="mr-2 h-4 w-4  " />
                 {t("home.addTimezone")}
               </Button>
             </div>
