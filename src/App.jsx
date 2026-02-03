@@ -7,7 +7,7 @@ import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import GuidePage from "@/pages/guide";
-import { AuthProvider, useAuth } from "./hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 // No global full-screen loader — pages handle their own loading states
 
 function Router() {
