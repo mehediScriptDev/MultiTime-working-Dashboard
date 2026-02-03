@@ -21,14 +21,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
+import { useSweetAlert } from "@/components/ui/sweet-alert";
+import { timezoneService } from "@/lib/timezone-service";
 import { Plus, Clock, Loader2, AlertCircle, Crown, Zap } from "lucide-react";
 
 const TIMEZONES_KEY = "timezones_v1";
 
 export default function HomePage() {
   const { user, subscription, upgradeMutation } = useAuth();
-  const { toast } = useToast();
+  const { showAlert, AlertComponent } = useSweetAlert();
   const { t } = useTranslation();
   const [use24Hour, setUse24Hour] = useState(true);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -41,18 +42,64 @@ export default function HomePage() {
   const isPremium = user?.isPremium || subscription?.plan === "premium";
   const isAtFreeLimit = !isPremium && timezones.length >= 3;
 
-  // Load timezones from localStorage on mount
+  // Load timezones from backend on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(TIMEZONES_KEY);
-      if (saved) {
-        setTimezones(JSON.parse(saved));
+    const loadTimezones = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          // Try localStorage fallback if no token
+          const saved = localStorage.getItem(TIMEZONES_KEY);
+          if (saved) {
+            setTimezones(JSON.parse(saved));
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        const response = await timezoneService.getAll(token);
+        
+        if (response.success && response.data) {
+          // Transform grouped backend data to flat array with groupName
+          const flatTimezones = response.data.flatMap(group => 
+            (group.item || []).map(item => ({
+              id: item.id,
+              name: item.name,
+              city: item.city,
+              region: item.region,
+              abbreviation: item.abbreviation,
+              offset: item.offset,
+              workingHoursStart: item.workingHoursStart ?? 9,
+              workingHoursEnd: item.workingHoursEnd ?? 17,
+              label: item.label,
+              groupId: item.groupId,
+              groupName: group.name || 'General',
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt,
+            }))
+          );
+          
+          setTimezones(flatTimezones);
+          // Cache in localStorage as backup
+          localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
+        }
+      } catch (e) {
+        console.error("Failed to load timezones from backend", e);
+        // Fallback to localStorage
+        try {
+          const saved = localStorage.getItem(TIMEZONES_KEY);
+          if (saved) {
+            setTimezones(JSON.parse(saved));
+          }
+        } catch (err) {
+          console.error("Failed to load from localStorage", err);
+        }
+      } finally {
+        setIsLoading(false);
       }
-    } catch (e) {
-      console.error("Failed to load timezones from localStorage", e);
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    loadTimezones();
   }, []);
 
   // Save timezones to localStorage whenever they change
@@ -62,50 +109,149 @@ export default function HomePage() {
       setTimezones(newTimezones);
     } catch (e) {
       console.error("Failed to save timezones to localStorage", e);
-      toast({
+      showAlert({
+        type: "error",
         title: "Failed to save",
         description: "Could not save timezones to localStorage.",
-        variant: "destructive",
       });
     }
   };
 
-  const handleAddTimezone = (timezone) => {
+  const handleAddTimezone = async (timezone) => {
     // Check if user has reached free plan limit
     if (isAtFreeLimit) {
-      toast({
+      showAlert({
+        type: "warning",
         title: "Premium required",
         description: "You've reached the limit of 3 timezones. Upgrade to premium for unlimited timezones.",
-        variant: "destructive",
       });
       return;
     }
 
-    const newTimezone = {
-      id: `tz-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      ...timezone,
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        // Fallback to local-only mode
+        const newTimezone = {
+          id: `tz-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          ...timezone,
+          createdAt: new Date().toISOString(),
+        };
+        const updated = [...timezones, newTimezone];
+        saveTimezones(updated);
+        showAlert({
+          type: "success",
+          title: "Timezone added",
+          description: "The timezone has been added successfully.",
+        });
+        setAddDialogOpen(false);
+        return;
+      }
 
-    const updated = [...timezones, newTimezone];
-    saveTimezones(updated);
-    toast({
-      title: "Timezone added",
-      description: "The timezone has been added successfully.",
-    });
-    setAddDialogOpen(false);
+      const response = await timezoneService.create(timezone, token);
+      
+      if (response.success && response.data) {
+        // Re-fetch to get updated grouped data
+        const allTimezones = await timezoneService.getAll(token);
+        if (allTimezones.success && allTimezones.data) {
+          const flatTimezones = allTimezones.data.flatMap(group => 
+            (group.item || []).map(item => ({
+              id: item.id,
+              name: item.name,
+              city: item.city,
+              region: item.region,
+              abbreviation: item.abbreviation,
+              offset: item.offset,
+              workingHoursStart: item.workingHoursStart ?? 9,
+              workingHoursEnd: item.workingHoursEnd ?? 17,
+              label: item.label,
+              groupId: item.groupId,
+              groupName: group.name || 'General',
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt,
+            }))
+          );
+          setTimezones(flatTimezones);
+          localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
+        }
+        
+        showAlert({
+          type: "success",
+          title: "Timezone added",
+          description: "The timezone has been added successfully.",
+        });
+        setAddDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Failed to add timezone', error);
+      showAlert({
+        type: "error",
+        title: "Failed to add timezone",
+        description: error.message || "Could not add timezone.",
+      });
+    }
   };
 
-  const handleEditTimezone = (id, timezone) => {
-    const updated = timezones.map((tz) =>
-      tz.id === id ? { ...tz, ...timezone } : tz
-    );
-    saveTimezones(updated);
-    toast({
-      title: "Timezone updated",
-      description: "The timezone has been updated successfully.",
-    });
-    setAddDialogOpen(false);
+  const handleEditTimezone = async (id, timezone) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        // Fallback to local-only mode
+        const updated = timezones.map((tz) =>
+          tz.id === id ? { ...tz, ...timezone } : tz
+        );
+        saveTimezones(updated);
+        showAlert({
+          type: "success",
+          title: "Timezone updated",
+          description: "The timezone has been updated successfully.",
+        });
+        setAddDialogOpen(false);
+        return;
+      }
+
+      const response = await timezoneService.update(id, timezone, token);
+      
+      if (response.success) {
+        // Re-fetch to get updated grouped data
+        const allTimezones = await timezoneService.getAll(token);
+        if (allTimezones.success && allTimezones.data) {
+          const flatTimezones = allTimezones.data.flatMap(group => 
+            (group.item || []).map(item => ({
+              id: item.id,
+              name: item.name,
+              city: item.city,
+              region: item.region,
+              abbreviation: item.abbreviation,
+              offset: item.offset,
+              workingHoursStart: item.workingHoursStart ?? 9,
+              workingHoursEnd: item.workingHoursEnd ?? 17,
+              label: item.label,
+              groupId: item.groupId,
+              groupName: group.name || 'General',
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt,
+            }))
+          );
+          setTimezones(flatTimezones);
+          localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
+        }
+        
+        showAlert({
+          type: "success",
+          title: "Timezone updated",
+          description: "The timezone has been updated successfully.",
+        });
+        setAddDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Failed to update timezone', error);
+      showAlert({
+        type: "error",
+        title: "Failed to update timezone",
+        description: error.message || "Could not update timezone.",
+      });
+    }
   };
 
   const handleDeleteTimezone = (timezone) => {
@@ -113,16 +259,67 @@ export default function HomePage() {
     setDeleteConfirmOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (toDeleteTimezone) {
-      const updated = timezones.filter((tz) => tz.id !== toDeleteTimezone.id);
-      saveTimezones(updated);
-      toast({
-        title: "Timezone deleted",
-        description: "The timezone has been deleted successfully.",
-      });
-      setDeleteConfirmOpen(false);
-      setToDeleteTimezone(null);
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          // Fallback to local-only mode
+          const updated = timezones.filter((tz) => tz.id !== toDeleteTimezone.id);
+          saveTimezones(updated);
+          showAlert({
+            type: "success",
+            title: "Timezone deleted",
+            description: "The timezone has been deleted successfully.",
+          });
+          setDeleteConfirmOpen(false);
+          setToDeleteTimezone(null);
+          return;
+        }
+
+        const response = await timezoneService.delete(toDeleteTimezone.id, token);
+        
+        if (response.success) {
+          // Re-fetch to get updated grouped data
+          const allTimezones = await timezoneService.getAll(token);
+          if (allTimezones.success && allTimezones.data) {
+            const flatTimezones = allTimezones.data.flatMap(group => 
+              (group.item || []).map(item => ({
+                id: item.id,
+                name: item.name,
+                city: item.city,
+                region: item.region,
+                abbreviation: item.abbreviation,
+                offset: item.offset,
+                workingHoursStart: item.workingHoursStart ?? 9,
+                workingHoursEnd: item.workingHoursEnd ?? 17,
+                label: item.label,
+                groupId: item.groupId,
+                groupName: group.name || 'General',
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt,
+              }))
+            );
+            setTimezones(flatTimezones);
+            localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
+          }
+          
+          showAlert({
+            type: "success",
+            title: "Timezone deleted",
+            description: "The timezone has been deleted successfully.",
+          });
+          setDeleteConfirmOpen(false);
+          setToDeleteTimezone(null);
+        }
+      } catch (error) {
+        console.error('Failed to delete timezone', error);
+        showAlert({
+          type: "error",
+          title: "Failed to delete timezone",
+          description: error.message || "Could not delete timezone.",
+        });
+      }
     }
   };
 
@@ -327,16 +524,21 @@ export default function HomePage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-slate-100 dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 text-white border-0"
             >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Sweet Alert Component */}
+      {AlertComponent}
     </div>
   );
 }
