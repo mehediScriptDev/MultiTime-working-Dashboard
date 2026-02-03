@@ -71,7 +71,7 @@ export function Header() {
                     <span
                       className={`text-[10px] font-black uppercase tracking-widest mt-1 ${
                         user.isPremium || subscription?.plan === "premium"
-                          ? "text-yellow-600 dark:text-yellow-400"
+                          ? "text-blue-500"
                           : "text-gray-400 dark:text-slate-500"
                       }`}
                     >

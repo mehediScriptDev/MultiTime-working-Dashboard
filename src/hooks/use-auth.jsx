@@ -27,6 +27,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoginPending, setIsLoginPending] = useState(false);
+  const [isRegisterPending, setIsRegisterPending] = useState(false);
   
   // Load user and subscription from localStorage on mount and fetch fresh data from backend
   useEffect(() => {
@@ -114,6 +116,7 @@ export function AuthProvider({ children }) {
 
   const loginMutation = {
     mutate: async (credentials) => {
+      setIsLoginPending(true);
       try {
         const response = await authService.login(credentials);
         
@@ -127,16 +130,21 @@ export function AuthProvider({ children }) {
         }
       } catch (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
+      } finally {
+        setIsLoginPending(false);
       }
     },
     mutateAsync: async (credentials) => {
       return loginMutation.mutate(credentials);
     },
-    isPending: false,
+    get isPending() {
+      return isLoginPending;
+    },
   };
 
   const registerMutation = {
     mutate: async (credentials) => {
+      setIsRegisterPending(true);
       try {
         const response = await authService.register(credentials);
         
@@ -150,12 +158,16 @@ export function AuthProvider({ children }) {
         }
       } catch (error) {
         toast({ title: "Registration failed", description: error.message, variant: "destructive" });
+      } finally {
+        setIsRegisterPending(false);
       }
     },
     mutateAsync: async (credentials) => {
       return registerMutation.mutate(credentials);
     },
-    isPending: false,
+    get isPending() {
+      return isRegisterPending;
+    },
   };
 
   const logoutMutation = {

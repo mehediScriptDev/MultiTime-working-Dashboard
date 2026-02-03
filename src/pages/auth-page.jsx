@@ -124,7 +124,7 @@ export default function AuthPage() {
         </motion.div>
 
         <motion.div
-          className="hidden lg:flex relative w-1/2 justify-center overflow-hidden h-screen lg:absolute lg:inset-y-0 lg:right-0 bg-slate-900"
+          className="hidden lg:flex relative w-1/2 justify-center overflow-hidden h-screen lg:absolute lg:inset-y-0 lg:right-0"
           initial={false}
           animate={tabValue}
           variants={imageVariants}
@@ -140,15 +140,15 @@ export default function AuthPage() {
             </div>
           </div>
 
-          <div className="relative flex flex-col justify-center items-center h-full px-6 lg:px-8 xl:px-12 2xl:px-16 text-white z-10 text-center">
-            <div className="w-full max-w-sm lg:max-w-md xl:max-w-lg 2xl:max-w-xl mx-auto">
+          <div className="relative flex flex-col justify-center items-center h-full px-16 text-white z-10 text-center">
+            <div className="max-w-xl mx-auto">
               {/* animated logo */}
-              <div className="flex items-center justify-center mb-3 lg:mb-4 xl:mb-5">
-                <div className="p-2 lg:p-3 xl:p-4">
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="p-4 rounded-2xl xl:rounded-3xl ">
                   <img
                     src="/Logo.png"
                     alt="TimeSync"
-                    className="h-8 lg:h-10 xl:h-14 2xl:h-16 w-auto animate-[spin_10s_linear_infinite]"
+                    className="xl:h-16 h-10 w-auto animate-[spin_10s_linear_infinite]"
                   />
                 </div>
                 {/* <div className="rounded-2xl xl:rounded-3xl shadow-2xl">
@@ -157,32 +157,32 @@ export default function AuthPage() {
               </div>
 
               {/* tabs */}
-              <div className="flex justify-center mb-4 lg:mb-5 xl:mb-6">
-                <div className="relative w-48 lg:w-52 xl:w-56 bg-white/10 dark:bg-white/6 rounded-full p-1">
+              <div className="flex justify-center mb-6">
+                <div className="relative w-56 bg-white/10 dark:bg-white/6 rounded-full p-1">
                   <div
                     aria-hidden
-                    className={`absolute top-1/2 -translate-y-1/2 w-1/2 h-[34px] lg:h-[36px] xl:h-[38px] bg-white dark:bg-slate-900 rounded-full shadow transition-all ${tabValue === "login" ? "left-0" : "left-1/2"}`}
+                    className={`absolute top-1/2 -translate-y-1/2 w-1/2 h-[38px] bg-white dark:bg-slate-900 rounded-full shadow transition-all ${tabValue === "login" ? "left-0" : "left-1/2"}`}
                     style={{ transition: "left .22s cubic-bezier(.2,.9,.2,1)" }}
                   />
                   <div className="relative z-10 grid grid-cols-2">
                     <button
                       type="button"
                       onClick={() => setTabValue("login")}
-                      className={`py-1.5 lg:py-2 text-xs lg:text-sm font-semibold rounded-full transition-colors ${tabValue === "login" ? "text-slate-900 dark:text-white" : "text-slate-300 hover:text-white"}`}
+                      className={`py-2 text-sm font-semibold rounded-full ${tabValue === "login" ? "text-slate-900 dark:text-white" : "text-slate-200"}`}
                     >
                       Sign In
                     </button>
                     <button
                       type="button"
                       onClick={() => setTabValue("register")}
-                      className={`py-1.5 lg:py-2 text-xs lg:text-sm font-semibold rounded-full transition-colors ${tabValue === "register" ? "text-slate-900 dark:text-white" : "text-slate-300 hover:text-white"}`}
+                      className={`py-2 text-sm font-semibold rounded-full ${tabValue === "register" ? "text-slate-900 dark:text-white" : "text-slate-200"}`}
                     >
                       Sign Up
                     </button>
                   </div>
                 </div>
               </div>
-              <h2 className="text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-black mb-3 lg:mb-4 xl:mb-5 tracking-tighter leading-tight">
+              <h2 className="text-5xl xl:text-6xl font-black mb-6 tracking-tighter leading-none">
                 Work{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
                   anywhere
@@ -195,26 +195,26 @@ export default function AuthPage() {
                 .
               </h2>
 
-              <p className="text-xs lg:text-sm xl:text-base 2xl:text-lg text-slate-300 mb-5 lg:mb-6 xl:mb-8 font-medium leading-relaxed max-w-[90%] mx-auto">
+              <p className="text-lg xl:text-xl text-slate-300 mb-10 font-medium leading-relaxed">
                 Empower your remote team with seamless timezone management.
                 Schedule meetings with confidence and maintain perfect harmony
                 across the globe.
               </p>
 
-              <div className="grid grid-cols-2 gap-3 lg:gap-4 xl:gap-5 justify-center mx-auto max-w-[280px] lg:max-w-xs xl:max-w-sm">
-                <div className="p-3 lg:p-4 xl:p-5 bg-white/5 backdrop-blur-sm hover:rotate-2 rounded-xl lg:rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300">
-                  <div className="font-black text-xl lg:text-2xl xl:text-3xl text-blue-400 mb-0.5">
+              <div className="grid grid-cols-2 gap-6 justify-center mx-auto">
+                <div className="p-4 xl:p-6 bg-white/5 backdrop-blur-sm hover:rotate-3 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                  <div className="font-black text-2xl text-blue-400 mb-1">
                     3+
                   </div>
-                  <div className="text-[9px] lg:text-[10px] xl:text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400">
                     Free Timezones
                   </div>
                 </div>
-                <div className="p-3 lg:p-4 xl:p-5 bg-white/5 backdrop-blur-sm rounded-xl lg:rounded-2xl hover:-rotate-2 border border-white/10 hover:bg-white/10 transition-all duration-300">
-                  <div className="font-black text-xl lg:text-2xl xl:text-3xl text-indigo-400 mb-0.5">
+                <div className="p-4 xl:p-6 bg-white/5 backdrop-blur-sm rounded-2xl hover:-rotate-3 border border-white/10 hover:bg-white/10 transition-colors">
+                  <div className="font-black text-2xl text-indigo-400 mb-1">
                     100%
                   </div>
-                  <div className="text-[9px] lg:text-[10px] xl:text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400">
                     Remote Ready
                   </div>
                 </div>

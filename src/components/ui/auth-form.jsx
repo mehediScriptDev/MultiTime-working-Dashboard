@@ -179,13 +179,17 @@ export default function AuthForm({
                   <div>
                     <Button
                       type="submit"
-                      className="w-full h-10 sm:h-11 lg:h-10 xl:h-11 2xl:h-12 rounded-lg sm:rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all"
+                      className="w-full h-10 sm:h-11 lg:h-10 xl:h-11 2xl:h-12 rounded-lg sm:rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all"
                       disabled={loginMutation.isPending}
                     >
                       {loginMutation.isPending ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin inline-block" />
-                      ) : null}
-                      Sign In
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Signing in...
+                        </>
+                      ) : (
+                        "Sign In"
+                      )}
                     </Button>
                   </div>
 
@@ -301,13 +305,17 @@ export default function AuthForm({
                   <div>
                     <Button
                       type="submit"
-                      className="w-full h-10 sm:h-11 lg:h-10 xl:h-11 2xl:h-12 rounded-lg sm:rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all"
+                      className="w-full h-10 sm:h-11 lg:h-10 xl:h-11 2xl:h-12 rounded-lg sm:rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all"
                       disabled={registerMutation.isPending}
                     >
                       {registerMutation.isPending ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin inline-block" />
-                      ) : null}
-                      Create account
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating account...
+                        </>
+                      ) : (
+                        "Create account"
+                      )}
                     </Button>
                   </div>
                 </form>

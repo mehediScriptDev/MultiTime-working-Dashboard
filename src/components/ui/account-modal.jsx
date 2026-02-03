@@ -21,15 +21,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { 
-  Crown, 
-  Calendar, 
-  CreditCard, 
-  Zap, 
+import {
+  Crown,
+  Calendar,
+  CreditCard,
+  Zap,
   AlertTriangle,
   Loader2,
   CheckCircle2,
-  XCircle
+  XCircle,
 } from "lucide-react";
 
 export function AccountModal({ open, onOpenChange }) {
@@ -53,11 +53,12 @@ export function AccountModal({ open, onOpenChange }) {
     try {
       const token = localStorage.getItem("accessToken");
       const response = await subscriptionService.cancel(token);
-      
+
       if (response?.success) {
         toast({
           title: "Subscription cancelled",
-          description: "Your premium subscription has been cancelled. You'll have access until the end of your billing period.",
+          description:
+            "Your premium subscription has been cancelled. You'll have access until the end of your billing period.",
         });
         setCancelDialogOpen(false);
         onOpenChange(false);
@@ -102,13 +103,15 @@ export function AccountModal({ open, onOpenChange }) {
           <DialogHeader>
             <div className="flex items-center gap-3 mb-2">
               {isPremium ? (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
                   <Crown className="h-6 w-6 text-white" />
                 </div>
               ) : (
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
                   <div className="text-white text-xl font-bold">
-                    {user?.username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
+                    {user?.username?.charAt(0).toUpperCase() ||
+                      user?.email?.charAt(0).toUpperCase() ||
+                      "U"}
                   </div>
                 </div>
               )}
@@ -125,20 +128,24 @@ export function AccountModal({ open, onOpenChange }) {
 
           <div className="space-y-4 py-4">
             {/* Plan Status */}
-            <div className={`p-4 rounded-xl border-2 ${
-              isPremium 
-                ? "bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10 border-yellow-300 dark:border-yellow-700"
-                : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
-            }`}>
+            <div
+                className={`p-4 rounded-xl border ${
+                  isPremium
+                    ? "bg-slate-900/60 dark:bg-slate-900/60 border-slate-700"
+                    : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
+                }`}
+            >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                   Current Plan
                 </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                  isPremium
-                    ? "bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-md"
-                    : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
-                }`}>
+                <span
+                    className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                      isPremium
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                    }`}
+                >
                   {isPremium ? "Premium" : "Free Plan"}
                 </span>
               </div>
@@ -147,7 +154,7 @@ export function AccountModal({ open, onOpenChange }) {
                 <div className="space-y-3">
                   {/* Features */}
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                      <CheckCircle2 className="h-5 w-5 text-blue-400 dark:text-blue-300 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-semibold text-slate-900 dark:text-white">
                         Unlimited Timezones
@@ -214,9 +221,11 @@ export function AccountModal({ open, onOpenChange }) {
                         </span>
                       </div>
                       <div className="mt-2 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-300"
-                          style={{ width: `${Math.min(((subscription.usage.timezonesUsed || 0) / 3) * 100, 100)}%` }}
+                          style={{
+                            width: `${Math.min(((subscription.usage.timezonesUsed || 0) / 3) * 100, 100)}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -241,7 +250,8 @@ export function AccountModal({ open, onOpenChange }) {
                   </span>
                 </p>
                 <p className="text-xs text-slate-600 dark:text-slate-400">
-                  {subscription.pricing.currency?.toUpperCase()} • Cancel anytime
+                  {subscription.pricing.currency?.toUpperCase()} • Cancel
+                  anytime
                 </p>
               </div>
             )}
@@ -307,11 +317,16 @@ export function AccountModal({ open, onOpenChange }) {
               Cancel Premium Subscription?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-600 dark:text-slate-400">
-              Are you sure you want to cancel your premium subscription? You will:
+              Are you sure you want to cancel your premium subscription? You
+              will:
               <ul className="list-disc list-inside mt-3 space-y-1 text-sm">
                 <li>Lose access to unlimited timezones</li>
-                <li>Be limited to 3 timezones after your billing period ends</li>
-                <li>Keep access until {formatDate(subscription?.currentPeriodEnd)}</li>
+                <li>
+                  Be limited to 3 timezones after your billing period ends
+                </li>
+                <li>
+                  Keep access until {formatDate(subscription?.currentPeriodEnd)}
+                </li>
               </ul>
             </AlertDialogDescription>
           </AlertDialogHeader>
