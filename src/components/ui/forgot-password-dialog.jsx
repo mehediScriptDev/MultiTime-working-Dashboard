@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Loader2, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/lib/auth-service";
 
 export function ForgotPasswordDialog({ open, onOpenChange }) {
   const [email, setEmail] = useState("");
@@ -42,12 +43,14 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
     setIsLoading(true);
 
     try {
-      // Simulate API call - backend will handle actual email sending
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Call backend API to send reset email
+      const response = await authService.forgotPassword(email);
 
       toast({
         title: "Email sent!",
-        description: "Check your inbox for password reset instructions.",
+        description:
+          response.message ||
+          "Check your inbox for password reset instructions.",
       });
 
       setSubmitted(true);
@@ -57,9 +60,28 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
         onOpenChange(false);
       }, 2000);
     } catch (error) {
+      // Parse the error message for better UX
+      let title = "Failed to send email";
+      let description = error.message || "Please try again later.";
+      
+      // Customize title based on error type
+      if (description.toLowerCase().includes('not found') || description.toLowerCase().includes('no account')) {
+        title = "Account not found";
+      } else if (description.toLowerCase().includes('too many')) {
+        title = "Too many attempts";
+      } else if (description.toLowerCase().includes('server')) {
+        title = "Server error";
+      } else if (description.toLowerCase().includes('invalid') || description.toLowerCase().includes('validation')) {
+        title = "Invalid request";
+        // Make validation error more helpful
+        if (description.toLowerCase() === 'validation failed') {
+          description = "Please check your email address and try again.";
+        }
+      }
+      
       toast({
-        title: "Failed to send email",
-        description: "Please try again later.",
+        title,
+        description,
         variant: "destructive",
       });
     } finally {
@@ -115,7 +137,7 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-10 lg:h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 shadow-lg shadow-blue-600/20 rounded-lg lg:rounded-xl font-bold text-sm lg:text-base"
+                className="w-full h-10 bg-[#2563eb] text-white shadow-lg shadow-blue-600/20 rounded-lg lg:rounded-xl font-semibold text-sm lg:text-base"
               >
                 {isLoading ? (
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />

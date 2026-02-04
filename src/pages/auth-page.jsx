@@ -119,7 +119,11 @@ export default function AuthPage() {
               </p>
             </div> */}
 
-            <AuthForm mode={tabValue} setMode={setTabValue} />
+            <AuthForm 
+              mode={tabValue} 
+              setMode={setTabValue} 
+              onForgotPassword={() => setForgotPasswordOpen(true)}
+            />
           </div>
         </motion.div>
 

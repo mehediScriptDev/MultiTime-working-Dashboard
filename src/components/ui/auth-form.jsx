@@ -28,6 +28,7 @@ export default function AuthForm({
   initialMode = "login",
   mode: controlledMode,
   setMode: setControlledMode,
+  onForgotPassword,
 }) {
   const { user, loginMutation, registerMutation } = useAuth();
   const [internalMode, setInternalMode] = useState(initialMode); // fallback when uncontrolled
@@ -170,6 +171,7 @@ export default function AuthForm({
                     </div>
                     <button
                       type="button"
+                      onClick={onForgotPassword}
                       className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       Forgot?
