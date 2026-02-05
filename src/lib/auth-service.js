@@ -132,7 +132,7 @@ export const authService = {
 
   // Request password reset - sends reset link to email
   async forgotPassword(email) {
-    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+    const response = await fetch(`${API_BASE_URL}/auth/password-reset`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -20,7 +20,8 @@ function Router() {
         {user ? <HomePage /> : <AuthPage />}
       </Route>
       <Route path="/auth" component={AuthPage} />
-      <Route path="/auth/reset-password" component={ResetPasswordPage} />
+      <Route path="/reset-password" component={AuthPage} />
+      <Route path="/auth/reset-password" component={AuthPage} />
       <Route path="/guide" component={GuidePage} />
       <Route component={NotFound} />
     </Switch>

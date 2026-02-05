@@ -59,12 +59,12 @@ export function Header() {
               <>
                 <button
                   onClick={() => setAccountModalOpen(true)}
-                  className="hidden md:flex items-center px-4 py-2 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200 cursor-pointer group"
+                  className="flex items-center px-4 py-2 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200 cursor-pointer group"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold mr-3 shadow-md group-hover:shadow-lg transition-shadow">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold md:mr-3 shadow-md group-hover:shadow-lg transition-shadow">
                     {user.username?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || "U"}
                   </div>
-                  <div className="flex flex-col">
+                  <div className="hidden md:flex flex-col">
                     <span className="text-xs font-bold text-gray-900 dark:text-slate-100 leading-none">
                       {user.username || user.email?.split("@")[0]}
                     </span>

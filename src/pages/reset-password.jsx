@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/lib/auth-service";
 
 export default function ResetPasswordPage() {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   
   const [password, setPassword] = useState("");
@@ -21,7 +20,8 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     // Get token from URL query parameter
-    const tokenFromUrl = searchParams.get("token");
+    const params = new URLSearchParams(window.location.search);
+    const tokenFromUrl = params.get("token");
     if (tokenFromUrl) {
       setToken(tokenFromUrl);
     } else {
@@ -30,9 +30,9 @@ export default function ResetPasswordPage() {
         description: "This password reset link is invalid or has expired.",
         variant: "destructive",
       });
-      setTimeout(() => navigate("/auth"), 2000);
+      setTimeout(() => setLocation("/auth"), 2000);
     }
-  }, [searchParams, navigate, toast]);
+  }, [toast, setLocation]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,7 +79,7 @@ export default function ResetPasswordPage() {
       
       // Redirect to auth page after 2 seconds
       setTimeout(() => {
-        navigate("/auth");
+        setLocation("/auth");
       }, 2000);
     } catch (error) {
       // Parse the error message for better UX
@@ -186,7 +186,7 @@ export default function ResetPasswordPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate("/auth")}
+                onClick={() => setLocation("/auth")}
                 className="w-full"
                 disabled={isLoading}
               >
