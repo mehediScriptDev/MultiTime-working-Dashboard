@@ -25,14 +25,14 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
 
   return (
     <Card className="mb-5 lg:mb-6 border-none shadow-xl overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
-      <CardHeader className="pb-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
-        <CardTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <div className="w-2 h-6 bg-blue-600 rounded-full" />
+      <CardHeader className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
+        <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <div className="w-1.5 sm:w-2 h-5 sm:h-6 bg-blue-600 rounded-full" />
           {t('common.timeComparison')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
-        <div className="overflow-x-auto">
+      <CardContent className="pt-4 sm:pt-5 md:pt-6">
+        <div className="overflow-x-auto -mx-2 sm:mx-0">
           <div
             ref={containerRef}
             onMouseMove={(e) => {
@@ -44,13 +44,13 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
               setHoverPosition(pct);
             }}
             onMouseLeave={() => setHoverPosition(null)}
-            className="min-w-[800px] px-2"
+            className="min-w-[600px] sm:min-w-[700px] md:min-w-[800px] px-2"
           >
             {/* Time scale (24 hour) */}
-            <div className="flex h-12 border-b border-gray-100 dark:border-slate-800 mb-6 bg-gray-50/30 dark:bg-slate-800/20 rounded-t-lg">
+            <div className="flex h-10 sm:h-11 md:h-12 border-b border-gray-100 dark:border-slate-800 mb-4 sm:mb-5 md:mb-6 bg-gray-50/30 dark:bg-slate-800/20 rounded-t-lg">
               {timeScale.map((hour, i) => (
                 <div key={i} className="flex-1 flex flex-col justify-center items-center border-r last:border-r-0 border-gray-100/50 dark:border-slate-700/30">
-                  <span className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-tighter">{hour}</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-tighter">{hour}</span>
                 </div>
               ))}
             </div>
@@ -102,23 +102,28 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
               }
 
               return (
-                <div key={timezone.id} className="flex items-center mb-6 group">
-                  <div className="w-40 pr-6 shrink-0">
+                <div key={timezone.id} className="flex items-center mb-4 md:mb-6 group">
+                  <div className="w-32 sm:w-40 md:w-52 pr-2 sm:pr-4 md:pr-6 shrink-0">
                     {timezone.label && (
-                      <div className="text-xs text-blue-500 dark:text-blue-400 font-medium mb-1 truncate">{timezone.label}</div>
+                      <div className="text-xs sm:text-sm text-blue-500 dark:text-blue-400 font-semibold mb-1 md:mb-2 truncate">{timezone.label}</div>
                     )}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 md:gap-3 px-2 sm:px-3 md:px-4 py-2 sm:bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-800/80 rounded-lg md:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 group-hover:scale-[1.02]">
                       <div
                         title={isActive ? 'Active Now' : 'Inactive'}
-                        className={`w-3 h-3 rounded-full ${isActive ? 'bg-green-500 shadow-md' : 'bg-gray-300'}`}
+                        className={`w-2.5 h-2.5 md:w-3.5 md:h-3.5 rounded-full flex-shrink-0 ${isActive ? 'bg-green-500 shadow-lg shadow-green-500/50 animate-pulse' : 'bg-gray-300 dark:bg-slate-600'}`}
                       />
-                      <div className="font-bold text-gray-800 dark:text-slate-200 truncate group-hover:text-blue-600 transition-colors">{timezone.name}</div>
-                    </div>
-                    <div className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">
-                      {formatTimezoneOffset(timezone.offset)}{hoverTimeLabel ? ` · ${hoverTimeLabel}` : ''}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-xs sm:text-sm lg:text-sm text-gray-900 dark:text-slate-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{timezone.name}</div>
+                        <div className="text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mt-0.5 hidden sm:block">
+                          {formatTimezoneOffset(timezone.offset)}{hoverTimeLabel ? ` · ${hoverTimeLabel}` : ` · ${now.format(use24Hour ? 'HH:mm' : 'h:mm A')}`}
+                        </div>
+                        <div className="text-[9px] font-semibold text-gray-500 dark:text-slate-400 mt-0.5 sm:hidden">
+                          {now.format(use24Hour ? 'HH:mm' : 'h:mm A')}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex-1 h-8 bg-gray-100/50 dark:bg-slate-800/50 rounded-xl relative shadow-inner border border-gray-200/50 dark:border-slate-700/50 overflow-hidden">
+                  <div className="flex-1 h-6 sm:h-7 md:h-8 bg-gray-100/50 dark:bg-slate-800/50 rounded-lg md:rounded-xl relative shadow-inner border border-gray-200/50 dark:border-slate-700/50 overflow-hidden">
                     {/* Grid lines */}
                     <div className="absolute inset-0 flex">
                       {Array.from({ length: 24 }).map((_, i) => (
@@ -160,13 +165,13 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
           </div>
         </div>
         
-        <div className="mt-8 pt-6 border-t border-gray-100 dark:border-slate-800 flex flex-wrap gap-6 text-xs font-bold uppercase tracking-widest text-gray-400">
+        <div className="mt-6 sm:mt-7 md:mt-8 pt-4 sm:pt-5 md:pt-6 border-t border-gray-100 dark:border-slate-800 flex flex-wrap gap-4 sm:gap-6 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-400">
           <div className="flex items-center">
-            <div className="w-4 h-4 bg-blue-600/20 border border-blue-600/30 rounded-md mr-2.5"></div>
+            <div className="w-3 sm:w-4 h-3 sm:h-4 bg-blue-600/20 border border-blue-600/30 rounded-md mr-2 sm:mr-2.5"></div>
             <span>{t('common.workingHoursLabel')}</span>
           </div>
           <div className="flex items-center">
-            <div className="w-4 h-4 bg-red-500 rounded-full ring-4 ring-red-50 dark:ring-red-900/20 mr-2.5"></div>
+            <div className="w-3 sm:w-4 h-3 sm:h-4 bg-red-500 rounded-full ring-2 sm:ring-4 ring-red-50 dark:ring-red-900/20 mr-2 sm:mr-2.5"></div>
             <span>{t('home.currentTime')}</span>
           </div>
         </div>

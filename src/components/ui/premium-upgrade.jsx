@@ -7,10 +7,9 @@ export function PremiumUpgrade({ timezoneCount }) {
   const { upgradeMutation, subscription } = useAuth();
 
   const handleUpgrade = () => {
-    // Use backend-documented return/cancel URLs (backend will handle redirects)
-    const backendBase = import.meta.env.VITE_API_BASE_URL;
-    const returnUrl = `${backendBase}/docs`;
-    const cancelUrl = `${backendBase}/docs`;
+    const origin = window.location.origin;
+    const returnUrl = `${origin}/auth`;
+    const cancelUrl = `${origin}/auth`;
     upgradeMutation.mutate({ returnUrl, cancelUrl });
   };
 

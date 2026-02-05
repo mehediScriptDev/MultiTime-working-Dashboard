@@ -38,15 +38,39 @@ export default function HomePage() {
   const [toDeleteTimezone, setToDeleteTimezone] = useState(null);
   const [timezones, setTimezones] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [upgradeSuccessOpen, setUpgradeSuccessOpen] = useState(false);
 
   const isPremium = user?.isPremium || subscription?.plan === "premium";
   const isAtFreeLimit = !isPremium && timezones.length >= 3;
+
+  // Handle upgrade success/cancel from Stripe redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const upgradeStatus = params.get("upgrade");
+    
+    if (upgradeStatus === "success") {
+      setUpgradeSuccessOpen(true);
+      // Clear the query params from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Reload to refresh subscription status
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    } else if (upgradeStatus === "cancel") {
+      showAlert({
+        type: "info",
+        title: "Upgrade cancelled",
+        description: "You can upgrade to premium anytime from your account.",
+      });
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [showAlert]);
 
   // Load timezones from backend on mount
   useEffect(() => {
     const loadTimezones = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem("accessToken");
         if (!token) {
           // Try localStorage fallback if no token
           const saved = localStorage.getItem(TIMEZONES_KEY);
@@ -58,11 +82,11 @@ export default function HomePage() {
         }
 
         const response = await timezoneService.getAll(token);
-        
+
         if (response.success && response.data) {
           // Transform grouped backend data to flat array with groupName
-          const flatTimezones = response.data.flatMap(group => 
-            (group.item || []).map(item => ({
+          const flatTimezones = response.data.flatMap((group) =>
+            (group.item || []).map((item) => ({
               id: item.id,
               name: item.name,
               city: item.city,
@@ -73,12 +97,12 @@ export default function HomePage() {
               workingHoursEnd: item.workingHoursEnd ?? 17,
               label: item.label,
               groupId: item.groupId,
-              groupName: group.name || 'General',
+              groupName: group.name || "General",
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
-            }))
+            })),
           );
-          
+
           setTimezones(flatTimezones);
           // Cache in localStorage as backup
           localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
@@ -125,13 +149,14 @@ export default function HomePage() {
       showAlert({
         type: "warning",
         title: "Premium required",
-        description: "You've reached the limit of 3 timezones. Upgrade to premium for unlimited timezones.",
+        description:
+          "You've reached the limit of 3 timezones. Upgrade to premium for unlimited timezones.",
       });
       return;
     }
 
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       if (!token) {
         // Fallback to local-only mode
         const newTimezone = {
@@ -151,13 +176,13 @@ export default function HomePage() {
       }
 
       const response = await timezoneService.create(timezone, token);
-      
+
       if (response.success && response.data) {
         // Re-fetch to get updated grouped data
         const allTimezones = await timezoneService.getAll(token);
         if (allTimezones.success && allTimezones.data) {
-          const flatTimezones = allTimezones.data.flatMap(group => 
-            (group.item || []).map(item => ({
+          const flatTimezones = allTimezones.data.flatMap((group) =>
+            (group.item || []).map((item) => ({
               id: item.id,
               name: item.name,
               city: item.city,
@@ -168,15 +193,15 @@ export default function HomePage() {
               workingHoursEnd: item.workingHoursEnd ?? 17,
               label: item.label,
               groupId: item.groupId,
-              groupName: group.name || 'General',
+              groupName: group.name || "General",
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
-            }))
+            })),
           );
           setTimezones(flatTimezones);
           localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
         }
-        
+
         showAlert({
           type: "success",
           title: "Timezone added",
@@ -185,7 +210,7 @@ export default function HomePage() {
         setAddDialogOpen(false);
       }
     } catch (error) {
-      console.error('Failed to add timezone', error);
+      console.error("Failed to add timezone", error);
       showAlert({
         type: "error",
         title: "Failed to add timezone",
@@ -196,11 +221,11 @@ export default function HomePage() {
 
   const handleEditTimezone = async (id, timezone) => {
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       if (!token) {
         // Fallback to local-only mode
         const updated = timezones.map((tz) =>
-          tz.id === id ? { ...tz, ...timezone } : tz
+          tz.id === id ? { ...tz, ...timezone } : tz,
         );
         saveTimezones(updated);
         showAlert({
@@ -213,13 +238,13 @@ export default function HomePage() {
       }
 
       const response = await timezoneService.update(id, timezone, token);
-      
+
       if (response.success) {
         // Re-fetch to get updated grouped data
         const allTimezones = await timezoneService.getAll(token);
         if (allTimezones.success && allTimezones.data) {
-          const flatTimezones = allTimezones.data.flatMap(group => 
-            (group.item || []).map(item => ({
+          const flatTimezones = allTimezones.data.flatMap((group) =>
+            (group.item || []).map((item) => ({
               id: item.id,
               name: item.name,
               city: item.city,
@@ -230,15 +255,15 @@ export default function HomePage() {
               workingHoursEnd: item.workingHoursEnd ?? 17,
               label: item.label,
               groupId: item.groupId,
-              groupName: group.name || 'General',
+              groupName: group.name || "General",
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
-            }))
+            })),
           );
           setTimezones(flatTimezones);
           localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
         }
-        
+
         showAlert({
           type: "success",
           title: "Timezone updated",
@@ -247,7 +272,7 @@ export default function HomePage() {
         setAddDialogOpen(false);
       }
     } catch (error) {
-      console.error('Failed to update timezone', error);
+      console.error("Failed to update timezone", error);
       showAlert({
         type: "error",
         title: "Failed to update timezone",
@@ -264,10 +289,12 @@ export default function HomePage() {
   const confirmDelete = async () => {
     if (toDeleteTimezone) {
       try {
-        const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem("accessToken");
         if (!token) {
           // Fallback to local-only mode
-          const updated = timezones.filter((tz) => tz.id !== toDeleteTimezone.id);
+          const updated = timezones.filter(
+            (tz) => tz.id !== toDeleteTimezone.id,
+          );
           saveTimezones(updated);
           showAlert({
             type: "success",
@@ -279,14 +306,17 @@ export default function HomePage() {
           return;
         }
 
-        const response = await timezoneService.delete(toDeleteTimezone.id, token);
-        
+        const response = await timezoneService.delete(
+          toDeleteTimezone.id,
+          token,
+        );
+
         if (response.success) {
           // Re-fetch to get updated grouped data
           const allTimezones = await timezoneService.getAll(token);
           if (allTimezones.success && allTimezones.data) {
-            const flatTimezones = allTimezones.data.flatMap(group => 
-              (group.item || []).map(item => ({
+            const flatTimezones = allTimezones.data.flatMap((group) =>
+              (group.item || []).map((item) => ({
                 id: item.id,
                 name: item.name,
                 city: item.city,
@@ -297,15 +327,15 @@ export default function HomePage() {
                 workingHoursEnd: item.workingHoursEnd ?? 17,
                 label: item.label,
                 groupId: item.groupId,
-                groupName: group.name || 'General',
+                groupName: group.name || "General",
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt,
-              }))
+              })),
             );
             setTimezones(flatTimezones);
             localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
           }
-          
+
           showAlert({
             type: "success",
             title: "Timezone deleted",
@@ -315,7 +345,7 @@ export default function HomePage() {
           setToDeleteTimezone(null);
         }
       } catch (error) {
-        console.error('Failed to delete timezone', error);
+        console.error("Failed to delete timezone", error);
         showAlert({
           type: "error",
           title: "Failed to delete timezone",
@@ -333,9 +363,9 @@ export default function HomePage() {
   // Group timezones by groupName
   const groupTimezonesByGroupName = () => {
     const grouped = {};
-    
-    timezones.forEach(timezone => {
-      const group = timezone.groupName || 'General';
+
+    timezones.forEach((timezone) => {
+      const group = timezone.groupName || "General";
       if (!grouped[group]) {
         grouped[group] = [];
       }
@@ -348,10 +378,10 @@ export default function HomePage() {
   const groupedTimezones = groupTimezonesByGroupName();
 
   const handleUpgrade = () => {
-    const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+    const origin = window.location.origin;
     upgradeMutation.mutate({
-      returnUrl: `${apiBase}/docs`,
-      cancelUrl: `${apiBase}/docs`,
+      returnUrl: `${origin}/auth`,
+      cancelUrl: `${origin}/auth`,
     });
   };
 
@@ -388,9 +418,10 @@ export default function HomePage() {
               <Button
                 onClick={handleAddOrUpgrade}
                 disabled={isLoading}
-                className={isAtFreeLimit 
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                  : ""
+                className={
+                  isAtFreeLimit
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                    : ""
                 }
               >
                 {isLoading ? (
@@ -459,7 +490,7 @@ export default function HomePage() {
 
           {/* Grouped Timezone cards */}
           {timezones && timezones.length > 0 && (
-            <div className="mb-5 lg:mb-6 space-y-8">
+            <div className="mb-5 lg:mb-6 lg:space-y-8 space-y-4">
               {Object.entries(groupedTimezones).map(([groupName, zones]) => (
                 <div key={groupName} className="space-y-4">
                   {/* Group Header */}
@@ -468,7 +499,8 @@ export default function HomePage() {
                       {groupName}
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
-                      {zones.length} {zones.length === 1 ? 'timezone' : 'timezones'}
+                      {zones.length}{" "}
+                      {zones.length === 1 ? "timezone" : "timezones"}
                     </p>
                   </div>
 
@@ -534,6 +566,31 @@ export default function HomePage() {
               className="bg-red-600 hover:bg-red-700 text-white border-0"
             >
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Upgrade Success Dialog */}
+      <AlertDialog open={upgradeSuccessOpen} onOpenChange={setUpgradeSuccessOpen}>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center mb-4 shadow-lg">
+              <Crown className="h-8 w-8 text-white" />
+            </div>
+            <AlertDialogTitle className="text-center text-2xl font-bold text-gray-900 dark:text-white">
+              🎉 Welcome to Premium!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-gray-600 dark:text-slate-400">
+              Your upgrade was successful! You now have access to unlimited timezones and all premium features.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="sm:justify-center">
+            <AlertDialogAction
+              onClick={() => setUpgradeSuccessOpen(false)}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 text-white px-8"
+            >
+              Get Started
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
