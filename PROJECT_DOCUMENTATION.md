@@ -351,7 +351,7 @@ const forgotPasswordResponse = {
   resetTokenSent: true
 };
 
-// POST /api/auth/reset-password
+// POST /api/auth/password-reset
 const resetPasswordRequest = {
   method: "POST",
   headers: {
@@ -600,7 +600,7 @@ const API_ENDPOINTS = {
   LOGOUT: "/auth/logout",
   REFRESH_TOKEN: "/auth/refresh-token",
   FORGOT_PASSWORD: "/auth/forgot-password",
-  RESET_PASSWORD: "/auth/reset-password",
+  RESET_PASSWORD: "/auth/password-reset",
   
   // User Management
   GET_PROFILE: "/user/profile",

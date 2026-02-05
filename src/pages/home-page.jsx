@@ -107,6 +107,8 @@ export default function HomePage() {
     try {
       localStorage.setItem(TIMEZONES_KEY, JSON.stringify(newTimezones));
       setTimezones(newTimezones);
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new Event("timezonesUpdated"));
     } catch (e) {
       console.error("Failed to save timezones to localStorage", e);
       showAlert({

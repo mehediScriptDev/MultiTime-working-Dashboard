@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 // Tabs and Card used inside `AuthForm`
 import { Moon, Sun } from "lucide-react";
 import { ForgotPasswordDialog } from "@/components/ui/forgot-password-dialog";
+import { ResetPasswordDialog } from "@/components/ui/reset-password-dialog";
 import AuthForm from "@/components/ui/auth-form";
 
 export default function AuthPage() {
@@ -15,6 +16,8 @@ export default function AuthPage() {
   );
   const { user } = useAuth();
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
+  const [resetToken, setResetToken] = useState("");
   const [isDesktop, setIsDesktop] = useState(false);
 
   const [theme, setTheme] = useState(
@@ -47,6 +50,18 @@ export default function AuthPage() {
     checkDesktop();
     window.addEventListener("resize", checkDesktop);
     return () => window.removeEventListener("resize", checkDesktop);
+  }, []);
+
+  // Check for reset token in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      setResetToken(token);
+      setResetPasswordOpen(true);
+      // Clear the token from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, []);
 
   // form logic moved into `AuthForm` component
@@ -119,7 +134,11 @@ export default function AuthPage() {
               </p>
             </div> */}
 
-            <AuthForm mode={tabValue} setMode={setTabValue} />
+            <AuthForm 
+              mode={tabValue} 
+              setMode={setTabValue} 
+              onForgotPassword={() => setForgotPasswordOpen(true)}
+            />
           </div>
         </motion.div>
 
@@ -228,6 +247,13 @@ export default function AuthPage() {
       <ForgotPasswordDialog
         open={forgotPasswordOpen}
         onOpenChange={setForgotPasswordOpen}
+      />
+
+      {/* Reset Password Dialog */}
+      <ResetPasswordDialog
+        open={resetPasswordOpen}
+        onOpenChange={setResetPasswordOpen}
+        token={resetToken}
       />
     </div>
   );

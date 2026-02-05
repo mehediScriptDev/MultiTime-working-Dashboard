@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { subscriptionService } from "@/lib/subscription-service";
 import { useToast } from "@/hooks/use-toast";
@@ -37,8 +37,46 @@ export function AccountModal({ open, onOpenChange }) {
   const { toast } = useToast();
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [timezonesCount, setTimezonesCount] = useState(0);
 
   const isPremium = user?.isPremium || subscription?.plan === "premium";
+
+  // Get actual timezone count from localStorage
+  useEffect(() => {
+    const getTimezonesCount = () => {
+      try {
+        const saved = localStorage.getItem("timezones_v1");
+        if (saved) {
+          const timezones = JSON.parse(saved);
+          setTimezonesCount(Array.isArray(timezones) ? timezones.length : 0);
+        } else {
+          setTimezonesCount(0);
+        }
+      } catch (error) {
+        console.error("Failed to get timezones count:", error);
+        setTimezonesCount(0);
+      }
+    };
+
+    // Get count initially and when modal opens
+    if (open) {
+      getTimezonesCount();
+    }
+
+    // Listen for storage changes
+    const handleStorageChange = () => {
+      getTimezonesCount();
+    };
+    
+    window.addEventListener("storage", handleStorageChange);
+    // Custom event for same-tab updates
+    window.addEventListener("timezonesUpdated", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("timezonesUpdated", handleStorageChange);
+    };
+  }, [open]);
 
   const handleUpgrade = () => {
     const apiBase = import.meta.env.VITE_API_BASE_URL || "";
@@ -210,26 +248,24 @@ export function AccountModal({ open, onOpenChange }) {
                   </div>
 
                   {/* Usage */}
-                  {subscription?.usage && (
-                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-600 dark:text-slate-400 font-medium">
-                          Timezones Used
-                        </span>
-                        <span className="font-bold text-slate-900 dark:text-white">
-                          {subscription.usage.timezonesUsed || 0} / 3
-                        </span>
-                      </div>
-                      <div className="mt-2 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-300"
-                          style={{
-                            width: `${Math.min(((subscription.usage.timezonesUsed || 0) / 3) * 100, 100)}%`,
-                          }}
-                        />
-                      </div>
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-600 dark:text-slate-400 font-medium">
+                        Timezones Used
+                      </span>
+                      <span className="font-bold text-slate-900 dark:text-white">
+                        {timezonesCount} / 3
+                      </span>
                     </div>
-                  )}
+                    <div className="mt-2 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-300"
+                        style={{
+                          width: `${Math.min((timezonesCount / 3) * 100, 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
