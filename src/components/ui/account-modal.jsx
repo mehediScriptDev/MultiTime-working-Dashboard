@@ -137,7 +137,7 @@ export function AccountModal({ open, onOpenChange }) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
+        <DialogContent className="sm:max-w-[500px] w-11/12 mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-2xl">
           <DialogHeader>
             <div className="flex items-center gap-3 mb-2">
               {isPremium ? (
@@ -293,7 +293,7 @@ export function AccountModal({ open, onOpenChange }) {
             )}
           </div>
 
-          <DialogFooter className="flex flex-col sm:flex-row gap-2">
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
             {isPremium ? (
               <>
                 <Button
