@@ -79,10 +79,10 @@ export function AccountModal({ open, onOpenChange }) {
   }, [open]);
 
   const handleUpgrade = () => {
-    const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+    const origin = window.location.origin;
     upgradeMutation.mutate({
-      returnUrl: `${apiBase}/docs`,
-      cancelUrl: `${apiBase}/docs`,
+      returnUrl: `${origin}/auth`,
+      cancelUrl: `${origin}/auth`,
     });
   };
 
