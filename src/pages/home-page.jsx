@@ -31,7 +31,10 @@ export default function HomePage() {
   const { user, subscription, upgradeMutation } = useAuth();
   const { showAlert, AlertComponent } = useSweetAlert();
   const { t } = useTranslation();
-  const [use24Hour, setUse24Hour] = useState(true);
+  const [use24Hour, setUse24Hour] = useState(() => {
+    const saved = localStorage.getItem("timeFormat");
+    return saved === "12h" ? false : true;
+  });
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editingTimezone, setEditingTimezone] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -41,6 +44,11 @@ export default function HomePage() {
 
   const isPremium = user?.isPremium || subscription?.plan === "premium";
   const isAtFreeLimit = !isPremium && timezones.length >= 3;
+
+  // Save time format preference
+  useEffect(() => {
+    localStorage.setItem("timeFormat", use24Hour ? "24h" : "12h");
+  }, [use24Hour]);
 
   // Load timezones from backend on mount
   useEffect(() => {
