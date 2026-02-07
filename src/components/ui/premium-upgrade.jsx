@@ -7,9 +7,8 @@ export function PremiumUpgrade({ timezoneCount }) {
   const { upgradeMutation, subscription } = useAuth();
 
   const handleUpgrade = () => {
-    const origin = window.location.origin;
-    const returnUrl = `${origin}/auth`;
-    const cancelUrl = `${origin}/auth`;
+    const returnUrl = `${window.location.origin}/?upgrade=success`;
+    const cancelUrl = `${window.location.origin}/?upgrade=cancel`;
     upgradeMutation.mutate({ returnUrl, cancelUrl });
   };
 

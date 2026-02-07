@@ -38,33 +38,9 @@ export default function HomePage() {
   const [toDeleteTimezone, setToDeleteTimezone] = useState(null);
   const [timezones, setTimezones] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [upgradeSuccessOpen, setUpgradeSuccessOpen] = useState(false);
 
   const isPremium = user?.isPremium || subscription?.plan === "premium";
   const isAtFreeLimit = !isPremium && timezones.length >= 3;
-
-  // Handle upgrade success/cancel from Stripe redirect
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const upgradeStatus = params.get("upgrade");
-    
-    if (upgradeStatus === "success") {
-      setUpgradeSuccessOpen(true);
-      // Clear the query params from URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-      // Reload to refresh subscription status
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
-    } else if (upgradeStatus === "cancel") {
-      showAlert({
-        type: "info",
-        title: "Upgrade cancelled",
-        description: "You can upgrade to premium anytime from your account.",
-      });
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [showAlert]);
 
   // Load timezones from backend on mount
   useEffect(() => {
@@ -378,10 +354,10 @@ export default function HomePage() {
   const groupedTimezones = groupTimezonesByGroupName();
 
   const handleUpgrade = () => {
-    const origin = window.location.origin;
+    const apiBase = import.meta.env.VITE_API_BASE_URL || "";
     upgradeMutation.mutate({
-      returnUrl: `${origin}/auth`,
-      cancelUrl: `${origin}/auth`,
+      returnUrl: `${apiBase}/docs`,
+      cancelUrl: `${apiBase}/docs`,
     });
   };
 
@@ -566,31 +542,6 @@ export default function HomePage() {
               className="bg-red-600 hover:bg-red-700 text-white border-0"
             >
               Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Upgrade Success Dialog */}
-      <AlertDialog open={upgradeSuccessOpen} onOpenChange={setUpgradeSuccessOpen}>
-        <AlertDialogContent className="sm:max-w-md">
-          <AlertDialogHeader>
-            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center mb-4 shadow-lg">
-              <Crown className="h-8 w-8 text-white" />
-            </div>
-            <AlertDialogTitle className="text-center text-2xl font-bold text-gray-900 dark:text-white">
-              🎉 Welcome to Premium!
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-gray-600 dark:text-slate-400">
-              Your upgrade was successful! You now have access to unlimited timezones and all premium features.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="sm:justify-center">
-            <AlertDialogAction
-              onClick={() => setUpgradeSuccessOpen(false)}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 text-white px-8"
-            >
-              Get Started
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
