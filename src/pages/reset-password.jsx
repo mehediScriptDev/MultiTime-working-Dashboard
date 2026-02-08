@@ -3,7 +3,13 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Lock, Loader2, CheckCircle, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/lib/auth-service";
@@ -11,7 +17,7 @@ import { authService } from "@/lib/auth-service";
 export default function ResetPasswordPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -72,11 +78,12 @@ export default function ResetPasswordPage() {
 
       toast({
         title: "Password reset successful!",
-        description: response.message || "Please log in with your new password.",
+        description:
+          response.message || "Please log in with your new password.",
       });
 
       setSuccess(true);
-      
+
       // Redirect to auth page after 2 seconds
       setTimeout(() => {
         setLocation("/auth");
@@ -84,19 +91,23 @@ export default function ResetPasswordPage() {
     } catch (error) {
       // Parse the error message for better UX
       let title = "Failed to reset password";
-      let description = error.message || "The reset link may be invalid or expired.";
-      
+      let description =
+        error.message || "The reset link may be invalid or expired.";
+
       // Customize title based on error type
-      if (description.toLowerCase().includes('expired')) {
+      if (description.toLowerCase().includes("expired")) {
         title = "Link expired";
-      } else if (description.toLowerCase().includes('invalid') || description.toLowerCase().includes('not found')) {
+      } else if (
+        description.toLowerCase().includes("invalid") ||
+        description.toLowerCase().includes("not found")
+      ) {
         title = "Invalid reset link";
-      } else if (description.toLowerCase().includes('server')) {
+      } else if (description.toLowerCase().includes("server")) {
         title = "Server error";
-      } else if (description.toLowerCase().includes('password')) {
+      } else if (description.toLowerCase().includes("password")) {
         title = "Password error";
       }
-      
+
       toast({
         title,
         description,
@@ -137,7 +148,10 @@ export default function ResetPasswordPage() {
           {!success ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="password" className="font-bold text-gray-600 dark:text-slate-400">
+                <Label
+                  htmlFor="password"
+                  className="font-bold text-gray-600 dark:text-slate-400"
+                >
                   New Password
                 </Label>
                 <div className="relative">
@@ -155,7 +169,10 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="font-bold text-gray-600 dark:text-slate-400">
+                <Label
+                  htmlFor="confirmPassword"
+                  className="font-bold text-gray-600 dark:text-slate-400"
+                >
                   Confirm Password
                 </Label>
                 <div className="relative">
