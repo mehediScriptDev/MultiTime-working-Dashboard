@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
@@ -10,13 +11,44 @@ import {
 
 export function TimezoneCard({ timezone, use24Hour, onEdit, onDelete }) {
   const { t } = useTranslation();
+
+  // Use IANA timezone string if available, otherwise fallback to offset
+  const timezoneIdentifier = timezone.timezone || timezone.offset;
+
+  // State to force re-render for real-time clock
+  const [, setTick] = useState(0);
+
+  // State for pulse animation
+  const [isPulsing, setIsPulsing] = useState(false);
+
+  // Set up interval to update time every minute (no need for seconds)
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setTick((prev) => prev + 1);
+    }, 60000); // Update every minute
+
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // Pulse animation effect - pulses every 2 seconds to indicate live clock
+  useEffect(() => {
+    const pulseInterval = setInterval(() => {
+      setIsPulsing(true);
+      setTimeout(() => setIsPulsing(false), 1000);
+    }, 2000);
+
+    return () => clearInterval(pulseInterval);
+  }, []);
+
+  // Get current time using IANA string for accuracy, fallback to offset
   const { time, date, isWorkingHours } = getTimeInTimezone(
-    timezone.offset,
+    timezoneIdentifier,
     use24Hour,
   );
 
   const workingHoursPercent = getWorkingHoursPercent(
-    timezone.offset,
+    timezoneIdentifier,
     timezone.workingHoursStart,
     timezone.workingHoursEnd,
   );
@@ -60,7 +92,25 @@ export function TimezoneCard({ timezone, use24Hour, onEdit, onDelete }) {
           </div>
         </div>
 
-        <div className="mt-8 text-center py-4 bg-white dark:bg-slate-800/50 rounded-2xl border border-gray-100/50 dark:border-slate-700/50">
+        <div className="mt-8 text-center py-4 bg-white dark:bg-slate-800/50 rounded-2xl border border-gray-100/50 dark:border-slate-700/50 relative">
+          {/* Live indicator - only show when within working hours */}
+          {isWorkingHours && (
+            <div className="absolute top-3 right-3 flex items-center gap-1.5">
+              <span
+                className={`w-2 h-2 rounded-full bg-green-500 transition-all duration-500 ${
+                  isPulsing ? "scale-125 opacity-100" : "scale-100 opacity-70"
+                }`}
+                style={{
+                  boxShadow: isPulsing
+                    ? "0 0 8px rgba(34, 197, 94, 0.6)"
+                    : "none",
+                }}
+              />
+              <span className="text-[10px] font-medium text-green-600 dark:text-green-400 uppercase tracking-wider">
+                active
+              </span>
+            </div>
+          )}
           <div className="lg:text-5xl text-4xl font-black text-gray-800 dark:text-slate-100 tracking-tighter">
             {time}
           </div>
