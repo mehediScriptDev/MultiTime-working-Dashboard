@@ -14,19 +14,19 @@ export function Footer() {
             <HelpModal>
               <button className="group inline-flex items-center transition-transform hover:scale-110">
                 <span className="sr-only">Help</span>
-                <HelpCircle className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 group-hover:text-gray-600 dark:text-slate-400 dark:group-hover:text-slate-200 transition-colors" />
+                <HelpCircle className="h-5 w-5 text-gray-400 group-hover:text-gray-600 dark:text-slate-400 dark:group-hover:text-slate-200 transition-colors" />
               </button>
             </HelpModal>
             <PrivacyModal>
               <button className="group inline-flex items-center transition-transform hover:scale-110">
                 <span className="sr-only">Privacy</span>
-                <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 group-hover:text-gray-600 dark:text-slate-400 dark:group-hover:text-slate-200 transition-colors" />
+                <Shield className="h-5 w-5  text-gray-400 group-hover:text-gray-600 dark:text-slate-400 dark:group-hover:text-slate-200 transition-colors" />
               </button>
             </PrivacyModal>
             <GuideModal>
               <button className="group inline-flex items-center transition-transform hover:scale-110">
                 <span className="sr-only">Guide</span>
-                <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 group-hover:text-gray-600 dark:text-slate-400 dark:group-hover:text-slate-200 transition-colors" />
+                <FileText className="h-5 w-5  text-gray-400 group-hover:text-gray-600 dark:text-slate-400 dark:group-hover:text-slate-200 transition-colors" />
               </button>
             </GuideModal>
           </div>
