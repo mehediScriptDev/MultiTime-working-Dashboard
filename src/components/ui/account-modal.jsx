@@ -67,7 +67,7 @@ export function AccountModal({ open, onOpenChange }) {
     const handleStorageChange = () => {
       getTimezonesCount();
     };
-    
+
     window.addEventListener("storage", handleStorageChange);
     // Custom event for same-tab updates
     window.addEventListener("timezonesUpdated", handleStorageChange);
@@ -165,22 +165,22 @@ export function AccountModal({ open, onOpenChange }) {
           <div className="space-y-4 py-4">
             {/* Plan Status */}
             <div
-                className={`p-4 rounded-xl border ${
-                  isPremium
-                    ? "bg-slate-900/60 dark:bg-slate-900/60 border-slate-700"
-                    : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
-                }`}
+              className={`p-4 rounded-xl border ${
+                isPremium
+                  ? "bg-slate-900/60 dark:bg-slate-900/60 border-slate-700"
+                  : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
+              }`}
             >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                   Current Plan
                 </span>
                 <span
-                    className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                      isPremium
-                        ? "bg-blue-600 text-white"
-                        : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
-                    }`}
+                  className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                    isPremium
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                  }`}
                 >
                   {isPremium ? "Premium" : "Free Plan"}
                 </span>
@@ -190,7 +190,7 @@ export function AccountModal({ open, onOpenChange }) {
                 <div className="space-y-3">
                   {/* Features */}
                   <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-blue-400 dark:text-blue-300 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-5 w-5 text-blue-400 dark:text-blue-300 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-semibold text-slate-900 dark:text-white">
                         Unlimited Timezones
