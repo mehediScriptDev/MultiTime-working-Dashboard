@@ -39,7 +39,7 @@ export function AuthProvider({ children }) {
         const savedSub = localStorage.getItem(SUBSCRIPTION_KEY);
         
         if (savedUser && token) {
-          // Set the saved user first
+          // Set the saved user first (optimistic UI update)
           const parsedUser = JSON.parse(savedUser);
           setUser(parsedUser);
           
@@ -52,34 +52,40 @@ export function AuthProvider({ children }) {
             }
           }
           
-          // Fetch fresh profile from backend
-          const profileResponse = await authService.getProfile(token);
-          if (profileResponse?.data) {
-            // Update with fresh data from backend
-            saveUser(profileResponse.data, token);
-          }
-
-          // Fetch subscription status from backend
+          // Verify token is still valid by fetching fresh profile from backend
           try {
-            const [statusResponse, usageResponse] = await Promise.all([
-              subscriptionService.getStatus(token),
-              subscriptionService.getUsage(token),
-            ]);
-
-            if (statusResponse?.data) {
-              const subData = {
-                ...statusResponse.data,
-                usage: usageResponse?.data || null,
-              };
-              try {
-                localStorage.setItem(SUBSCRIPTION_KEY, JSON.stringify(subData));
-              } catch (e) {
-                console.warn("Failed to cache subscription");
-              }
-              setSubscription(subData);
+            const profileResponse = await authService.getProfile(token);
+            if (profileResponse?.data) {
+              // Update with fresh data from backend
+              saveUser(profileResponse.data, token);
             }
-          } catch (subError) {
-            console.error("Failed to fetch subscription status:", subError);
+
+            // Fetch subscription status from backend
+            try {
+              const [statusResponse, usageResponse] = await Promise.all([
+                subscriptionService.getStatus(token),
+                subscriptionService.getUsage(token),
+              ]);
+
+              if (statusResponse?.data) {
+                const subData = {
+                  ...statusResponse.data,
+                  usage: usageResponse?.data || null,
+                };
+                try {
+                  localStorage.setItem(SUBSCRIPTION_KEY, JSON.stringify(subData));
+                } catch (e) {
+                  console.warn("Failed to cache subscription");
+                }
+                setSubscription(subData);
+              }
+            } catch (subError) {
+              console.error("Failed to fetch subscription status:", subError);
+            }
+          } catch (profileError) {
+            // Token is invalid/expired - clear all auth data
+            console.error("Failed to verify token:", profileError);
+            saveUser(null, null);
           }
         } else {
           setUser(null);
@@ -87,6 +93,8 @@ export function AuthProvider({ children }) {
         }
       } catch (e) {
         console.error("Failed to load user and subscription", e);
+        // Clear auth data on any unexpected error
+        saveUser(null, null);
       } finally {
         setIsLoading(false);
       }

@@ -15,15 +15,31 @@ export function formatAMPM(hour, use24Hour = false) {
   if (use24Hour) {
     return `${hour.toString().padStart(2, "0")}:00`;
   }
-  
+
   const isPM = hour >= 12;
   const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-  return `${formattedHour}:00 ${isPM ? 'PM' : 'AM'}`;
+  return `${formattedHour}:00 ${isPM ? "PM" : "AM"}`;
 }
 
-export function getTimeInTimezone(offsetMinutes, use24Hour = false) {
-  const now = dayjs().utcOffset(offsetMinutes);
+/**
+ * Get time in a specific timezone
+ * @param {string|number} timezoneOrOffset - IANA timezone string (e.g., "America/New_York") or offset in minutes
+ * @param {boolean} use24Hour - Whether to use 24-hour format
+ * @returns {{time: string, date: string, isWorkingHours: boolean}}
+ */
+export function getTimeInTimezone(timezoneOrOffset, use24Hour = false) {
+  let now;
 
+  // Check if it's an IANA timezone string or a numeric offset
+  if (typeof timezoneOrOffset === "string" && timezoneOrOffset.includes("/")) {
+    // Use IANA timezone string with dayjs timezone plugin
+    now = dayjs().tz(timezoneOrOffset);
+  } else {
+    // Fallback to numeric offset (in minutes)
+    now = dayjs().utcOffset(timezoneOrOffset);
+  }
+
+  // Clean time format without seconds (HH:mm) - live effect shown via animation
   const time = use24Hour ? now.format("HH:mm") : now.format("h:mm A");
 
   const date = now.format("ddd, MMM D, YYYY");
@@ -34,8 +50,27 @@ export function getTimeInTimezone(offsetMinutes, use24Hour = false) {
   return { time, date, isWorkingHours };
 }
 
-export function getWorkingHoursPercent(currentOffsetMinutes, workingHoursStart, workingHoursEnd) {
-  const now = dayjs().utcOffset(currentOffsetMinutes);
+/**
+ * Get working hours progress percentage
+ * @param {string|number} timezoneOrOffset - IANA timezone string or offset in minutes
+ * @param {number} workingHoursStart - Start hour (0-23)
+ * @param {number} workingHoursEnd - End hour (0-23)
+ * @returns {number} Percentage of working hours elapsed
+ */
+export function getWorkingHoursPercent(
+  timezoneOrOffset,
+  workingHoursStart,
+  workingHoursEnd,
+) {
+  let now;
+
+  // Check if it's an IANA timezone string or a numeric offset
+  if (typeof timezoneOrOffset === "string" && timezoneOrOffset.includes("/")) {
+    now = dayjs().tz(timezoneOrOffset);
+  } else {
+    now = dayjs().utcOffset(timezoneOrOffset);
+  }
+
   const hour = now.hour();
   const minute = now.minute();
 
@@ -51,53 +86,355 @@ export function getWorkingHoursPercent(currentOffsetMinutes, workingHoursStart, 
   return (hoursPassed / totalWorkingHours) * 100;
 }
 
+/**
+ * Get all timezones dynamically using the Intl API
+ * @returns {Array<{name: string, city: string, region: string, country: string, abbreviation: string, offset: number, timezone: string}>}
+ */
 export function getCommonTimezones() {
-  return [
-    // North America
-    { name: "New York", city: "New York", region: "United States", abbreviation: "EST", offset: -300 },
-    { name: "Los Angeles", city: "Los Angeles", region: "United States", abbreviation: "PST", offset: -480 },
-    { name: "Chicago", city: "Chicago", region: "United States", abbreviation: "CST", offset: -360 },
-    { name: "Toronto", city: "Toronto", region: "Canada", abbreviation: "EST", offset: -300 },
-    { name: "Vancouver", city: "Vancouver", region: "Canada", abbreviation: "PST", offset: -480 },
-    { name: "Mexico City", city: "Mexico City", region: "Mexico", abbreviation: "CST", offset: -360 },
-    
-    // Europe
-    { name: "London", city: "London", region: "United Kingdom", abbreviation: "GMT", offset: 0 },
-    { name: "Paris", city: "Paris", region: "France", abbreviation: "CET", offset: 60 },
-    { name: "Berlin", city: "Berlin", region: "Germany", abbreviation: "CET", offset: 60 },
-    { name: "Madrid", city: "Madrid", region: "Spain", abbreviation: "CET", offset: 60 },
-    { name: "Rome", city: "Rome", region: "Italy", abbreviation: "CET", offset: 60 },
-    { name: "Amsterdam", city: "Amsterdam", region: "Netherlands", abbreviation: "CET", offset: 60 },
-    { name: "Zürich", city: "Zürich", region: "Switzerland", abbreviation: "CET", offset: 60 },
-    { name: "Istanbul", city: "Istanbul", region: "Turkey", abbreviation: "TRT", offset: 180 },
-    
+  // Mapping of IANA timezone identifiers to country names for searchability
+  const timezoneToCountry = {
     // Asia
-    { name: "Tokyo", city: "Tokyo", region: "Japan", abbreviation: "JST", offset: 540 },
-    { name: "Seoul", city: "Seoul", region: "South Korea", abbreviation: "KST", offset: 540 },
-    { name: "Shanghai", city: "Shanghai", region: "China", abbreviation: "CST", offset: 480 },
-    { name: "Hong Kong", city: "Hong Kong", region: "China", abbreviation: "HKT", offset: 480 },
-    { name: "Singapore", city: "Singapore", region: "Singapore", abbreviation: "SGT", offset: 480 },
-    { name: "Bangkok", city: "Bangkok", region: "Thailand", abbreviation: "ICT", offset: 420 },
-    { name: "Mumbai", city: "Mumbai", region: "India", abbreviation: "IST", offset: 330 },
-    { name: "Dubai", city: "Dubai", region: "United Arab Emirates", abbreviation: "GST", offset: 240 },
-    { name: "Tel Aviv", city: "Tel Aviv", region: "Israel", abbreviation: "IST", offset: 120 },
-    
+    "Asia/Dhaka": "Bangladesh",
+    "Asia/Tokyo": "Japan",
+    "Asia/Seoul": "South Korea",
+    "Asia/Shanghai": "China",
+    "Asia/Hong_Kong": "China",
+    "Asia/Singapore": "Singapore",
+    "Asia/Bangkok": "Thailand",
+    "Asia/Ho_Chi_Minh": "Vietnam",
+    "Asia/Jakarta": "Indonesia",
+    "Asia/Kolkata": "India",
+    "Asia/Mumbai": "India",
+    "Asia/Delhi": "India",
+    "Asia/Karachi": "Pakistan",
+    "Asia/Dubai": "United Arab Emirates",
+    "Asia/Riyadh": "Saudi Arabia",
+    "Asia/Jerusalem": "Israel",
+    "Asia/Tel_Aviv": "Israel",
+    "Asia/Istanbul": "Turkey",
+    "Asia/Manila": "Philippines",
+    "Asia/Kuala_Lumpur": "Malaysia",
+    "Asia/Taipei": "Taiwan",
+    "Asia/Colombo": "Sri Lanka",
+    "Asia/Kathmandu": "Nepal",
+    "Asia/Yangon": "Myanmar",
+    "Asia/Almaty": "Kazakhstan",
+    "Asia/Tashkent": "Uzbekistan",
+    "Asia/Baku": "Azerbaijan",
+    "Asia/Tbilisi": "Georgia",
+    "Asia/Yerevan": "Armenia",
+    "Asia/Beirut": "Lebanon",
+    "Asia/Damascus": "Syria",
+    "Asia/Amman": "Jordan",
+    "Asia/Baghdad": "Iraq",
+    "Asia/Tehran": "Iran",
+    "Asia/Kabul": "Afghanistan",
+    "Asia/Muscat": "Oman",
+    "Asia/Qatar": "Qatar",
+    "Asia/Kuwait": "Kuwait",
+    "Asia/Bahrain": "Bahrain",
+    // Europe
+    "Europe/London": "United Kingdom",
+    "Europe/Paris": "France",
+    "Europe/Berlin": "Germany",
+    "Europe/Madrid": "Spain",
+    "Europe/Rome": "Italy",
+    "Europe/Amsterdam": "Netherlands",
+    "Europe/Brussels": "Belgium",
+    "Europe/Vienna": "Austria",
+    "Europe/Zurich": "Switzerland",
+    "Europe/Stockholm": "Sweden",
+    "Europe/Oslo": "Norway",
+    "Europe/Copenhagen": "Denmark",
+    "Europe/Helsinki": "Finland",
+    "Europe/Warsaw": "Poland",
+    "Europe/Prague": "Czech Republic",
+    "Europe/Budapest": "Hungary",
+    "Europe/Bucharest": "Romania",
+    "Europe/Sofia": "Bulgaria",
+    "Europe/Athens": "Greece",
+    "Europe/Istanbul": "Turkey",
+    "Europe/Moscow": "Russia",
+    "Europe/Kiev": "Ukraine",
+    "Europe/Lisbon": "Portugal",
+    "Europe/Dublin": "Ireland",
+    "Europe/Zagreb": "Croatia",
+    "Europe/Belgrade": "Serbia",
+    "Europe/Bratislava": "Slovakia",
+    "Europe/Ljubljana": "Slovenia",
+    "Europe/Sarajevo": "Bosnia and Herzegovina",
+    "Europe/Tallinn": "Estonia",
+    "Europe/Riga": "Latvia",
+    "Europe/Vilnius": "Lithuania",
+    "Europe/Minsk": "Belarus",
+    "Europe/Chisinau": "Moldova",
+    // Americas
+    "America/New_York": "United States",
+    "America/Los_Angeles": "United States",
+    "America/Chicago": "United States",
+    "America/Denver": "United States",
+    "America/Phoenix": "United States",
+    "America/Houston": "United States",
+    "America/Detroit": "United States",
+    "America/Atlanta": "United States",
+    "America/Seattle": "United States",
+    "America/Miami": "United States",
+    "America/Boston": "United States",
+    "America/Toronto": "Canada",
+    "America/Vancouver": "Canada",
+    "America/Montreal": "Canada",
+    "America/Edmonton": "Canada",
+    "America/Calgary": "Canada",
+    "America/Winnipeg": "Canada",
+    "America/Halifax": "Canada",
+    "America/Mexico_City": "Mexico",
+    "America/Cancun": "Mexico",
+    "America/Tijuana": "Mexico",
+    "America/Sao_Paulo": "Brazil",
+    "America/Rio_de_Janeiro": "Brazil",
+    "America/Brasilia": "Brazil",
+    "America/Buenos_Aires": "Argentina",
+    "America/Santiago": "Chile",
+    "America/Lima": "Peru",
+    "America/Bogota": "Colombia",
+    "America/Caracas": "Venezuela",
+    "America/Panama": "Panama",
+    "America/Havana": "Cuba",
+    "America/Jamaica": "Jamaica",
+    "America/Puerto_Rico": "Puerto Rico",
+    "America/Costa_Rica": "Costa Rica",
+    "America/Guatemala": "Guatemala",
+    "America/Montevideo": "Uruguay",
+    "America/Asuncion": "Paraguay",
+    "America/La_Paz": "Bolivia",
+    "America/Quito": "Ecuador",
     // Oceania
-    { name: "Sydney", city: "Sydney", region: "Australia", abbreviation: "AEST", offset: 600 },
-    { name: "Melbourne", city: "Melbourne", region: "Australia", abbreviation: "AEST", offset: 600 },
-    { name: "Auckland", city: "Auckland", region: "New Zealand", abbreviation: "NZST", offset: 720 },
-    
-    // South America
-    { name: "São Paulo", city: "São Paulo", region: "Brazil", abbreviation: "BRT", offset: -180 },
-    { name: "Buenos Aires", city: "Buenos Aires", region: "Argentina", abbreviation: "ART", offset: -180 },
-    { name: "Santiago", city: "Santiago", region: "Chile", abbreviation: "CLT", offset: -240 },
-    
+    "Australia/Sydney": "Australia",
+    "Australia/Melbourne": "Australia",
+    "Australia/Brisbane": "Australia",
+    "Australia/Perth": "Australia",
+    "Australia/Adelaide": "Australia",
+    "Australia/Darwin": "Australia",
+    "Australia/Hobart": "Australia",
+    "Pacific/Auckland": "New Zealand",
+    "Pacific/Wellington": "New Zealand",
+    "Pacific/Fiji": "Fiji",
+    "Pacific/Honolulu": "United States",
+    "Pacific/Guam": "United States",
     // Africa
-    { name: "Cairo", city: "Cairo", region: "Egypt", abbreviation: "EET", offset: 120 },
-    { name: "Johannesburg", city: "Johannesburg", region: "South Africa", abbreviation: "SAST", offset: 120 },
-    { name: "Lagos", city: "Lagos", region: "Nigeria", abbreviation: "WAT", offset: 60 },
-    { name: "Nairobi", city: "Nairobi", region: "Kenya", abbreviation: "EAT", offset: 180 },
-  ];
+    "Africa/Cairo": "Egypt",
+    "Africa/Johannesburg": "South Africa",
+    "Africa/Lagos": "Nigeria",
+    "Africa/Nairobi": "Kenya",
+    "Africa/Casablanca": "Morocco",
+    "Africa/Algiers": "Algeria",
+    "Africa/Tunis": "Tunisia",
+    "Africa/Accra": "Ghana",
+    "Africa/Addis_Ababa": "Ethiopia",
+    "Africa/Dar_es_Salaam": "Tanzania",
+    "Africa/Kampala": "Uganda",
+    "Africa/Khartoum": "Sudan",
+    "Africa/Tripoli": "Libya",
+    "Africa/Abidjan": "Ivory Coast",
+    "Africa/Dakar": "Senegal",
+  };
+
+  // Mapping of IANA timezone to alternative city names for searchability
+  const cityAliases = {
+    "Asia/Kolkata": [
+      "Calcutta",
+      "Delhi",
+      "Bangalore",
+      "Hyderabad",
+      "Ahmedabad",
+      "Pune",
+      "Jaipur",
+      "India",
+    ],
+    "Asia/Mumbai": ["Bombay"],
+    "Asia/Ho_Chi_Minh": ["Saigon"],
+    "Asia/Yangon": ["Rangoon"],
+    "Europe/Kiev": ["Kyiv"],
+    "Europe/Istanbul": ["Constantinople"],
+    "Asia/Shanghai": [
+      "Beijing",
+      "Peking",
+      "Guangzhou",
+      "Shenzhen",
+      "Chengdu",
+      "Wuhan",
+      "Xi'an",
+    ],
+    "America/New_York": ["Manhattan", "Brooklyn", "Queens", "USA", "US"],
+    "America/Los_Angeles": [
+      "Hollywood",
+      "San Francisco",
+      "San Diego",
+      "USA",
+      "US",
+    ],
+    "America/Chicago": ["USA", "US"],
+    "Europe/London": ["UK", "Britain", "England"],
+    "America/Sao_Paulo": ["Rio", "Brasil"],
+    "Asia/Tokyo": ["Osaka", "Yokohama", "Nagoya", "Kyoto"],
+    "Australia/Sydney": ["Canberra"],
+    "Asia/Dubai": ["Abu Dhabi", "UAE"],
+    "Asia/Singapore": ["SG"],
+    "Asia/Bangkok": ["Phuket"],
+    "Asia/Jakarta": ["Bali", "Surabaya"],
+    "Asia/Manila": ["Cebu"],
+    "America/Toronto": ["Ottawa", "Montreal"],
+    "America/Mexico_City": ["Guadalajara", "Monterrey"],
+    "Europe/Paris": ["Lyon", "Marseille"],
+    "Europe/Berlin": ["Munich", "Frankfurt", "Hamburg", "Cologne"],
+    "Europe/Rome": ["Milan", "Naples", "Turin", "Florence", "Venice"],
+    "Europe/Madrid": ["Barcelona", "Valencia", "Seville"],
+    "Africa/Cairo": ["Alexandria", "Giza"],
+    "Africa/Lagos": ["Abuja", "Kano", "Ibadan"],
+    "Africa/Johannesburg": ["Cape Town", "Durban", "Pretoria"],
+    "America/Buenos_Aires": ["Cordoba", "Rosario"],
+    "Asia/Seoul": ["Busan", "Incheon"],
+    "Asia/Dhaka": ["Chittagong", "Khulna", "Sylhet", "BD"],
+    "Asia/Karachi": ["Lahore", "Islamabad", "Faisalabad"],
+    "Pacific/Auckland": ["Wellington", "Christchurch", "NZ"],
+  };
+
+  try {
+    // Get all supported IANA timezone identifiers from the browser
+    const allTimezones = Intl.supportedValuesOf("timeZone");
+
+    return allTimezones.map((tz) => {
+      // Parse the IANA string to extract region and city
+      // Format is typically "Region/City" or "Region/Subregion/City"
+      const parts = tz.split("/");
+      const city = parts[parts.length - 1].replace(/_/g, " ");
+      const region = parts.slice(0, -1).join("/").replace(/_/g, " ");
+
+      // Get the current offset for this timezone
+      const now = dayjs().tz(tz);
+      const offsetMinutes = now.utcOffset();
+
+      // Get timezone abbreviation dynamically
+      const formatter = new Intl.DateTimeFormat("en", {
+        timeZone: tz,
+        timeZoneName: "short",
+      });
+      const parts2 = formatter.formatToParts(new Date());
+      const abbreviation =
+        parts2.find((p) => p.type === "timeZoneName")?.value || "";
+
+      // Get country from mapping, or derive from region for unmapped timezones
+      const country =
+        timezoneToCountry[tz] || region.split("/")[0] || "Unknown";
+
+      // Get aliases for this timezone to enable alternative name searches
+      const aliases = cityAliases[tz] || [];
+
+      // Create searchable text that includes all alternative names
+      const searchableText = [city, country, region, ...aliases]
+        .join(" ")
+        .toLowerCase();
+
+      return {
+        name: city,
+        city: city,
+        region: region || "UTC",
+        country: country,
+        aliases: aliases, // Alternative city names for search
+        searchableText: searchableText, // Pre-computed for faster search
+        abbreviation: abbreviation,
+        offset: offsetMinutes,
+        timezone: tz, // IANA timezone string for accurate calculations
+      };
+    });
+  } catch (error) {
+    // Fallback for browsers that don't support Intl.supportedValuesOf
+    console.warn(
+      "Intl.supportedValuesOf not supported, using fallback timezones",
+    );
+    return [
+      {
+        name: "New York",
+        city: "New York",
+        region: "America",
+        abbreviation: "EST",
+        offset: -300,
+        timezone: "America/New_York",
+      },
+      {
+        name: "Los Angeles",
+        city: "Los Angeles",
+        region: "America",
+        abbreviation: "PST",
+        offset: -480,
+        timezone: "America/Los_Angeles",
+      },
+      {
+        name: "Chicago",
+        city: "Chicago",
+        region: "America",
+        abbreviation: "CST",
+        offset: -360,
+        timezone: "America/Chicago",
+      },
+      {
+        name: "London",
+        city: "London",
+        region: "Europe",
+        abbreviation: "GMT",
+        offset: 0,
+        timezone: "Europe/London",
+      },
+      {
+        name: "Paris",
+        city: "Paris",
+        region: "Europe",
+        abbreviation: "CET",
+        offset: 60,
+        timezone: "Europe/Paris",
+      },
+      {
+        name: "Berlin",
+        city: "Berlin",
+        region: "Europe",
+        abbreviation: "CET",
+        offset: 60,
+        timezone: "Europe/Berlin",
+      },
+      {
+        name: "Tokyo",
+        city: "Tokyo",
+        region: "Asia",
+        abbreviation: "JST",
+        offset: 540,
+        timezone: "Asia/Tokyo",
+      },
+      {
+        name: "Sydney",
+        city: "Sydney",
+        region: "Australia",
+        abbreviation: "AEST",
+        offset: 600,
+        timezone: "Australia/Sydney",
+      },
+      {
+        name: "Dubai",
+        city: "Dubai",
+        region: "Asia",
+        abbreviation: "GST",
+        offset: 240,
+        timezone: "Asia/Dubai",
+      },
+      {
+        name: "Singapore",
+        city: "Singapore",
+        region: "Asia",
+        abbreviation: "SGT",
+        offset: 480,
+        timezone: "Asia/Singapore",
+      },
+    ];
+  }
 }
 
 export function formatTimezoneOffset(offsetMinutes) {

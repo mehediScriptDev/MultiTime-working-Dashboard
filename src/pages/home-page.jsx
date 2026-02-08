@@ -27,6 +27,42 @@ import { Plus, Clock, Loader2, AlertCircle, Crown, Zap } from "lucide-react";
 
 const TIMEZONES_KEY = "timezones_v1";
 
+/**
+ * Derive IANA timezone string from city name by searching supported timezones
+ * @param {string} region - Region name (e.g., "Asia")
+ * @param {string} city - City name (e.g., "Dhaka")
+ * @returns {string|null} IANA timezone string or null if not found
+ */
+function deriveIANATimezone(region, city) {
+  try {
+    const allTimezones = Intl.supportedValuesOf("timeZone");
+    const normalizedCity = city?.replace(/\s+/g, "_");
+    const normalizedRegion = region?.replace(/\s+/g, "_");
+
+    // Try exact match with region/city
+    if (normalizedRegion && normalizedCity) {
+      const exactMatch = allTimezones.find(
+        (tz) =>
+          tz.toLowerCase() ===
+          `${normalizedRegion}/${normalizedCity}`.toLowerCase(),
+      );
+      if (exactMatch) return exactMatch;
+    }
+
+    // Try to find by city name only
+    if (normalizedCity) {
+      const cityMatch = allTimezones.find((tz) =>
+        tz.toLowerCase().endsWith(`/${normalizedCity.toLowerCase()}`),
+      );
+      if (cityMatch) return cityMatch;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export default function HomePage() {
   const { user, subscription, upgradeMutation } = useAuth();
   const { showAlert, AlertComponent } = useSweetAlert();
@@ -70,21 +106,29 @@ export default function HomePage() {
         if (response.success && response.data) {
           // Transform grouped backend data to flat array with groupName
           const flatTimezones = response.data.flatMap((group) =>
-            (group.item || []).map((item) => ({
-              id: item.id,
-              name: item.name,
-              city: item.city,
-              region: item.region,
-              abbreviation: item.abbreviation,
-              offset: item.offset,
-              workingHoursStart: item.workingHoursStart ?? 9,
-              workingHoursEnd: item.workingHoursEnd ?? 17,
-              label: item.label,
-              groupId: item.groupId,
-              groupName: group.name || "General",
-              createdAt: item.createdAt,
-              updatedAt: item.updatedAt,
-            })),
+            (group.item || []).map((item) => {
+              // Derive IANA timezone string from region and city for frontend use
+              const derivedTimezone = deriveIANATimezone(
+                item.region,
+                item.city,
+              );
+              return {
+                id: item.id,
+                name: item.name,
+                city: item.city,
+                region: item.region,
+                abbreviation: item.abbreviation,
+                offset: item.offset,
+                timezone: derivedTimezone, // Derived IANA string for accurate calculations
+                workingHoursStart: item.workingHoursStart ?? 9,
+                workingHoursEnd: item.workingHoursEnd ?? 17,
+                label: item.label,
+                groupId: item.groupId,
+                groupName: group.name || "General",
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt,
+              };
+            }),
           );
 
           setTimezones(flatTimezones);
@@ -159,28 +203,38 @@ export default function HomePage() {
         return;
       }
 
-      const response = await timezoneService.create(timezone, token);
+      // Strip the 'timezone' field before sending to API (backend doesn't support it)
+      const { timezone: tzString, ...apiTimezoneData } = timezone;
+      const response = await timezoneService.create(apiTimezoneData, token);
 
       if (response.success && response.data) {
         // Re-fetch to get updated grouped data
         const allTimezones = await timezoneService.getAll(token);
         if (allTimezones.success && allTimezones.data) {
           const flatTimezones = allTimezones.data.flatMap((group) =>
-            (group.item || []).map((item) => ({
-              id: item.id,
-              name: item.name,
-              city: item.city,
-              region: item.region,
-              abbreviation: item.abbreviation,
-              offset: item.offset,
-              workingHoursStart: item.workingHoursStart ?? 9,
-              workingHoursEnd: item.workingHoursEnd ?? 17,
-              label: item.label,
-              groupId: item.groupId,
-              groupName: group.name || "General",
-              createdAt: item.createdAt,
-              updatedAt: item.updatedAt,
-            })),
+            (group.item || []).map((item) => {
+              // Derive IANA timezone string from region and city for frontend use
+              const derivedTimezone = deriveIANATimezone(
+                item.region,
+                item.city,
+              );
+              return {
+                id: item.id,
+                name: item.name,
+                city: item.city,
+                region: item.region,
+                abbreviation: item.abbreviation,
+                offset: item.offset,
+                timezone: derivedTimezone, // Derived IANA string for accurate calculations
+                workingHoursStart: item.workingHoursStart ?? 9,
+                workingHoursEnd: item.workingHoursEnd ?? 17,
+                label: item.label,
+                groupId: item.groupId,
+                groupName: group.name || "General",
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt,
+              };
+            }),
           );
           setTimezones(flatTimezones);
           localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
@@ -221,28 +275,38 @@ export default function HomePage() {
         return;
       }
 
-      const response = await timezoneService.update(id, timezone, token);
+      // Strip the 'timezone' field before sending to API (backend doesn't support it)
+      const { timezone: tzString, ...apiTimezoneData } = timezone;
+      const response = await timezoneService.update(id, apiTimezoneData, token);
 
       if (response.success) {
         // Re-fetch to get updated grouped data
         const allTimezones = await timezoneService.getAll(token);
         if (allTimezones.success && allTimezones.data) {
           const flatTimezones = allTimezones.data.flatMap((group) =>
-            (group.item || []).map((item) => ({
-              id: item.id,
-              name: item.name,
-              city: item.city,
-              region: item.region,
-              abbreviation: item.abbreviation,
-              offset: item.offset,
-              workingHoursStart: item.workingHoursStart ?? 9,
-              workingHoursEnd: item.workingHoursEnd ?? 17,
-              label: item.label,
-              groupId: item.groupId,
-              groupName: group.name || "General",
-              createdAt: item.createdAt,
-              updatedAt: item.updatedAt,
-            })),
+            (group.item || []).map((item) => {
+              // Derive IANA timezone string from region and city for frontend use
+              const derivedTimezone = deriveIANATimezone(
+                item.region,
+                item.city,
+              );
+              return {
+                id: item.id,
+                name: item.name,
+                city: item.city,
+                region: item.region,
+                abbreviation: item.abbreviation,
+                offset: item.offset,
+                timezone: derivedTimezone, // Derived IANA string for accurate calculations
+                workingHoursStart: item.workingHoursStart ?? 9,
+                workingHoursEnd: item.workingHoursEnd ?? 17,
+                label: item.label,
+                groupId: item.groupId,
+                groupName: group.name || "General",
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt,
+              };
+            }),
           );
           setTimezones(flatTimezones);
           localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
@@ -300,21 +364,29 @@ export default function HomePage() {
           const allTimezones = await timezoneService.getAll(token);
           if (allTimezones.success && allTimezones.data) {
             const flatTimezones = allTimezones.data.flatMap((group) =>
-              (group.item || []).map((item) => ({
-                id: item.id,
-                name: item.name,
-                city: item.city,
-                region: item.region,
-                abbreviation: item.abbreviation,
-                offset: item.offset,
-                workingHoursStart: item.workingHoursStart ?? 9,
-                workingHoursEnd: item.workingHoursEnd ?? 17,
-                label: item.label,
-                groupId: item.groupId,
-                groupName: group.name || "General",
-                createdAt: item.createdAt,
-                updatedAt: item.updatedAt,
-              })),
+              (group.item || []).map((item) => {
+                // Derive IANA timezone string from region and city for frontend use
+                const derivedTimezone = deriveIANATimezone(
+                  item.region,
+                  item.city,
+                );
+                return {
+                  id: item.id,
+                  name: item.name,
+                  city: item.city,
+                  region: item.region,
+                  abbreviation: item.abbreviation,
+                  offset: item.offset,
+                  timezone: derivedTimezone, // Derived IANA string for accurate calculations
+                  workingHoursStart: item.workingHoursStart ?? 9,
+                  workingHoursEnd: item.workingHoursEnd ?? 17,
+                  label: item.label,
+                  groupId: item.groupId,
+                  groupName: group.name || "General",
+                  createdAt: item.createdAt,
+                  updatedAt: item.updatedAt,
+                };
+              }),
             );
             setTimezones(flatTimezones);
             localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));

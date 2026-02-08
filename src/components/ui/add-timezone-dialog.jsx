@@ -58,6 +58,7 @@ export function AddTimezoneDialog({
           region: editingTimezone.region || "",
           abbreviation: editingTimezone.abbreviation,
           offset: editingTimezone.offset,
+          timezone: editingTimezone.timezone || null, // Include IANA timezone string
         },
       );
 
@@ -84,6 +85,7 @@ export function AddTimezoneDialog({
       region: selectedTimezone.region,
       abbreviation: selectedTimezone.abbreviation,
       offset: selectedTimezone.offset,
+      timezone: selectedTimezone.timezone || null, // Include IANA timezone string (e.g., "Asia/Tokyo")
       workingHoursStart,
       workingHoursEnd,
       label: label || null,
@@ -99,15 +101,20 @@ export function AddTimezoneDialog({
     onOpenChange(false);
   };
 
-  const filteredTimezones = commonTimezones.filter(
-    (tz) =>
-      tz.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tz.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tz.region.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      formatTimezoneOffset(tz.offset)
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()),
-  );
+  const filteredTimezones = commonTimezones.filter((tz) => {
+    const query = searchQuery.toLowerCase();
+    // Use searchableText for comprehensive search (includes city, country, region, aliases)
+    return (
+      (tz.searchableText && tz.searchableText.includes(query)) ||
+      tz.name.toLowerCase().includes(query) ||
+      tz.city.toLowerCase().includes(query) ||
+      tz.region.toLowerCase().includes(query) ||
+      (tz.country && tz.country.toLowerCase().includes(query)) ||
+      (tz.aliases &&
+        tz.aliases.some((alias) => alias.toLowerCase().includes(query))) ||
+      formatTimezoneOffset(tz.offset).toLowerCase().includes(query)
+    );
+  });
 
   // Generate time options for select
   const timeOptions = Array.from({ length: 24 }, (_, i) => i);
@@ -122,11 +129,7 @@ export function AddTimezoneDialog({
         {/* Header - Light mode friendly */}
         <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-4 sm:py-5 flex-shrink-0">
           <DialogTitle className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2 sm:gap-3">
-            <img
-              src="/Logo.png"
-              className="h-9 w-9"
-              alt="TimeSync"
-            />
+            <img src="/Logo.png" className="h-9 w-9" alt="TimeSync" />
             {editingTimezone
               ? t("dialog.editTimezone")
               : t("dialog.addTimezone")}
@@ -196,7 +199,7 @@ export function AddTimezoneDialog({
                               {timezone.city}
                             </div>
                             <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                              {timezone.region} •{" "}
+                              {timezone.country || timezone.region} •{" "}
                               {formatTimezoneOffset(timezone.offset)}
                             </div>
                           </div>
