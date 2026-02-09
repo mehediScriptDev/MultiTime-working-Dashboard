@@ -470,42 +470,69 @@ export default function HomePage() {
                 {t("home.subtitle")}
               </p>
             </div>
-            <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
-              <Button
-                onClick={handleAddOrUpgrade}
-                disabled={isLoading}
-                className={
-                  isAtFreeLimit
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                    : ""
-                }
-              >
-                {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : isAtFreeLimit ? (
-                  <>
-                    <Crown className="mr-2 h-4 w-4" />
-                    Upgrade to Premium
-                  </>
-                ) : (
-                  <>
-                    <Plus className="mr-2 h-4 w-4 " />
-                    {t("home.addTimezone")}
-                  </>
-                )}
-              </Button>
-              <div className="inline-flex items-center">
-                <span className="mr-3 text-sm font-medium text-gray-700 dark:text-slate-300">
-                  24h
-                </span>
-                <Switch
-                  checked={!use24Hour}
-                  onCheckedChange={(checked) => setUse24Hour(!checked)}
-                  id="timeFormatToggle"
-                />
-                <span className="ml-3 text-sm font-medium text-gray-700 dark:text-slate-300">
-                  12h
-                </span>
+            <div className="mt-4 md:mt-0 flex items-center">
+              {/* Timezone Controls Container - pixel-perfect match */}
+              <div className="flex items-center bg-[#192338] rounded-[14px] p-[3px] shadow-xl">
+                {/* Upgrade to Premium / Add Timezone Button */}
+                <button
+                  onClick={handleAddOrUpgrade}
+                  disabled={isLoading}
+                  className="flex items-center gap-2 px-4 py-2 rounded-[10px] font-medium text-sm transition-all duration-300 bg-gradient-to-r from-[#2970f5] to-[#1d5bd6] text-white hover:from-[#3a7ef7] hover:to-[#2568e0] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : isAtFreeLimit ? (
+                    <>
+                      <svg
+                        className="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
+                      </svg>
+                      <span>Upgrade to Premium</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      <span>{t("home.addTimezone")}</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Vertical Divider */}
+                <div className="w-[1px] h-5 bg-[#3d4f6f] mx-4" />
+
+                {/* 24h/12h Toggle with Switch */}
+                <div className="flex items-center gap-2 mr-2">
+                  <span
+                    className={`text-sm font-medium transition-colors duration-200 ${use24Hour ? "text-white" : "text-[#7b8ba5]"}`}
+                  >
+                    24h
+                  </span>
+
+                  {/* Toggle Switch */}
+                  <button
+                    onClick={() => setUse24Hour(!use24Hour)}
+                    className="relative w-11 h-[22px] rounded-full bg-[#2d3f5e] transition-colors duration-300 focus:outline-none"
+                  >
+                    <span
+                      className={`absolute top-[3px] w-4 h-4 rounded-full bg-[#3b7df5] shadow transition-all duration-300 ${
+                        use24Hour ? "left-[3px]" : "left-[25px]"
+                      }`}
+                    />
+                  </button>
+
+                  <span
+                    className={`text-sm font-medium transition-colors duration-200 ${!use24Hour ? "text-white" : "text-[#7b8ba5]"}`}
+                  >
+                    12h
+                  </span>
+                </div>
               </div>
             </div>
           </div>
