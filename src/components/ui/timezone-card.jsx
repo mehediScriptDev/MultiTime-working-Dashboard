@@ -62,7 +62,7 @@ export function TimezoneCard({ timezone, use24Hour, onEdit, onDelete }) {
         style={{ height: 4, backgroundColor: "hsl(var(--primary))" }}
         className="w-full"
       />
-      <CardContent className="p-4 sm:p-6">
+      <CardContent className="p-8 sm:p-6">
         <div className="flex justify-between items-start">
           <div>
             <h3 className="text-xl leading-6 font-bold text-gray-900 dark:text-white tracking-tight">
@@ -111,7 +111,7 @@ export function TimezoneCard({ timezone, use24Hour, onEdit, onDelete }) {
               </span>
             </div>
           )}
-          <div className="lg:text-5xl text-4xl font-black text-gray-800 dark:text-slate-100 tracking-tighter">
+          <div className="lg:text-5xl text-4xl py-3 sm:py-0 font-black text-gray-800 dark:text-slate-100 tracking-tighter">
             {time}
           </div>
           <div className="mt-2 text-xs font-bold text-primary/70 dark:text-blue-400 uppercase tracking-widest">

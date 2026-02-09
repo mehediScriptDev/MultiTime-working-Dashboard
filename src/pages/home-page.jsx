@@ -433,13 +433,13 @@ export default function HomePage() {
 
   const groupedTimezones = groupTimezonesByGroupName();
 
-  const handleUpgrade = () => {
-    const apiBase = import.meta.env.VITE_API_BASE_URL || "";
-    upgradeMutation.mutate({
-      returnUrl: `${apiBase}/docs`,
-      cancelUrl: `${apiBase}/docs`,
-    });
-  };
+  // const handleUpgrade = () => {
+  //   const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+  //   upgradeMutation.mutate({
+  //     returnUrl: `${apiBase}/docs`,
+  //     cancelUrl: `${apiBase}/docs`,
+  //   });
+  // };
 
   const handleAddOrUpgrade = () => {
     if (isAtFreeLimit) {
@@ -472,7 +472,7 @@ export default function HomePage() {
             </div>
             <div className="mt-4 md:mt-0 flex items-center">
               {/* Timezone Controls Container - pixel-perfect match */}
-              <div className="flex items-center bg-[#192338] rounded-[14px] p-[3px] shadow-xl">
+              <div className="flex items-center bg-slate-100 dark:bg-[#192338] rounded-[14px] p-[3px] dark:shadow-xl border border-slate-200 dark:border-transparent">
                 {/* Upgrade to Premium / Add Timezone Button */}
                 <button
                   onClick={handleAddOrUpgrade}
@@ -505,12 +505,12 @@ export default function HomePage() {
                 </button>
 
                 {/* Vertical Divider */}
-                <div className="w-[1px] h-5 bg-[#3d4f6f] mx-4" />
+                <div className="w-[1px] h-5 bg-slate-300 dark:bg-[#3d4f6f] mx-4" />
 
                 {/* 24h/12h Toggle with Switch */}
                 <div className="flex items-center gap-2 mr-2">
                   <span
-                    className={`text-sm font-medium transition-colors duration-200 ${use24Hour ? "text-white" : "text-[#7b8ba5]"}`}
+                    className={`text-sm font-medium transition-colors duration-200 ${use24Hour ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-[#7b8ba5]"}`}
                   >
                     24h
                   </span>
@@ -518,7 +518,7 @@ export default function HomePage() {
                   {/* Toggle Switch */}
                   <button
                     onClick={() => setUse24Hour(!use24Hour)}
-                    className="relative w-11 h-[22px] rounded-full bg-[#2d3f5e] transition-colors duration-300 focus:outline-none"
+                    className="relative w-11 h-[22px] rounded-full bg-slate-300 dark:bg-[#2d3f5e] transition-colors duration-300 focus:outline-none"
                   >
                     <span
                       className={`absolute top-[3px] w-4 h-4 rounded-full bg-[#3b7df5] shadow transition-all duration-300 ${
@@ -528,7 +528,7 @@ export default function HomePage() {
                   </button>
 
                   <span
-                    className={`text-sm font-medium transition-colors duration-200 ${!use24Hour ? "text-white" : "text-[#7b8ba5]"}`}
+                    className={`text-sm font-medium transition-colors duration-200 ${!use24Hour ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-[#7b8ba5]"}`}
                   >
                     12h
                   </span>
@@ -577,7 +577,7 @@ export default function HomePage() {
               {Object.entries(groupedTimezones).map(([groupName, zones]) => (
                 <div key={groupName} className="space-y-4">
                   {/* Group Header */}
-                  <div className="border-b-2 border-gray-300 dark:border-slate-700 pb-3">
+                  <div className=" border-gray-300 dark:border-slate-700">
                     <h2 className="text-xl font-bold text-gray-800 dark:text-slate-200">
                       {groupName}
                     </h2>
