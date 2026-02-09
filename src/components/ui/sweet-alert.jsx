@@ -74,16 +74,9 @@ export function SweetAlert({
       <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 max-w-md">
         <AlertDialogHeader>
           <div className="flex flex-col items-center gap-4 mb-2">
-            <div
-              className={cn(
-                "w-16 h-16 rounded-full flex items-center justify-center",
-                colors.bg,
-                colors.border,
-                "border-2"
-              )}
-            >
-              <Icon className={cn("w-8 h-8", colors.icon)} />
-            </div>
+              <div className="flex items-center justify-center mb-1">
+                <Icon className={cn("w-12 h-12", colors.icon)} />
+              </div>
             <AlertDialogTitle className="text-xl text-center text-gray-900 dark:text-slate-100">
               {title}
             </AlertDialogTitle>
