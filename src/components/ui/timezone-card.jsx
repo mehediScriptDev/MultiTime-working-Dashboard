@@ -128,9 +128,9 @@ export function TimezoneCard({ timezone, use24Hour, onEdit, onDelete }) {
               {workingHoursText}
             </div>
           </div>
-          <div className="relative h-3 bg-[#E5E9F0] dark:bg-slate-800 rounded-full overflow-hidden">
+          <div className="relative h-3 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
-              className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${isWorkingHours ? "bg-[#4F7CFF] dark:bg-gradient-to-r dark:from-blue-600 dark:to-indigo-600" : "bg-[#D1D5DB] dark:bg-slate-700"}`}
+              className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${isWorkingHours ? "bg-blue-500 dark:bg-gradient-to-r dark:from-blue-600 dark:to-indigo-600" : "bg-slate-400 dark:bg-slate-700"}`}
               style={{ width: `${workingHoursPercent}%` }}
             ></div>
           </div>
