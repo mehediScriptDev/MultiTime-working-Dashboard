@@ -245,7 +245,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
             return (
               <div
                 key={timezone.id}
-                className="bg-[#131c2e] dark:bg-[#131c2e] rounded-xl p-4 border border-[#1e2d47]"
+                className="bg-white dark:bg-[#131c2e] rounded-xl p-4 border border-slate-200 dark:border-[#1e2d47] shadow-sm"
               >
                 {/* Header: Status dot + City + Country */}
                 <div className="flex items-center gap-3 mb-1">
@@ -256,10 +256,10 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                         : "bg-gray-400 dark:bg-slate-500"
                     }`}
                   />
-                  <h3 className="text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                     {timezone.city || timezone.name?.split(",")[0]}
                     {timezone.region && (
-                      <span className="text-white">
+                      <span className="text-slate-900 dark:text-white">
                         ,{" "}
                         {timezone.region
                           ?.split(" ")[0]
@@ -271,22 +271,22 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                 </div>
 
                 {/* GMT offset + current time */}
-                <div className="text-[#7b8ba5] text-sm font-medium mb-4 ml-6">
+                <div className="text-slate-600 dark:text-[#7b8ba5] text-sm font-medium mb-4 ml-6">
                   {formatTimezoneOffset(timezone.offset)} ·{" "}
                   {now.format(use24Hour ? "HH:mm" : "h:mm")}
                 </div>
 
                 {/* Timeline bar */}
-                <div className="relative h-5 bg-[#252f45] rounded-lg mb-3">
+                <div className="relative h-5 bg-slate-200 dark:bg-[#252f45] rounded-lg mb-3">
                   {/* Working hours bar with centered Active label */}
                   <div
-                    className="absolute h-full bg-[#3d5a8a] rounded -ml-3"
+                    className="absolute h-full bg-blue-500 dark:bg-[#3d5a8a] rounded -ml-3"
                     style={{
                       left: `${workingHoursStartPercent}%`,
                       width: `${workingHoursWidthPercent}%`,
                     }}
                   >
-                    <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-slate-200 uppercase tracking-widest">
+                    <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-white dark:text-slate-200 uppercase tracking-widest">
                       ACTIVE
                     </span>
                   </div>
@@ -310,19 +310,19 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
 
                 {/* Working hours range + ACTIVE label */}
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[#7b8ba5] text-sm">
+                  <span className="text-slate-600 dark:text-[#7b8ba5] text-sm">
                     {formatHour(workingHoursStart)} -{" "}
                     {formatHour(workingHoursEnd)}
                   </span>
                   {isActive && (
-                    <span className="text-green-400 text-xs font-bold uppercase tracking-wider">
+                    <span className="text-green-600 dark:text-green-400 text-xs font-bold uppercase tracking-wider">
                       ACTIVE
                     </span>
                   )}
                 </div>
 
                 {/* Local Time */}
-                <div className="text-[#7b8ba5] text-sm">
+                <div className="text-slate-600 dark:text-[#7b8ba5] text-sm">
                   Local Time: {now.format(use24Hour ? "HH:mm" : "h:mm A")}
                 </div>
               </div>
