@@ -1,6 +1,16 @@
 // API service for timezone operations
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+/**
+ * Helper to throw errors with status code for better error handling
+ */
+function throwApiError(response, errorData, defaultMessage) {
+  const message = errorData?.message || defaultMessage;
+  const errorWithStatus = new Error(message);
+  errorWithStatus.status = response.status;
+  throw errorWithStatus;
+}
+
 export const timezoneService = {
   async getAll(token) {
     const response = await fetch(`${API_BASE_URL}/timezones`, {
@@ -12,8 +22,8 @@ export const timezoneService = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to fetch timezones');
+      const error = await response.json().catch(() => ({}));
+      throwApiError(response, error, 'Failed to fetch timezones');
     }
 
     return await response.json();
@@ -30,8 +40,8 @@ export const timezoneService = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to create timezone');
+      const error = await response.json().catch(() => ({}));
+      throwApiError(response, error, 'Failed to create timezone');
     }
 
     return await response.json();
@@ -48,8 +58,8 @@ export const timezoneService = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to update timezone');
+      const error = await response.json().catch(() => ({}));
+      throwApiError(response, error, 'Failed to update timezone');
     }
 
     return await response.json();
@@ -65,8 +75,8 @@ export const timezoneService = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to delete timezone');
+      const error = await response.json().catch(() => ({}));
+      throwApiError(response, error, 'Failed to delete timezone');
     }
 
     return await response.json();

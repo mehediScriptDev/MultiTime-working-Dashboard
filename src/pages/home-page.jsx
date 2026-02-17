@@ -28,6 +28,34 @@ import { Plus, Clock, Loader2, AlertCircle, Crown, Zap } from "lucide-react";
 const TIMEZONES_KEY = "timezones_v1";
 
 /**
+ * Check if error is an authentication error (401/403) and handle auto-logout
+ * @param {Error} error - The error object
+ * @param {Function} signOut - The signOut function from auth context
+ * @returns {boolean} - True if auth error was handled
+ */
+function handleAuthError(error, signOut) {
+  const errorMsg = error?.message || "";
+  const statusCode = error?.status;
+  
+  const isAuthError = 
+    statusCode === 401 ||
+    statusCode === 403 ||
+    errorMsg.toLowerCase().includes("401") ||
+    errorMsg.toLowerCase().includes("403") ||
+    errorMsg.toLowerCase().includes("unauthorized") ||
+    errorMsg.toLowerCase().includes("invalid or expired access token") ||
+    errorMsg.toLowerCase().includes("invalid token") ||
+    errorMsg.toLowerCase().includes("token expired");
+  
+  if (isAuthError) {
+    console.warn("Authentication error detected - logging out", error);
+    signOut();
+    return true;
+  }
+  return false;
+}
+
+/**
  * Derive IANA timezone string from city name by searching supported timezones
  * @param {string} region - Region name (e.g., "Asia")
  * @param {string} city - City name (e.g., "Dhaka")
@@ -64,7 +92,7 @@ function deriveIANATimezone(region, city) {
 }
 
 export default function HomePage() {
-  const { user, subscription, upgradeMutation } = useAuth();
+  const { user, subscription, upgradeMutation, signOut } = useAuth();
   const { showAlert, AlertComponent } = useSweetAlert();
   const { t } = useTranslation();
   const [use24Hour, setUse24Hour] = useState(() => {
@@ -137,6 +165,13 @@ export default function HomePage() {
         }
       } catch (e) {
         console.error("Failed to load timezones from backend", e);
+        
+        // Check if it's an auth error and handle auto-logout
+        if (handleAuthError(e, signOut)) {
+          setIsLoading(false);
+          return;
+        }
+        
         // Fallback to localStorage
         try {
           const saved = localStorage.getItem(TIMEZONES_KEY);
@@ -152,7 +187,7 @@ export default function HomePage() {
     };
 
     loadTimezones();
-  }, []);
+  }, [signOut]);
 
   // Save timezones to localStorage whenever they change
   const saveTimezones = (newTimezones) => {
@@ -254,6 +289,12 @@ export default function HomePage() {
       }
     } catch (error) {
       console.error("Failed to add timezone", error);
+      
+      // Check if it's an auth error and handle auto-logout
+      if (handleAuthError(error, signOut)) {
+        return;
+      }
+      
       // Rollback optimistic update on error
       const rollbackTimezones = timezones.filter(tz => !tz.id.startsWith('temp-'));
       setTimezones(rollbackTimezones);
@@ -317,6 +358,12 @@ export default function HomePage() {
       }
     } catch (error) {
       console.error("Failed to update timezone", error);
+      
+      // Check if it's an auth error and handle auto-logout
+      if (handleAuthError(error, signOut)) {
+        return;
+      }
+      
       // Rollback to previous state
       setTimezones(previousTimezones);
       localStorage.setItem(TIMEZONES_KEY, JSON.stringify(previousTimezones));
@@ -379,6 +426,12 @@ export default function HomePage() {
         }
       } catch (error) {
         console.error("Failed to delete timezone", error);
+        
+        // Check if it's an auth error and handle auto-logout
+        if (handleAuthError(error, signOut)) {
+          return;
+        }
+        
         // Rollback to previous state
         setTimezones(previousTimezones);
         localStorage.setItem(TIMEZONES_KEY, JSON.stringify(previousTimezones));
