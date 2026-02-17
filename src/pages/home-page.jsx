@@ -203,42 +203,47 @@ export default function HomePage() {
         return;
       }
 
+      // Optimistic update - add to UI immediately
+      const tempId = `temp-${Date.now()}`;
+      const optimisticTimezone = {
+        id: tempId,
+        ...timezone,
+        groupName: timezone.groupName || "General",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const optimisticTimezones = [...timezones, optimisticTimezone];
+      setTimezones(optimisticTimezones);
+      localStorage.setItem(TIMEZONES_KEY, JSON.stringify(optimisticTimezones));
+
       // Strip the 'timezone' field before sending to API (backend doesn't support it)
       const { timezone: tzString, ...apiTimezoneData } = timezone;
       const response = await timezoneService.create(apiTimezoneData, token);
 
       if (response.success && response.data) {
-        // Re-fetch to get updated grouped data
-        const allTimezones = await timezoneService.getAll(token);
-        if (allTimezones.success && allTimezones.data) {
-          const flatTimezones = allTimezones.data.flatMap((group) =>
-            (group.item || []).map((item) => {
-              // Derive IANA timezone string from region and city for frontend use
-              const derivedTimezone = deriveIANATimezone(
-                item.region,
-                item.city,
-              );
-              return {
-                id: item.id,
-                name: item.name,
-                city: item.city,
-                region: item.region,
-                abbreviation: item.abbreviation,
-                offset: item.offset,
-                timezone: derivedTimezone, // Derived IANA string for accurate calculations
-                workingHoursStart: item.workingHoursStart ?? 9,
-                workingHoursEnd: item.workingHoursEnd ?? 17,
-                label: item.label,
-                groupId: item.groupId,
-                groupName: group.name || "General",
-                createdAt: item.createdAt,
-                updatedAt: item.updatedAt,
-              };
-            }),
-          );
-          setTimezones(flatTimezones);
-          localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
-        }
+        // Replace temp with real data from server
+        const serverTimezone = {
+          id: response.data.id,
+          name: response.data.name,
+          city: response.data.city,
+          region: response.data.region,
+          abbreviation: response.data.abbreviation,
+          offset: response.data.offset,
+          timezone: timezone.timezone, // Keep the frontend-derived IANA string
+          workingHoursStart: response.data.workingHoursStart ?? 9,
+          workingHoursEnd: response.data.workingHoursEnd ?? 17,
+          label: response.data.label,
+          groupId: response.data.groupId,
+          groupName: response.data.groupName || timezone.groupName || "General",
+          createdAt: response.data.createdAt,
+          updatedAt: response.data.updatedAt,
+        };
+        
+        const finalTimezones = optimisticTimezones.map(tz => 
+          tz.id === tempId ? serverTimezone : tz
+        );
+        setTimezones(finalTimezones);
+        localStorage.setItem(TIMEZONES_KEY, JSON.stringify(finalTimezones));
 
         showAlert({
           type: "success",
@@ -249,6 +254,11 @@ export default function HomePage() {
       }
     } catch (error) {
       console.error("Failed to add timezone", error);
+      // Rollback optimistic update on error
+      const rollbackTimezones = timezones.filter(tz => !tz.id.startsWith('temp-'));
+      setTimezones(rollbackTimezones);
+      localStorage.setItem(TIMEZONES_KEY, JSON.stringify(rollbackTimezones));
+      
       showAlert({
         type: "error",
         title: "Failed to add timezone",
@@ -258,6 +268,8 @@ export default function HomePage() {
   };
 
   const handleEditTimezone = async (id, timezone) => {
+    const previousTimezones = [...timezones]; // For rollback
+    
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
@@ -275,41 +287,25 @@ export default function HomePage() {
         return;
       }
 
+      // Optimistic update - update UI immediately
+      const optimisticTimezones = timezones.map((tz) =>
+        tz.id === id ? { ...tz, ...timezone, updatedAt: new Date().toISOString() } : tz,
+      );
+      setTimezones(optimisticTimezones);
+      localStorage.setItem(TIMEZONES_KEY, JSON.stringify(optimisticTimezones));
+
       // Strip the 'timezone' field before sending to API (backend doesn't support it)
       const { timezone: tzString, ...apiTimezoneData } = timezone;
       const response = await timezoneService.update(id, apiTimezoneData, token);
 
       if (response.success) {
-        // Re-fetch to get updated grouped data
-        const allTimezones = await timezoneService.getAll(token);
-        if (allTimezones.success && allTimezones.data) {
-          const flatTimezones = allTimezones.data.flatMap((group) =>
-            (group.item || []).map((item) => {
-              // Derive IANA timezone string from region and city for frontend use
-              const derivedTimezone = deriveIANATimezone(
-                item.region,
-                item.city,
-              );
-              return {
-                id: item.id,
-                name: item.name,
-                city: item.city,
-                region: item.region,
-                abbreviation: item.abbreviation,
-                offset: item.offset,
-                timezone: derivedTimezone, // Derived IANA string for accurate calculations
-                workingHoursStart: item.workingHoursStart ?? 9,
-                workingHoursEnd: item.workingHoursEnd ?? 17,
-                label: item.label,
-                groupId: item.groupId,
-                groupName: group.name || "General",
-                createdAt: item.createdAt,
-                updatedAt: item.updatedAt,
-              };
-            }),
+        // Keep optimistic update, just update timestamp from server if available
+        if (response.data?.updatedAt) {
+          const finalTimezones = optimisticTimezones.map((tz) =>
+            tz.id === id ? { ...tz, updatedAt: response.data.updatedAt } : tz,
           );
-          setTimezones(flatTimezones);
-          localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
+          setTimezones(finalTimezones);
+          localStorage.setItem(TIMEZONES_KEY, JSON.stringify(finalTimezones));
         }
 
         showAlert({
@@ -321,6 +317,10 @@ export default function HomePage() {
       }
     } catch (error) {
       console.error("Failed to update timezone", error);
+      // Rollback to previous state
+      setTimezones(previousTimezones);
+      localStorage.setItem(TIMEZONES_KEY, JSON.stringify(previousTimezones));
+      
       showAlert({
         type: "error",
         title: "Failed to update timezone",
@@ -336,6 +336,8 @@ export default function HomePage() {
 
   const confirmDelete = async () => {
     if (toDeleteTimezone) {
+      const previousTimezones = [...timezones]; // For rollback
+      
       try {
         const token = localStorage.getItem("accessToken");
         if (!token) {
@@ -354,54 +356,33 @@ export default function HomePage() {
           return;
         }
 
+        // Optimistic update - remove from UI immediately
+        const optimisticTimezones = timezones.filter(
+          (tz) => tz.id !== toDeleteTimezone.id,
+        );
+        setTimezones(optimisticTimezones);
+        localStorage.setItem(TIMEZONES_KEY, JSON.stringify(optimisticTimezones));
+        setDeleteConfirmOpen(false);
+        setToDeleteTimezone(null);
+
         const response = await timezoneService.delete(
           toDeleteTimezone.id,
           token,
         );
 
         if (response.success) {
-          // Re-fetch to get updated grouped data
-          const allTimezones = await timezoneService.getAll(token);
-          if (allTimezones.success && allTimezones.data) {
-            const flatTimezones = allTimezones.data.flatMap((group) =>
-              (group.item || []).map((item) => {
-                // Derive IANA timezone string from region and city for frontend use
-                const derivedTimezone = deriveIANATimezone(
-                  item.region,
-                  item.city,
-                );
-                return {
-                  id: item.id,
-                  name: item.name,
-                  city: item.city,
-                  region: item.region,
-                  abbreviation: item.abbreviation,
-                  offset: item.offset,
-                  timezone: derivedTimezone, // Derived IANA string for accurate calculations
-                  workingHoursStart: item.workingHoursStart ?? 9,
-                  workingHoursEnd: item.workingHoursEnd ?? 17,
-                  label: item.label,
-                  groupId: item.groupId,
-                  groupName: group.name || "General",
-                  createdAt: item.createdAt,
-                  updatedAt: item.updatedAt,
-                };
-              }),
-            );
-            setTimezones(flatTimezones);
-            localStorage.setItem(TIMEZONES_KEY, JSON.stringify(flatTimezones));
-          }
-
           showAlert({
             type: "success",
             title: "Timezone deleted",
             description: "The timezone has been deleted successfully.",
           });
-          setDeleteConfirmOpen(false);
-          setToDeleteTimezone(null);
         }
       } catch (error) {
         console.error("Failed to delete timezone", error);
+        // Rollback to previous state
+        setTimezones(previousTimezones);
+        localStorage.setItem(TIMEZONES_KEY, JSON.stringify(previousTimezones));
+        
         showAlert({
           type: "error",
           title: "Failed to delete timezone",
