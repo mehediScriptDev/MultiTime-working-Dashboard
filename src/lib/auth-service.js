@@ -216,6 +216,7 @@ export const authService = {
         errorMessage = 'This reset link has expired. Please request a new one.';
       } else if (response.status === 500) {
         errorMessage = 'Server error. Please try again later.';
+        
       }
       
       throw new Error(errorMessage);

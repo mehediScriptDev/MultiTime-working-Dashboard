@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -23,15 +23,7 @@ import {
   getTimeInTimezone,
   formatTimezoneOffset,
 } from "@/lib/utils";
-import { Search, Globe, Clock, Users, Tag, Loader2 } from "lucide-react";
-import cityTimezones from "city-timezones";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-
-// Ensure dayjs timezone plugin is loaded
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import { Search, Globe, Clock, Users, Tag } from "lucide-react";
 
 export function AddTimezoneDialog({
   open,
@@ -42,29 +34,13 @@ export function AddTimezoneDialog({
   use24Hour,
 }) {
   const { t } = useTranslation();
-  const commonTimezones = useMemo(() => getCommonTimezones(), []);
+  const commonTimezones = getCommonTimezones();
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
   const [selectedTimezone, setSelectedTimezone] = useState(null);
   const [label, setLabel] = useState("");
   const [groupName, setGroupName] = useState("");
   const [workingHoursStart, setWorkingHoursStart] = useState(9);
   const [workingHoursEnd, setWorkingHoursEnd] = useState(17);
-
-  // Debounce search input to avoid expensive calculations on every keystroke
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-      setIsSearching(false);
-    }, 300);
-
-    if (searchQuery !== debouncedSearch) {
-      setIsSearching(true);
-    }
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
 
   useEffect(() => {
     if (editingTimezone) {
@@ -82,7 +58,6 @@ export function AddTimezoneDialog({
           region: editingTimezone.region || "",
           abbreviation: editingTimezone.abbreviation,
           offset: editingTimezone.offset,
-          timezone: editingTimezone.timezone || null, // Include IANA timezone string
         },
       );
 
@@ -109,7 +84,6 @@ export function AddTimezoneDialog({
       region: selectedTimezone.region,
       abbreviation: selectedTimezone.abbreviation,
       offset: selectedTimezone.offset,
-      timezone: selectedTimezone.timezone || null, // Include IANA timezone string (e.g., "Asia/Tokyo")
       workingHoursStart,
       workingHoursEnd,
       label: label || null,
@@ -125,83 +99,15 @@ export function AddTimezoneDialog({
     onOpenChange(false);
   };
 
-  // Search logic: Use common timezones by default, city search when query present
-  const filteredTimezones = useMemo(() => {
-    // If no search query, show default common timezones
-    if (!debouncedSearch.trim()) {
-      return commonTimezones;
-    }
-
-    const query = debouncedSearch.toLowerCase().trim();
-
-    // First, filter common timezones
-    const commonMatches = commonTimezones.filter((tz) => {
-      return (
-        (tz.searchableText && tz.searchableText.includes(query)) ||
-        tz.name.toLowerCase().includes(query) ||
-        tz.city.toLowerCase().includes(query) ||
-        tz.region.toLowerCase().includes(query) ||
-        (tz.country && tz.country.toLowerCase().includes(query)) ||
-        (tz.aliases &&
-          tz.aliases.some((alias) => alias.toLowerCase().includes(query))) ||
-        formatTimezoneOffset(tz.offset).toLowerCase().includes(query)
-      );
-    });
-
-    // Only search cities if query is at least 3 characters to improve performance
-    if (query.length < 3) {
-      return commonMatches.slice(0, 50);
-    }
-
-    // Search for cities worldwide using city-timezones library
-    const cityMatches = cityTimezones.findFromCityStateProvince(debouncedSearch);
-
-    // Map city-timezones results to our app format (limit to 30 for performance)
-    const mappedCityResults = cityMatches
-      .slice(0, 30) // Limit city-timezones results before processing
-      .filter((match) => match.timezone) // Ensure it has a timezone
-      .map((match) => {
-        try {
-          // Calculate offset and abbreviation dynamically using dayjs
-          const now = dayjs().tz(match.timezone);
-          const offset = now.utcOffset(); // offset in minutes
-          const abbreviation = now.format("z"); // timezone abbreviation
-
-          return {
-            name: `${match.city}, ${match.iso2}`, // e.g., "Austin, US"
-            city: match.city,
-            region: match.province || match.country, // State/Province or Country
-            country: match.country,
-            abbreviation: abbreviation,
-            offset: offset,
-            timezone: match.timezone, // IANA timezone string (e.g., "America/Chicago")
-            searchableText: `${match.city} ${match.province} ${match.country} ${match.timezone}`.toLowerCase(),
-          };
-        } catch (error) {
-          console.warn(`Failed to process timezone for ${match.city}:`, error);
-          return null;
-        }
-      })
-      .filter(Boolean); // Remove any null entries from errors
-
-    // Combine and deduplicate (prefer common timezones, then city matches)
-    const combinedResults = [...commonMatches];
-    
-    // Add city matches that aren't already in common timezones
-    mappedCityResults.forEach((cityResult) => {
-      const isDuplicate = combinedResults.some(
-        (existing) =>
-          existing.timezone === cityResult.timezone &&
-          existing.city.toLowerCase() === cityResult.city.toLowerCase()
-      );
-      if (!isDuplicate) {
-        combinedResults.push(cityResult);
-      }
-    });
-
-    // Limit results to avoid overwhelming UI
-    return combinedResults.slice(0, 50);
-  }, [debouncedSearch, commonTimezones]);
+  const filteredTimezones = commonTimezones.filter(
+    (tz) =>
+      tz.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tz.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tz.region.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      formatTimezoneOffset(tz.offset)
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()),
+  );
 
   // Generate time options for select
   const timeOptions = Array.from({ length: 24 }, (_, i) => i);
@@ -216,7 +122,11 @@ export function AddTimezoneDialog({
         {/* Header - Light mode friendly */}
         <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-4 sm:py-5 flex-shrink-0">
           <DialogTitle className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2 sm:gap-3">
-            <img src="/Logo.png" className="h-9 w-9" alt="TimeSync" />
+            <img
+              src="/Logo.png"
+              className="h-9 w-9"
+              alt="TimeSync"
+            />
             {editingTimezone
               ? t("dialog.editTimezone")
               : t("dialog.addTimezone")}
@@ -243,15 +153,12 @@ export function AddTimezoneDialog({
               <div className="relative group">
                 <Input
                   id="timezone-search"
-                  placeholder="e.g. Austin, Pune, Manchester, Tokyo..."
+                  placeholder="e.g. London, Paris, United States..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-11 pr-11 h-11 sm:h-12 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-sm sm:text-base"
+                  className="pl-11 h-11 sm:h-12 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-sm sm:text-base"
                 />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors pointer-events-none" />
-                {isSearching && (
-                  <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-500 animate-spin pointer-events-none" />
-                )}
               </div>
             </div>
 
@@ -289,7 +196,7 @@ export function AddTimezoneDialog({
                               {timezone.city}
                             </div>
                             <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                              {timezone.country || timezone.region} •{" "}
+                              {timezone.region} •{" "}
                               {formatTimezoneOffset(timezone.offset)}
                             </div>
                           </div>
@@ -306,16 +213,7 @@ export function AddTimezoneDialog({
                     <div className="p-12 text-center">
                       <Globe className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600 mb-3" />
                       <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                        {debouncedSearch 
-                          ? `No cities found matching "${debouncedSearch}"`
-                          : "Start typing to search for a city"
-                        }
-                      </p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
-                        {debouncedSearch && debouncedSearch.length < 3
-                          ? "Type at least 3 characters for city search"
-                          : "Try searching for a different city name"
-                        }
+                        No timezones found matching your search
                       </p>
                     </div>
                   )}
