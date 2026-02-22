@@ -102,7 +102,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
               return (
                 <div
                   key={timezone.id}
-                  className="flex items-center mb-6 md:mb-8 group"
+                  className="flex items-center mb-4 md:mb-6 group"
                 >
                   <div className="w-40 md:w-52 pr-4 md:pr-6 shrink-0">
                     <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-800/80 rounded-lg md:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 group-hover:scale-[1.02]">
@@ -180,16 +180,14 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                       style={{ left: `${currentTimePercent}%` }}
                     >
                       <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-4 ring-red-100 dark:ring-red-900/50 shadow-sm"></div>
-                      {/* Time label following the red marker */}
+                      {/* Time label — right of line by default, flips left when near right edge */}
                       <div
-                        className="absolute -bottom-4 text-[10px] font-bold text-red-500 dark:text-red-400 whitespace-nowrap pointer-events-none select-none z-20"
+                        className="absolute top-1/2 text-[10px] font-bold text-white dark:text-slate-200 whitespace-nowrap pointer-events-none select-none z-20"
                         style={{
-                          left: '50%',
+                          left: currentTimePercent > 85 ? '-6px' : '12px',
                           transform: currentTimePercent > 85
-                            ? 'translateX(-100%)'
-                            : currentTimePercent < 15
-                              ? 'translateX(0%)'
-                              : 'translateX(-50%)',
+                            ? 'translateX(-100%) translateY(-50%)'
+                            : 'translateY(-50%)',
                         }}
                       >
                         {now.format(use24Hour ? "HH:mm" : "h:mm A")}
