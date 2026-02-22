@@ -9,32 +9,43 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Loader2, CheckCircle } from "lucide-react";
+import { Lock, Loader2, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/lib/auth-service";
 
-export function ForgotPasswordDialog({ open, onOpenChange }) {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+export function ResetPasswordDialog({ open, onOpenChange, token }) {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email) {
+    // Validation
+    if (!password || !confirmPassword) {
       toast({
-        title: "Email required",
-        description: "Please enter your email address.",
+        title: "All fields required",
+        description: "Please fill in all fields.",
         variant: "destructive",
       });
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (password.length < 6) {
       toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address.",
+        title: "Password too short",
+        description: "Password must be at least 6 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure both passwords match.",
         variant: "destructive",
       });
       return;
@@ -43,42 +54,41 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
     setIsLoading(true);
 
     try {
-      // Call backend API to send reset email
-      const response = await authService.forgotPassword(email);
+      const response = await authService.resetPassword(token, password);
 
       toast({
-        title: "Email sent!",
-        description:
-          response.message ||
-          "Check your inbox for password reset instructions.",
+        title: "Password reset successful!",
+        description: response.message || "Please log in with your new password.",
       });
 
-      setSubmitted(true);
+      setSuccess(true);
+
+      // Close modal and reset state after 2 seconds
       setTimeout(() => {
-        setSubmitted(false);
-        setEmail("");
+        setSuccess(false);
+        setPassword("");
+        setConfirmPassword("");
         onOpenChange(false);
       }, 2000);
     } catch (error) {
       // Parse the error message for better UX
-      let title = "Failed to send email";
-      let description = error.message || "Please try again later.";
-      
+      let title = "Failed to reset password";
+      let description = error.message || "The reset link may be invalid or expired.";
+
       // Customize title based on error type
-      if (description.toLowerCase().includes('not found') || description.toLowerCase().includes('no account')) {
-        title = "Account not found";
-      } else if (description.toLowerCase().includes('too many')) {
-        title = "Too many attempts";
-      } else if (description.toLowerCase().includes('server')) {
+      if (description.toLowerCase().includes("expired")) {
+        title = "Link expired";
+      } else if (
+        description.toLowerCase().includes("invalid") ||
+        description.toLowerCase().includes("not found")
+      ) {
+        title = "Invalid reset link";
+      } else if (description.toLowerCase().includes("server")) {
         title = "Server error";
-      } else if (description.toLowerCase().includes('invalid') || description.toLowerCase().includes('validation')) {
-        title = "Invalid request";
-        // Make validation error more helpful
-        if (description.toLowerCase() === 'validation failed') {
-          description = "Please check your email address and try again.";
-        }
+      } else if (description.toLowerCase().includes("password")) {
+        title = "Password error";
       }
-      
+
       toast({
         title,
         description,
@@ -91,8 +101,9 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
 
   const handleOpenChange = (newOpen) => {
     if (!newOpen) {
-      setSubmitted(false);
-      setEmail("");
+      setSuccess(false);
+      setPassword("");
+      setConfirmPassword("");
     }
     onOpenChange(newOpen);
   };
@@ -102,31 +113,51 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
       <DialogContent className="sm:max-w-[500px] w-11/12 bg-white dark:bg-slate-900 rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-            Reset Password
+            Reset Your Password
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-slate-400">
-            Enter your email address and we'll send you a link to reset your
-            password.
+            Enter your new password below
           </DialogDescription>
         </DialogHeader>
 
-        {!submitted ? (
+        {!success ? (
           <form onSubmit={handleSubmit} className="space-y-3 lg:space-y-4">
             <div className="space-y-2">
               <Label
-                htmlFor="reset-email"
+                htmlFor="new-password"
                 className="font-bold text-gray-600 dark:text-slate-400"
               >
-                Email Address
+                New Password
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                 <Input
-                  id="reset-email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="new-password"
+                  type="password"
+                  placeholder="Enter new password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-900 dark:text-slate-100 placeholder:text-gray-400"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="confirm-password"
+                className="font-bold text-gray-600 dark:text-slate-400"
+              >
+                Confirm Password
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="pl-10 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-900 dark:text-slate-100 placeholder:text-gray-400"
                   disabled={isLoading}
                 />
@@ -142,7 +173,7 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
                 {isLoading ? (
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 ) : null}
-                Send Reset Link
+                Reset Password
               </Button>
 
               <Button
@@ -161,11 +192,10 @@ export function ForgotPasswordDialog({ open, onOpenChange }) {
             <CheckCircle className="h-16 w-16 text-green-500 animate-bounce" />
             <div className="text-center">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Check your email
+                Password Reset Successful!
               </h3>
               <p className="text-sm text-gray-600 dark:text-slate-400">
-                We've sent a password reset link to <br />
-                <span className="font-semibold">{email}</span>
+                You can now log in with your new password
               </p>
             </div>
           </div>

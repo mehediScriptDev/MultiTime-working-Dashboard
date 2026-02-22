@@ -6,22 +6,22 @@ import { Link } from "wouter";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export function Header() {
-  const { user, logoutMutation, signOut } = useAuth();
+  const { user, subscription, logoutMutation, signOut } = useAuth();
   const [theme, setTheme] = useState(
-    () => (localStorage.getItem('theme') || 'dark')
+    () => localStorage.getItem("theme") || "dark",
   );
 
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
-    localStorage.setItem('theme', theme);
+    localStorage.setItem("theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
 
   return (
@@ -30,13 +30,14 @@ export function Header() {
         <div className="flex justify-between items-center h-16 lg:h-20">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <img src="/logo.png" alt="TimeSync" className="h-8 w-auto" />
+              <img src="/Logo.png" alt="TimeSync" className="h-10 w-auto" />
               <span className="lg:ml-2 ml-1 md:text-2xl text-xl font-black tracking-tighter text-gray-900 dark:text-white">
-                Time<span className="text-blue-600 dark:text-blue-400">Sync</span>
+                Time
+                <span className="text-blue-600 dark:text-blue-400">Sync</span>
               </span>
             </Link>
           </div>
-          
+
           <div className="flex items-center -space-x-1 sm:space-x-3 lg:space-x-4">
             <LanguageSwitcher />
             <Button
@@ -45,26 +46,42 @@ export function Header() {
               onClick={toggleTheme}
               className="rounded-xl text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all duration-300"
             >
-              {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              {theme === "light" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
             </Button>
 
             {user ? (
               <>
                 <div className="hidden md:flex items-center px-4 py-2 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700 group">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold mr-3 shadow-md">
-                    M
+                    {user.username?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold text-gray-900 dark:text-slate-100 leading-none">Mehedi</span>
-                    <span className={`text-[10px] font-black uppercase tracking-widest mt-1 text-gray-400 dark:text-slate-500`}>
-                      Free Plan
+                    <span className="text-xs font-bold text-gray-900 dark:text-slate-100 leading-none">
+                      {user.username || user.email?.split("@")[0]}
+                    </span>
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-widest mt-1 ${
+                        user.isPremium || subscription?.plan === "premium"
+                          ? "text-yellow-600 dark:text-yellow-400"
+                          : "text-gray-400 dark:text-slate-500"
+                      }`}
+                    >
+                      {user.isPremium || subscription?.plan === "premium" ? "Premium" : "Free Plan"}
                     </span>
                   </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => (typeof signOut === "function" ? signOut() : logoutMutation.mutate())}
+                  onClick={() =>
+                    typeof signOut === "function"
+                      ? signOut()
+                      : logoutMutation.mutate()
+                  }
                   disabled={logoutMutation.isPending}
                   className="text-gray-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold rounded-xl"
                 >
@@ -74,7 +91,9 @@ export function Header() {
               </>
             ) : (
               <Link href="/auth">
-                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 shadow-lg shadow-blue-600/20 rounded-xl px-6 font-bold">Sign In</Button>
+                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 shadow-lg shadow-blue-600/20 rounded-xl px-6 font-bold">
+                  Sign In
+                </Button>
               </Link>
             )}
           </div>

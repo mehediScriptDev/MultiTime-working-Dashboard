@@ -5,13 +5,11 @@ import { FaFacebookF } from "react-icons/fa";
 
 export function OAuthButtons() {
   const handleGoogleLogin = () => {
-    // OAuth integration - backend will handle actual Google authentication
-    window.location.href = "/api/auth/google";
+    window.location.href = "/api/auth/firebase";
   };
 
   const handleFacebookLogin = () => {
-    // OAuth integration - backend will handle actual Facebook authentication
-    window.location.href = "/api/auth/facebook";
+    window.location.href = "/api/auth/firebase";
   };
 
   return (

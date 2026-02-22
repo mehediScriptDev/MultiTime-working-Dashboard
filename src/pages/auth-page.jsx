@@ -1,60 +1,33 @@
 import { useEffect, useState } from "react";
-import { useLocation, Link } from "wouter";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAuth, loginSchema, registerSchema } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
+import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Clock,
-  Loader2,
-  Mail,
-  Lock,
-  User,
-  Globe,
-  Briefcase,
-  Eye,
-  EyeOff,
-  Moon,
-  Sun,
-} from "lucide-react";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+// Tabs and Card used inside `AuthForm`
+import { Moon, Sun } from "lucide-react";
 import { ForgotPasswordDialog } from "@/components/ui/forgot-password-dialog";
-import { OAuthButtons } from "@/components/ui/oauth-buttons";
-import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
+import { ResetPasswordDialog } from "@/components/ui/reset-password-dialog";
+import AuthForm from "@/components/ui/auth-form";
 
 export default function AuthPage() {
   const [_, navigate] = useLocation();
-  const [tabValue, setTabValue] = useState("login");
-  const { user, loginMutation, registerMutation, isLoading } = useAuth();
+  const [tabValue, setTabValue] = useState(
+    () => localStorage.getItem("authTab") || "login",
+  );
+  const { user } = useAuth();
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
+  const [resetToken, setResetToken] = useState("");
   const [isDesktop, setIsDesktop] = useState(false);
 
   const [theme, setTheme] = useState(
-    () => (localStorage.getItem("theme") || "dark")
+    () => localStorage.getItem("theme") || "dark",
   );
+
+  // Persist tab value to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("authTab", tabValue);
+  }, [tabValue]);
 
   useEffect(() => {
     if (theme === "dark") {
@@ -69,50 +42,29 @@ export default function AuthPage() {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
 
-  
   useEffect(() => {
     const checkDesktop = () => {
       setIsDesktop(window.innerWidth >= 1024);
     };
-    
+
     checkDesktop();
-    window.addEventListener('resize', checkDesktop);
-    return () => window.removeEventListener('resize', checkDesktop);
+    window.addEventListener("resize", checkDesktop);
+    return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  // Login form
-  const loginForm = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  // Register form
-  const registerForm = useForm({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-    },
-  });
-
-  const onLoginSubmit = (data) => {
-    // Store remember me preference
-    if (rememberMe) {
-      localStorage.setItem(
-        "rememberMe",
-        JSON.stringify({ email: data.email, timestamp: Date.now() }),
-      );
+  // Check for reset token in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      setResetToken(token);
+      setResetPasswordOpen(true);
+      // Clear the token from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
-    loginMutation.mutate(data);
-  };
+  }, []);
 
-  const onRegisterSubmit = (data) => {
-    registerMutation.mutate(data);
-  };
+  // form logic moved into `AuthForm` component
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -124,380 +76,69 @@ export default function AuthPage() {
   // Animation variants for sliding effect (only on desktop)
   const formVariants = {
     login: { x: 0 },
-    register: { x: isDesktop ? '100%' : 0 }
+    register: { x: isDesktop ? "100%" : 0 },
   };
 
   const imageVariants = {
     login: { x: 0 },
-    register: { x: isDesktop ? '-100%' : 0 }
+    register: { x: isDesktop ? "-100%" : 0 },
   };
 
   const transition = {
-    type: 'spring',
+    type: "spring",
     stiffness: 100,
-    damping: 20
+    damping: 20,
   };
 
   return (
-    <div className="h-screen overflow-hidden animate-gradient-x bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950">
-      <div className="absolute top-4 right-4 z-50 flex items-center space-x-3">
-        {/* <LanguageSwitcher /> */}
+    <div className="min-h-screen h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="absolute top-4 right-4 sm:top-5 sm:right-5 lg:top-6 lg:right-6 z-50">
         <Button
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
-          className="rounded-xl text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all duration-300"
+          className="rounded-full h-9 w-9 sm:h-10 sm:w-10 lg:h-11 lg:w-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 shadow-sm hover:shadow transition-all"
         >
-          {theme === "light" ? <Moon className="h-5 lg:h-6 w-5 lg:w-6 " /> : <Sun className="h-5 lg:h-6 w-5 lg:w-6 " />}
+          {theme === "light" ? (
+            <Moon className="h-4 w-4 sm:h-5 sm:w-5 text-slate-600" />
+          ) : (
+            <Sun className="h-4 w-4 sm:h-5 sm:w-5 text-slate-400" />
+          )}
         </Button>
       </div>
       <div className="flex h-full relative">
         <motion.div
-          className="flex flex-col items-center justify-center px-4 py-4 sm:px-6 lg:flex-none lg:px-10 xl:px-12 w-full lg:w-1/2 overflow-y-hidden lg:absolute lg:inset-y-0 lg:left-0"
+          className="flex flex-col items-center justify-center py-6 px-4 sm:py-8 sm:px-6 lg:py-6 lg:flex-none lg:px-8 xl:px-12 2xl:px-16 w-full lg:w-1/2 overflow-y-auto scrollbar-hide lg:absolute lg:inset-y-0 lg:left-0"
           initial={false}
           animate={tabValue}
           variants={formVariants}
           transition={transition}
-          style={{ zIndex: tabValue === 'register' ? 10 : 5 }}
+          style={{ zIndex: tabValue === "register" ? 20 : 5 }}
         >
-          <div className="w-full max-w-sm lg:max-w-md">
-            <div className="text-center mb-2">
-              <div className="flex items-center justify-center lg:mb-0">
-                <img src="/logo.png" alt="TimeSync" className="h-6 lg:h-7 w-auto" />
-                <h2 className="ml-2 text-2xl md:text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
+          <div className="w-full max-w-[360px] sm:max-w-sm md:max-w-md lg:max-w-[380px] xl:max-w-[420px] 2xl:max-w-md">
+            {/* Mobile & Tablet Header - Always visible on mobile/tablet, hidden on lg, visible on xl+ */}
+            {/* <div className="text-center mb-2 sm:mb-4 lg:hidden xl:block xl:mb-2">
+              <div className="flex items-center justify-center gap-2 sm:gap-2.5">
+                <img
+                  src="/Logo.png"
+                  alt="TimeSync"
+                  className="h-9 sm:h-10 lg:h-9 xl:h-10 2xl:h-11 w-auto"
+                />
+                <h2 className="text-xl sm:text-2xl lg:text-xl xl:text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
                   Time
                   <span className="text-blue-600 dark:text-blue-400">Sync</span>
                 </h2>
               </div>
-              <p className="lg:mt-1 text-[11px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+              <p className="mt-1.5 sm:mt-2 text-[10px] sm:text-[11px] lg:text-[10px] xl:text-[11px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 Master your global schedule
               </p>
-            </div>
+            </div> */}
 
-            <Tabs
-              value={tabValue}
-              onValueChange={(v) => setTabValue(v)}
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-2 mb-2 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-lg">
-                <TabsTrigger
-                  value="login"
-                  className="rounded-lg font-bold text-gray-700 dark:text-slate-200"
-                >
-                  Login
-                </TabsTrigger>
-                <TabsTrigger
-                  value="register"
-                  className="rounded-lg font-bold text-gray-700 dark:text-slate-200"
-                >
-                  Register
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="login">
-                <Card className="border-none shadow-lg bg-white dark:bg-slate-900 rounded-xl">
-                  <CardHeader className="py-2">
-                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                      Welcome back
-                    </CardTitle>
-                    <CardDescription className="text-gray-600 dark:text-slate-400">
-                      Sign in to manage your global team
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Form {...loginForm}>
-                      <form
-                        onSubmit={loginForm.handleSubmit(onLoginSubmit)}
-                        className="space-y-2"
-                      >
-                        <FormField
-                          control={loginForm.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">
-                                Email Address
-                              </FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Mail className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
-                                  <Input
-                                    className="pl-11 h-9 sm:h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    placeholder="your@email.com"
-                                    type="email"
-                                    {...field}
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormMessage className="text-red-500 text-xs mt-1" />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={loginForm.control}
-                          name="password"
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="flex items-center justify-between">
-                                <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">
-                                  Password
-                                </FormLabel>
-                                <Button
-                                  type="button"
-                                  variant="link"
-                                  className="p-0 h-auto text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-                                  onClick={() => setForgotPasswordOpen(true)}
-                                >
-                                  Forgot?
-                                </Button>
-                              </div>
-                              <FormControl>
-                                <div className="relative">
-                                  <Lock className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
-                                  <Input
-                                    className="pl-11 pr-11 h-9 sm:h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    type={
-                                      showLoginPassword ? "text" : "password"
-                                    }
-                                    placeholder="••••••••"
-                                    {...field}
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setShowLoginPassword(!showLoginPassword)
-                                    }
-                                    className="absolute right-3.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                                  >
-                                    {showLoginPassword ? (
-                                      <EyeOff className="h-4 w-4" />
-                                    ) : (
-                                      <Eye className="h-4 w-4" />
-                                    )}
-                                  </button>
-                                </div>
-                              </FormControl>
-                              <FormMessage className="text-red-500 text-xs mt-1" />
-                            </FormItem>
-                          )}
-                        />
-                        <div className="flex items-center space-x-2 pt-1">
-                          <Checkbox
-                            id="login-remember"
-                            checked={rememberMe}
-                            onCheckedChange={setRememberMe}
-                            className="rounded"
-                          />
-                          <Label
-                            htmlFor="login-remember"
-                            className="text-xs font-medium text-gray-700 dark:text-slate-300 cursor-pointer"
-                          >
-                            Remember me for 30 days
-                          </Label>
-                        </div>
-                        <Button
-                          type="submit"
-                          className="w-full h-9 sm:h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg font-bold text-sm sm:text-base text-white transition-all"
-                          disabled={loginMutation.isPending}
-                        >
-                          {loginMutation.isPending ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : null}
-                          Sign In
-                        </Button>
-                      </form>
-                    </Form>
-
-                    <div className="relative my-2">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
-                      </div>
-                      <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-400 font-medium">
-                          Or continue with
-                        </span>
-                      </div>
-                    </div>
-
-                    <OAuthButtons />
-                  </CardContent>
-                  <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800">
-                    <p className="text-xs font-medium text-gray-700 dark:text-slate-300">
-                      New to TimeSync?{" "}
-                      <Button
-                        variant="link"
-                        className="p-0 font-bold text-blue-600 dark:text-blue-400"
-                        onClick={() => setTabValue("register")}
-                      >
-                        Create account
-                      </Button>
-                    </p>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="register">
-                <Card className="border-none shadow-2xl bg-white dark:bg-slate-900 rounded-2xl">
-                  <CardHeader>
-                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                      Create Account
-                    </CardTitle>
-                    <CardDescription className="text-gray-600 dark:text-slate-400">
-                      Join the community of global professionals
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {/* <OAuthButtons /> */}
-
-                    {/* <div className="relative my-4">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-200 dark:border-slate-700"></div>
-                      </div>
-                      <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-400 font-medium">
-                          Or register with email
-                        </span>
-                      </div>
-                    </div> */}
-
-                    <Form {...registerForm}>
-                      <form
-                        onSubmit={registerForm.handleSubmit(onRegisterSubmit)}
-                        className="space-y-3"
-                      >
-                        <FormField
-                          control={registerForm.control}
-                          name="username"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">
-                                Username
-                              </FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <User className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
-                                  <Input
-                                    className="pl-11 h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    placeholder="username"
-                                    {...field}
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormMessage className="text-red-500 text-xs mt-1" />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={registerForm.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">
-                                Email Address
-                              </FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Mail className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
-                                  <Input
-                                    className="pl-11 h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    placeholder="your@email.com"
-                                    type="email"
-                                    {...field}
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormMessage className="text-red-500 text-xs mt-1" />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={registerForm.control}
-                          name="password"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="font-bold text-sm text-gray-700 dark:text-slate-300">
-                                Password
-                              </FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Lock className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
-                                  <Input
-                                    className="pl-11 pr-11 h-10 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    type={
-                                      showRegisterPassword ? "text" : "password"
-                                    }
-                                    placeholder="••••••••"
-                                    {...field}
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setShowRegisterPassword(
-                                        !showRegisterPassword,
-                                      )
-                                    }
-                                    className="absolute right-3.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                                  >
-                                    {showRegisterPassword ? (
-                                      <EyeOff className="h-4 w-4" />
-                                    ) : (
-                                      <Eye className="h-4 w-4" />
-                                    )}
-                                  </button>
-                                </div>
-                              </FormControl>
-                              <FormMessage className="text-red-500 text-xs mt-1" />
-                            </FormItem>
-                          )}
-                        />
-                        {/* <div className="text-xs text-gray-600 dark:text-slate-400 bg-blue-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-blue-100 dark:border-slate-700">
-                          <p className="font-semibold mb-1.5 text-blue-900 dark:text-blue-300">
-                            Password Requirements:
-                          </p>
-                          <ul className="space-y-0.5">
-                            <li
-                              className={
-                                registerForm.watch("password")?.length >= 6
-                                  ? "text-green-600 dark:text-green-400 font-medium"
-                                  : "text-gray-600 dark:text-slate-400"
-                              }
-                            >
-                              ✓ At least 6 characters
-                            </li>
-                            <li className="text-gray-600 dark:text-slate-400">
-                              • Mix of uppercase, lowercase, numbers
-                              (recommended)
-                            </li>
-                          </ul>
-                        </div> */}
-                        <Button
-                          type="submit"
-                          className="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-600/30 rounded-xl font-bold text-base text-white transition-all"
-                          disabled={registerMutation.isPending}
-                        >
-                          {registerMutation.isPending ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : null}
-                          Create Account
-                        </Button>
-                      </form>
-                    </Form>
-                  </CardContent>
-                  <CardFooter className="flex justify-center border-t border-gray-100 dark:border-slate-800">
-                    <p className="text-xs font-medium text-gray-700 dark:text-slate-300">
-                      Already have an account?{" "}
-                      <Button
-                        variant="link"
-                        className="p-0 font-bold text-blue-600 dark:text-blue-400"
-                        onClick={() => setTabValue("login")}
-                      >
-                        Sign in
-                      </Button>
-                    </p>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-            </Tabs>
+            <AuthForm 
+              mode={tabValue} 
+              setMode={setTabValue} 
+              onForgotPassword={() => setForgotPasswordOpen(true)}
+            />
           </div>
         </motion.div>
 
@@ -507,7 +148,7 @@ export default function AuthPage() {
           animate={tabValue}
           variants={imageVariants}
           transition={transition}
-          style={{ zIndex: tabValue === 'login' ? 10 : 5 }}
+          style={{ zIndex: tabValue === "login" ? 10 : 5 }}
         >
           <div className="absolute inset-0 bg-slate-900">
             <div className="absolute inset-0 opacity-40 animate-gradient-x bg-gradient-to-br from-blue-600 via-indigo-900 to-slate-900"></div>
@@ -520,15 +161,46 @@ export default function AuthPage() {
 
           <div className="relative flex flex-col justify-center items-center h-full px-16 text-white z-10 text-center">
             <div className="max-w-xl mx-auto">
+              {/* animated logo */}
               <div className="flex items-center justify-center gap-4 mb-4">
                 <div className="p-4 rounded-2xl xl:rounded-3xl ">
-                  <img src="/logo.png" alt="TimeSync" className="xl:h-16 h-10 w-auto animate-[spin_10s_linear_infinite]" />
+                  <img
+                    src="/Logo.png"
+                    alt="TimeSync"
+                    className="xl:h-16 h-10 w-auto animate-[spin_10s_linear_infinite]"
+                  />
                 </div>
                 {/* <div className="rounded-2xl xl:rounded-3xl shadow-2xl">
                   <Briefcase className="xl:h-16 xl:w-10 text-indigo-400" />
                 </div> */}
               </div>
 
+              {/* tabs */}
+              <div className="flex justify-center mb-6">
+                <div className="relative w-56 bg-white/10 dark:bg-white/6 rounded-full p-1">
+                  <div
+                    aria-hidden
+                    className={`absolute top-1/2 -translate-y-1/2 w-1/2 h-[38px] bg-white dark:bg-slate-900 rounded-full shadow transition-all ${tabValue === "login" ? "left-0" : "left-1/2"}`}
+                    style={{ transition: "left .22s cubic-bezier(.2,.9,.2,1)" }}
+                  />
+                  <div className="relative z-10 grid grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() => setTabValue("login")}
+                      className={`py-2 text-sm font-semibold rounded-full ${tabValue === "login" ? "text-slate-900 dark:text-white" : "text-slate-200"}`}
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTabValue("register")}
+                      className={`py-2 text-sm font-semibold rounded-full ${tabValue === "register" ? "text-slate-900 dark:text-white" : "text-slate-200"}`}
+                    >
+                      Sign Up
+                    </button>
+                  </div>
+                </div>
+              </div>
               <h2 className="text-5xl xl:text-6xl font-black mb-6 tracking-tighter leading-none">
                 Work{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
@@ -575,6 +247,13 @@ export default function AuthPage() {
       <ForgotPasswordDialog
         open={forgotPasswordOpen}
         onOpenChange={setForgotPasswordOpen}
+      />
+
+      {/* Reset Password Dialog */}
+      <ResetPasswordDialog
+        open={resetPasswordOpen}
+        onOpenChange={setResetPasswordOpen}
+        token={resetToken}
       />
     </div>
   );
