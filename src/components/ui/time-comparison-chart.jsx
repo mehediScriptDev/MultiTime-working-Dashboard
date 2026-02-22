@@ -182,7 +182,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                       <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-4 ring-red-100 dark:ring-red-900/50 shadow-sm"></div>
                       {/* Time label — right of line by default, flips left when near right edge */}
                       <div
-                        className="absolute top-1/2 text-[10px] font-bold text-white dark:text-slate-200 whitespace-nowrap pointer-events-none select-none z-20"
+                        className="absolute top-1/2 text-[10px] font-bold text-gray-800 dark:text-white whitespace-nowrap pointer-events-none select-none z-20"
                         style={{
                           left: currentTimePercent > 85 ? '-6px' : '12px',
                           transform: currentTimePercent > 85
