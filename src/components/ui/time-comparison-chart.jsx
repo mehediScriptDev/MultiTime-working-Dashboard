@@ -201,7 +201,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
         </div>
 
         {/* Mobile View - Card layout like the reference image */}
-        <div className="md:hidden space-y-4">
+        <div className="md:hidden space-y-4 ">
           {timezones.map((timezone, idx) => {
             const now = currentTime.utcOffset(timezone.offset / 60);
             const hour = now.hour();
