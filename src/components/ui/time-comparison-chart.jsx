@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatTimezoneOffset, formatAMPM } from "@/lib/utils";
+import { formatTimezoneOffset } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
@@ -18,13 +18,6 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Generate hours for the time scale
-  const timeScale = Array.from({ length: 24 }, (_, i) =>
-    use24Hour
-      ? `${i.toString().padStart(2, "0")}`
-      : formatAMPM(i, false).split(":")[0] + (i >= 12 ? "p" : "a"),
-  );
-
   return (
     <Card className="mb-5 lg:mb-6 border-none shadow-xl overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
       <CardHeader className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
@@ -35,20 +28,17 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
       </CardHeader>
       <CardContent className="pt-4 sm:pt-5 md:pt-6">
         {/* Desktop/Tablet View - Original horizontal layout */}
-        <div className="hidden md:block overflow-x-auto -mx-2 sm:mx-0">
+        <div className="hidden md:block -mx-2 sm:mx-0">
           <div className="min-w-[700px] md:min-w-[800px] px-2">
-            {/* Time scale (24 hour) */}
-            <div className="flex h-11 md:h-12 border-b border-gray-100 dark:border-slate-800 mb-5 md:mb-6 bg-gray-50/30 dark:bg-slate-800/20 rounded-t-lg">
-              {timeScale.map((hour, i) => (
-                <div
-                  key={i}
-                  className="flex-1 flex flex-col justify-center items-center border-r last:border-r-0 border-gray-100/50 dark:border-slate-700/30"
-                >
-                  <span className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-tighter">
-                    {hour}
-                  </span>
-                </div>
-              ))}
+            {/* Header row: logo only */}
+            <div className="flex items-center mb-4 md:mb-5">
+              {/* Logo cell — same width as the timezone label column */}
+              <div className="w-40 md:w-52 pr-4 md:pr-6 shrink-0 flex items-center gap-2">
+                <img src="/Logo.png" alt="TimeSync" className="h-10 w-auto" />
+                <span className="text-xl font-black tracking-tighter text-gray-900 dark:text-white">
+                  Time<span className="text-blue-600 dark:text-blue-400">Sync</span>
+                </span>
+              </div>
             </div>
 
             {/* Timezone rows - Desktop */}
@@ -112,7 +102,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
               return (
                 <div
                   key={timezone.id}
-                  className="flex items-center mb-4 md:mb-6 group"
+                  className="flex items-center mb-6 md:mb-8 group"
                 >
                   <div className="w-40 md:w-52 pr-4 md:pr-6 shrink-0">
                     <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-800/80 rounded-lg md:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 group-hover:scale-[1.02]">
@@ -147,7 +137,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                       setHoverPosition(pct);
                     }}
                     onMouseLeave={() => setHoverPosition(null)}
-                    className="flex-1 h-7 md:h-8 bg-gray-100/50 dark:bg-slate-800/50 rounded-lg md:rounded-xl relative shadow-inner border border-gray-200/50 dark:border-slate-700/50 overflow-hidden"
+                    className="flex-1 h-7 md:h-8 bg-gray-100/50 dark:bg-slate-800/50 rounded-lg md:rounded-xl relative shadow-inner border border-gray-200/50 dark:border-slate-700/50"
                   >
                     {/* Grid lines */}
                     <div className="absolute inset-0 flex">
@@ -184,12 +174,26 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                       </div>
                     )}
 
-                    {/* Current time indicator */}
+                    {/* Current time indicator with time label */}
                     <div
                       className="absolute w-0.5 h-full bg-red-500 z-10 shadow-[0_0_8px_rgba(239,68,68,0.5)] transition-all duration-1000 ease-in-out"
                       style={{ left: `${currentTimePercent}%` }}
                     >
                       <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-4 ring-red-100 dark:ring-red-900/50 shadow-sm"></div>
+                      {/* Time label following the red marker */}
+                      <div
+                        className="absolute -bottom-4 text-[10px] font-bold text-red-500 dark:text-red-400 whitespace-nowrap pointer-events-none select-none z-20"
+                        style={{
+                          left: '50%',
+                          transform: currentTimePercent > 85
+                            ? 'translateX(-100%)'
+                            : currentTimePercent < 15
+                              ? 'translateX(0%)'
+                              : 'translateX(-50%)',
+                        }}
+                      >
+                        {now.format(use24Hour ? "HH:mm" : "h:mm A")}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -277,7 +281,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                 </div>
 
                 {/* Timeline bar */}
-                <div className="relative h-5 bg-slate-200 dark:bg-[#252f45] rounded-lg mb-3">
+                <div className="relative h-5 bg-slate-200 dark:bg-[#252f45] rounded-lg mb-7">
                   {/* Working hours bar with centered Active label */}
                   <div
                     className="absolute h-full bg-blue-500 dark:bg-[#3d5a8a] rounded -ml-3"
@@ -290,7 +294,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                       ACTIVE
                     </span>
                   </div>
-                  {/* Current time indicator - line on top, circle in center, line on bottom */}
+                  {/* Current time indicator with time label */}
                   <div
                     className="absolute z-10 flex flex-col items-center -translate-x-1/2"
                     style={{
@@ -305,6 +309,20 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                     <div className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0 ring-2 ring-red-500/30" />
                     {/* Bottom vertical line */}
                     <div className="w-0.5 flex-1 bg-red-500" />
+                    {/* Time label following the red marker */}
+                    <div
+                      className="absolute -bottom-5 text-[9px] font-bold text-red-500 dark:text-red-400 whitespace-nowrap pointer-events-none select-none"
+                      style={{
+                        left: '50%',
+                        transform: currentTimePercent > 85
+                          ? 'translateX(-100%)'
+                          : currentTimePercent < 15
+                            ? 'translateX(0%)'
+                            : 'translateX(-50%)',
+                      }}
+                    >
+                      {now.format(use24Hour ? "HH:mm" : "h:mm A")}
+                    </div>
                   </div>
                 </div>
 
