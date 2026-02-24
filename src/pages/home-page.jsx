@@ -643,8 +643,8 @@ export default function HomePage() {
             <TimeComparisonChart timezones={timezones} use24Hour={use24Hour} />
           )}
 
-          {/* Premium upgrade */}
-          {user && timezones && timezones.length >= 3 && (
+          {/* Premium upgrade: show to all non-premium users regardless of timezone count */}
+          {user && !isPremium && (
             <div id="upgrade">
               <PremiumUpgrade timezoneCount={timezones.length} />
             </div>
