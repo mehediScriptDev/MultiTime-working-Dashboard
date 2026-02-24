@@ -9,6 +9,8 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
   const [currentTime, setCurrentTime] = useState(dayjs());
   const [hoverPosition, setHoverPosition] = useState(null); // percent 0-100
   const timelineGridRef = useRef(null);
+  const [flipMap, setFlipMap] = useState({}); // { [timezoneId]: boolean }
+  const [flipMapMobile, setFlipMapMobile] = useState({});
 
   // Update time every minute
   useEffect(() => {
@@ -17,6 +19,55 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
     }, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  // Update flipMap to determine if the label should appear to the left
+  useEffect(() => {
+    function updateFlips() {
+      const newFlip = {};
+      const newFlipMobile = {};
+
+      timezones.forEach((timezone) => {
+        try {
+          const now = currentTime.utcOffset(timezone.offset / 60);
+          const hour = now.hour();
+          const minute = now.minute();
+          const currentTimePercent = ((hour * 60 + minute) / (24 * 60)) * 100;
+
+          // Desktop container
+          const container = document.getElementById(`timeline-${timezone.id}`);
+          const label = document.getElementById(`currentLabel-${timezone.id}`);
+          if (container && label) {
+            const contW = container.getBoundingClientRect().width;
+            const markerLeftPx = (currentTimePercent / 100) * contW;
+            const labelW = label.getBoundingClientRect().width;
+            const spaceRight = contW - markerLeftPx;
+            // leave 8px padding
+            newFlip[timezone.id] = spaceRight < labelW + 8;
+          }
+
+          // Mobile container
+          const mContainer = document.getElementById(`timeline-mobile-${timezone.id}`);
+          const mLabel = document.getElementById(`currentLabelMobile-${timezone.id}`);
+          if (mContainer && mLabel) {
+            const contW = mContainer.getBoundingClientRect().width;
+            const markerLeftPx = (currentTimePercent / 100) * contW;
+            const labelW = mLabel.getBoundingClientRect().width;
+            const spaceRight = contW - markerLeftPx;
+            newFlipMobile[timezone.id] = spaceRight < labelW + 8;
+          }
+        } catch (e) {
+          // ignore measurement errors
+        }
+      });
+
+      setFlipMap((prev) => (JSON.stringify(prev) === JSON.stringify(newFlip) ? prev : newFlip));
+      setFlipMapMobile((prev) => (JSON.stringify(prev) === JSON.stringify(newFlipMobile) ? prev : newFlipMobile));
+    }
+
+    updateFlips();
+    window.addEventListener("resize", updateFlips);
+    return () => window.removeEventListener("resize", updateFlips);
+  }, [timezones, currentTime]);
 
   return (
     <Card className="mb-5 lg:mb-6 border-none shadow-xl overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
@@ -124,6 +175,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                     </div>
                   </div>
                   <div
+                    id={`timeline-${timezone.id}`}
                     ref={idx === 0 ? timelineGridRef : null}
                     onMouseMove={(e) => {
                       const el = e.currentTarget;
@@ -176,22 +228,28 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
 
                     {/* Current time indicator with time label */}
                     <div
-                      className="absolute w-0.5 h-full bg-red-500 z-10 shadow-[0_0_8px_rgba(239,68,68,0.5)] transition-all duration-1000 ease-in-out"
+                      className="absolute w-0.5 h-full bg-red-500 z-10 shadow-[0_0_8px_rgba(239,68,68,0.5)] transition-none"
                       style={{ left: `${currentTimePercent}%` }}
                     >
-                      <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-4 ring-red-100 dark:ring-red-900/50 shadow-sm"></div>
+                      <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-4 ring-red-100 dark:ring-red-900/50 shadow-sm transition-none"></div>
                       {/* Time label — right of line by default, flips left when near right edge */}
                       <div
-                        className="absolute top-1/2 text-[10px] font-bold text-gray-800 dark:text-white whitespace-nowrap pointer-events-none select-none z-20"
-                        style={{
-                          left: currentTimePercent > 85 ? '-6px' : '12px',
-                          transform: currentTimePercent > 85
-                            ? 'translateX(-100%) translateY(-50%)'
-                            : 'translateY(-50%)',
-                        }}
-                      >
-                        {now.format(use24Hour ? "HH:mm" : "h:mm A")}
-                      </div>
+                        id={`currentLabel-${timezone.id}`}
+                          className="absolute top-1/2 text-[10px] font-bold text-gray-800 dark:text-white whitespace-nowrap pointer-events-none select-none z-30"
+                          style={{
+                            left: flipMap[timezone.id] ? '0px' : '12px',
+                            transform: flipMap[timezone.id]
+                              ? 'translateX(-100%) translateY(-50%)'
+                              : 'translateY(-50%)',
+                          }}
+                        >
+                          <div className="relative inline-flex items-center gap-2 px-2 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <span className="text-[10px] font-bold text-gray-800 dark:text-white">
+                              {now.format(use24Hour ? "HH:mm" : "h:mm A")}
+                            </span>
+                            
+                          </div>
+                        </div>
                     </div>
                   </div>
                 </div>
@@ -302,24 +360,28 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                     }}
                   >
                     {/* Top vertical line */}
-                    <div className="w-0.5 flex-1 bg-red-500" />
+                    <div className="w-0.5 flex-1 bg-red-500 transition-none" />
                     {/* Circle in center */}
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0 ring-2 ring-red-500/30" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0 ring-2 ring-red-500/30 transition-none" />
                     {/* Bottom vertical line */}
-                    <div className="w-0.5 flex-1 bg-red-500" />
+                    <div className="w-0.5 flex-1 bg-red-500 transition-none" />
                     {/* Time label following the red marker */}
                     <div
-                      className="absolute -bottom-5 text-[9px] font-bold text-red-500 dark:text-red-400 whitespace-nowrap pointer-events-none select-none"
+                      id={`currentLabelMobile-${timezone.id}`}
+                      className="absolute -bottom-6 text-[9px] font-bold whitespace-nowrap pointer-events-none select-none z-30"
                       style={{
                         left: '50%',
-                        transform: currentTimePercent > 85
+                        transform: flipMapMobile[timezone.id]
                           ? 'translateX(-100%)'
                           : currentTimePercent < 15
                             ? 'translateX(0%)'
                             : 'translateX(-50%)',
                       }}
                     >
-                      {now.format(use24Hour ? "HH:mm" : "h:mm A")}
+                      <div className="relative inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm text-red-500 dark:text-red-400">
+                        {now.format(use24Hour ? "HH:mm" : "h:mm A")}
+                        
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Clock, LogOut, User, Zap, Moon, Sun } from "lucide-react";
 import { Link } from "wouter";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { AccountModal } from "@/components/ui/account-modal";
 
 export function Header() {
   const { user, subscription, logoutMutation, signOut } = useAuth();
   const [theme, setTheme] = useState(
     () => localStorage.getItem("theme") || "dark",
   );
+  const [accountOpen, setAccountOpen] = useState(false);
 
   useEffect(() => {
     if (theme === "dark") {
@@ -55,7 +57,11 @@ export function Header() {
 
             {user ? (
               <>
-                <div className="hidden md:flex items-center px-4 py-2 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700 group">
+                <button
+                  type="button"
+                  onClick={() => setAccountOpen(true)}
+                  className="hidden md:flex items-center px-4 py-2 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700 group cursor-pointer"
+                >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold mr-3 shadow-md">
                     {user.username?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || "U"}
                   </div>
@@ -66,14 +72,14 @@ export function Header() {
                     <span
                       className={`text-[10px] font-black uppercase tracking-widest mt-1 ${
                         user.isPremium || subscription?.plan === "premium"
-                          ? "text-yellow-600 dark:text-yellow-400"
+                          ? "text-gray-400 dark:text-slate-500"
                           : "text-gray-400 dark:text-slate-500"
                       }`}
                     >
                       {user.isPremium || subscription?.plan === "premium" ? "Premium" : "Free Plan"}
                     </span>
                   </div>
-                </div>
+                </button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -97,6 +103,7 @@ export function Header() {
               </Link>
             )}
           </div>
+          <AccountModal open={accountOpen} onOpenChange={setAccountOpen} />
         </div>
       </div>
     </header>
