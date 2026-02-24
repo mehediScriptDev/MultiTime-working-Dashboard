@@ -33,11 +33,11 @@ export function PremiumUpgrade({ timezoneCount }) {
             </li>
             <li className="flex items-center">
               <FiCheck className="mr-2 text-white dark:text-slate-100" />
-              <span>Advanced scheduling features</span>
+              <span>Ad-free experience</span>
             </li>
             <li className="flex items-center">
               <FiCheck className="mr-2 text-white dark:text-slate-100" />
-              <span>Save meeting suggestions</span>
+              <span>Priority email support</span>
             </li>
           </ul>
           <Button
