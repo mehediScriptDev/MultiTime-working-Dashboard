@@ -152,7 +152,7 @@ export default function HomePage() {
                 workingHoursEnd: item.workingHoursEnd ?? 17,
                 label: item.label,
                 groupId: item.groupId,
-                groupName: group.name || "General",
+                groupName: (group.name && group.name !== "Ungrouped") ? group.name : "General",
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt,
               };
