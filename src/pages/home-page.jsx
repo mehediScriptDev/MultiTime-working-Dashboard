@@ -254,6 +254,14 @@ export default function HomePage() {
       setTimezones(optimisticTimezones);
       localStorage.setItem(TIMEZONES_KEY, JSON.stringify(optimisticTimezones));
 
+      // Close dialog and show success immediately (optimistic)
+      setAddDialogOpen(false);
+      showAlert({
+        type: "success",
+        title: "Timezone added",
+        description: "The timezone has been added successfully.",
+      });
+
       // Strip the 'timezone' field before sending to API (backend doesn't support it)
       const { timezone: tzString, ...apiTimezoneData } = timezone;
       const response = await timezoneService.create(apiTimezoneData, token);
@@ -282,13 +290,6 @@ export default function HomePage() {
         );
         setTimezones(finalTimezones);
         localStorage.setItem(TIMEZONES_KEY, JSON.stringify(finalTimezones));
-
-        showAlert({
-          type: "success",
-          title: "Timezone added",
-          description: "The timezone has been added successfully.",
-        });
-        setAddDialogOpen(false);
       }
     } catch (error) {
       console.error("Failed to add timezone", error);
@@ -342,6 +343,14 @@ export default function HomePage() {
       setTimezones(optimisticTimezones);
       localStorage.setItem(TIMEZONES_KEY, JSON.stringify(optimisticTimezones));
 
+      // Close dialog and show success immediately (optimistic)
+      setAddDialogOpen(false);
+      showAlert({
+        type: "success",
+        title: "Timezone updated",
+        description: "The timezone has been updated successfully.",
+      });
+
       // Strip the 'timezone' field before sending to API (backend doesn't support it)
       const { timezone: tzString, ...apiTimezoneData } = timezone;
       const response = await timezoneService.update(id, apiTimezoneData, token);
@@ -355,13 +364,6 @@ export default function HomePage() {
           setTimezones(finalTimezones);
           localStorage.setItem(TIMEZONES_KEY, JSON.stringify(finalTimezones));
         }
-
-        showAlert({
-          type: "success",
-          title: "Timezone updated",
-          description: "The timezone has been updated successfully.",
-        });
-        setAddDialogOpen(false);
       }
     } catch (error) {
       console.error("Failed to update timezone", error);
@@ -421,19 +423,13 @@ export default function HomePage() {
         );
         setDeleteConfirmOpen(false);
         setToDeleteTimezone(null);
+        showAlert({
+          type: "success",
+          title: "Timezone deleted",
+          description: "The timezone has been deleted successfully.",
+        });
 
-        const response = await timezoneService.delete(
-          toDeleteTimezone.id,
-          token,
-        );
-
-        if (response.success) {
-          showAlert({
-            type: "success",
-            title: "Timezone deleted",
-            description: "The timezone has been deleted successfully.",
-          });
-        }
+        await timezoneService.delete(toDeleteTimezone.id, token);
       } catch (error) {
         console.error("Failed to delete timezone", error);
 
