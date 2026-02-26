@@ -46,8 +46,12 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
           }
 
           // Mobile container
-          const mContainer = document.getElementById(`timeline-mobile-${timezone.id}`);
-          const mLabel = document.getElementById(`currentLabelMobile-${timezone.id}`);
+          const mContainer = document.getElementById(
+            `timeline-mobile-${timezone.id}`,
+          );
+          const mLabel = document.getElementById(
+            `currentLabelMobile-${timezone.id}`,
+          );
           if (mContainer && mLabel) {
             const contW = mContainer.getBoundingClientRect().width;
             const markerLeftPx = (currentTimePercent / 100) * contW;
@@ -60,8 +64,14 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
         }
       });
 
-      setFlipMap((prev) => (JSON.stringify(prev) === JSON.stringify(newFlip) ? prev : newFlip));
-      setFlipMapMobile((prev) => (JSON.stringify(prev) === JSON.stringify(newFlipMobile) ? prev : newFlipMobile));
+      setFlipMap((prev) =>
+        JSON.stringify(prev) === JSON.stringify(newFlip) ? prev : newFlip,
+      );
+      setFlipMapMobile((prev) =>
+        JSON.stringify(prev) === JSON.stringify(newFlipMobile)
+          ? prev
+          : newFlipMobile,
+      );
     }
 
     updateFlips();
@@ -70,7 +80,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
   }, [timezones, currentTime]);
 
   return (
-    <Card className="mb-5 lg:mb-6 border-none shadow-xl overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+    <Card className="mb-5 lg:mb-6 border-none shadow-md overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
       <CardHeader className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
         <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <div className="w-1.5 sm:w-2 h-5 sm:h-6 bg-blue-600 rounded-full" />
@@ -87,7 +97,8 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
               <div className="w-40 md:w-52 pr-4 md:pr-6 shrink-0 flex items-center gap-2">
                 <img src="/Logo.png" alt="TimeSync" className="h-10 w-auto" />
                 <span className="text-xl font-black tracking-tighter text-gray-900 dark:text-white">
-                  Time<span className="text-blue-600 dark:text-blue-400">Sync</span>
+                  Time
+                  <span className="text-blue-600 dark:text-blue-400">Sync</span>
                 </span>
               </div>
             </div>
@@ -235,21 +246,20 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                       {/* Time label — right of line by default, flips left when near right edge */}
                       <div
                         id={`currentLabel-${timezone.id}`}
-                          className="absolute top-1/2 text-[10px] font-bold text-gray-800 dark:text-white whitespace-nowrap pointer-events-none select-none z-30"
-                          style={{
-                            left: flipMap[timezone.id] ? '0px' : '12px',
-                            transform: flipMap[timezone.id]
-                              ? 'translateX(-100%) translateY(-50%)'
-                              : 'translateY(-50%)',
-                          }}
-                        >
-                          <div className="relative inline-flex items-center gap-2 px-2 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <span className="text-[10px] font-bold text-gray-800 dark:text-white">
-                              {now.format(use24Hour ? "HH:mm" : "h:mm A")}
-                            </span>
-                            
-                          </div>
+                        className="absolute top-1/2 text-[10px] font-bold text-gray-800 dark:text-white whitespace-nowrap pointer-events-none select-none z-30"
+                        style={{
+                          left: flipMap[timezone.id] ? "0px" : "12px",
+                          transform: flipMap[timezone.id]
+                            ? "translateX(-100%) translateY(-50%)"
+                            : "translateY(-50%)",
+                        }}
+                      >
+                        <div className="relative inline-flex items-center gap-2 px-2 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
+                          <span className="text-[10px] font-bold text-gray-800 dark:text-white">
+                            {now.format(use24Hour ? "HH:mm" : "h:mm A")}
+                          </span>
                         </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -370,17 +380,16 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                       id={`currentLabelMobile-${timezone.id}`}
                       className="absolute -bottom-6 text-[9px] font-bold whitespace-nowrap pointer-events-none select-none z-30"
                       style={{
-                        left: '50%',
+                        left: "50%",
                         transform: flipMapMobile[timezone.id]
-                          ? 'translateX(-100%)'
+                          ? "translateX(-100%)"
                           : currentTimePercent < 15
-                            ? 'translateX(0%)'
-                            : 'translateX(-50%)',
+                            ? "translateX(0%)"
+                            : "translateX(-50%)",
                       }}
                     >
                       <div className="relative inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm text-red-500 dark:text-red-400">
                         {now.format(use24Hour ? "HH:mm" : "h:mm A")}
-                        
                       </div>
                     </div>
                   </div>

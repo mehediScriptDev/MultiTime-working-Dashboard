@@ -593,6 +593,11 @@ export default function HomePage() {
             </div>
           )}
 
+          {/* Time comparison chart */}
+          {timezones && timezones.length > 0 && (
+            <TimeComparisonChart timezones={timezones} use24Hour={use24Hour} />
+          )}
+
           {/* Empty state */}
           {timezones && timezones.length === 0 && !isLoading && (
             <div className="bg-white dark:bg-slate-900 mb-10 p-8 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 text-center">
@@ -646,11 +651,6 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-          )}
-
-          {/* Time comparison chart */}
-          {timezones && timezones.length > 0 && (
-            <TimeComparisonChart timezones={timezones} use24Hour={use24Hour} />
           )}
 
           {/* Premium upgrade: show to all non-premium users regardless of timezone count */}
