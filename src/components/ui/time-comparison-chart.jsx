@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatTimezoneOffset } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { Maximize2, Minimize2 } from "lucide-react";
 import dayjs from "dayjs";
 
 export function TimeComparisonChart({ timezones, use24Hour }) {
@@ -11,6 +12,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
   const timelineGridRef = useRef(null);
   const [flipMap, setFlipMap] = useState({}); // { [timezoneId]: boolean }
   const [flipMapMobile, setFlipMapMobile] = useState({});
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Update time every minute
   useEffect(() => {
@@ -79,18 +81,11 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
     return () => window.removeEventListener("resize", updateFlips);
   }, [timezones, currentTime]);
 
-  return (
-    <Card className="mb-5 lg:mb-6 border-none shadow-md overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
-      <CardHeader className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
-        <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <div className="w-1.5 sm:w-2 h-5 sm:h-6 bg-blue-600 rounded-full" />
-          {t("common.timeComparison")}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-4 sm:pt-5 md:pt-6">
-        {/* Desktop/Tablet View - Original horizontal layout */}
-        <div className="hidden md:block -mx-2 sm:mx-0">
-          <div className="min-w-[700px] md:min-w-[800px] px-2">
+  const chartContent = (
+    <>
+      {/* Desktop/Tablet View - Original horizontal layout */}
+      <div className="hidden md:block -mx-2 sm:mx-0">
+        <div className="min-w-[700px] md:min-w-[800px] px-2">
             {/* Header row: logo only */}
             <div className="flex items-center mb-4 md:mb-5">
               {/* Logo cell — same width as the timezone label column */}
@@ -186,7 +181,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                     </div>
                   </div>
                   <div
-                    id={`timeline-${timezone.id}`}
+                    id={`timeline-${isFullscreen ? "fs-" : ""}${timezone.id}`}
                     ref={idx === 0 ? timelineGridRef : null}
                     onMouseMove={(e) => {
                       const el = e.currentTarget;
@@ -245,7 +240,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                       <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-4 ring-red-100 dark:ring-red-900/50 shadow-sm transition-none"></div>
                       {/* Time label — right of line by default, flips left when near right edge */}
                       <div
-                        id={`currentLabel-${timezone.id}`}
+                        id={`currentLabel-${isFullscreen ? "fs-" : ""}${timezone.id}`}
                         className="absolute top-1/2 text-[10px] font-bold text-gray-800 dark:text-white whitespace-nowrap pointer-events-none select-none z-30"
                         style={{
                           left: flipMap[timezone.id] ? "0px" : "12px",
@@ -428,7 +423,61 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
             <span>{t("home.currentTime")}</span>
           </div>
         </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Fullscreen overlay */}
+      {isFullscreen && (
+        <div
+          className="fixed inset-0 z-[9999] bg-gray-50 dark:bg-[#0d1626] overflow-auto"
+          style={{ margin: 0 }}
+        >
+          {/* Fullscreen header bar */}
+          <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/95 dark:bg-[#0d1626]/95 backdrop-blur-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-6 bg-blue-600 rounded-full" />
+              <span className="text-xl font-bold text-gray-900 dark:text-white">
+                {t("common.timeComparison")}
+              </span>
+            </div>
+            <button
+              onClick={() => setIsFullscreen(false)}
+              className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+              title="Exit fullscreen"
+            >
+              <Minimize2 className="w-5 h-5" />
+            </button>
+          </div>
+          {/* Fullscreen content */}
+          <div className="px-6 py-6 overflow-x-auto">
+            {chartContent}
+          </div>
+        </div>
+      )}
+
+      {/* Normal card */}
+      <Card className="mb-5 lg:mb-6 border-none shadow-md overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+      <CardHeader className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
+        <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 sm:w-2 h-5 sm:h-6 bg-blue-600 rounded-full" />
+            {t("common.timeComparison")}
+          </div>
+          <button
+            onClick={() => setIsFullscreen(true)}
+            className="md:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+            title="Fullscreen"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-4 sm:pt-5 md:pt-6">
+        {chartContent}
       </CardContent>
     </Card>
+    </>
   );
 }
