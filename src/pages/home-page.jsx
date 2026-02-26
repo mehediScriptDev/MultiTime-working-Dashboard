@@ -36,8 +36,8 @@ const TIMEZONES_KEY = "timezones_v1";
 function handleAuthError(error, signOut) {
   const errorMsg = error?.message || "";
   const statusCode = error?.status;
-  
-  const isAuthError = 
+
+  const isAuthError =
     statusCode === 401 ||
     statusCode === 403 ||
     errorMsg.toLowerCase().includes("401") ||
@@ -46,7 +46,7 @@ function handleAuthError(error, signOut) {
     errorMsg.toLowerCase().includes("invalid or expired access token") ||
     errorMsg.toLowerCase().includes("invalid token") ||
     errorMsg.toLowerCase().includes("token expired");
-  
+
   if (isAuthError) {
     console.warn("Authentication error detected - logging out", error);
     signOut();
@@ -106,7 +106,7 @@ export default function HomePage() {
   const [timezones, setTimezones] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isPremium = user?.isPremium || subscription?.plan === "premium";
+  const isPremium = user?.isPremium || subscription?.plan === "PREMIUM_ANNUAL";
   const isAtFreeLimit = !isPremium && timezones.length >= 3;
 
   // Save time format preference
@@ -152,7 +152,10 @@ export default function HomePage() {
                 workingHoursEnd: item.workingHoursEnd ?? 17,
                 label: item.label,
                 groupId: item.groupId,
-                groupName: (group.name && group.name !== "Ungrouped") ? group.name : "General",
+                groupName:
+                  group.name && group.name !== "Ungrouped"
+                    ? group.name
+                    : "General",
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt,
               };
@@ -165,13 +168,13 @@ export default function HomePage() {
         }
       } catch (e) {
         console.error("Failed to load timezones from backend", e);
-        
+
         // Check if it's an auth error and handle auto-logout
         if (handleAuthError(e, signOut)) {
           setIsLoading(false);
           return;
         }
-        
+
         // Fallback to localStorage
         try {
           const saved = localStorage.getItem(TIMEZONES_KEY);
@@ -273,9 +276,9 @@ export default function HomePage() {
           createdAt: response.data.createdAt,
           updatedAt: response.data.updatedAt,
         };
-        
-        const finalTimezones = optimisticTimezones.map(tz => 
-          tz.id === tempId ? serverTimezone : tz
+
+        const finalTimezones = optimisticTimezones.map((tz) =>
+          tz.id === tempId ? serverTimezone : tz,
         );
         setTimezones(finalTimezones);
         localStorage.setItem(TIMEZONES_KEY, JSON.stringify(finalTimezones));
@@ -289,17 +292,19 @@ export default function HomePage() {
       }
     } catch (error) {
       console.error("Failed to add timezone", error);
-      
+
       // Check if it's an auth error and handle auto-logout
       if (handleAuthError(error, signOut)) {
         return;
       }
-      
+
       // Rollback optimistic update on error
-      const rollbackTimezones = timezones.filter(tz => !tz.id.startsWith('temp-'));
+      const rollbackTimezones = timezones.filter(
+        (tz) => !tz.id.startsWith("temp-"),
+      );
       setTimezones(rollbackTimezones);
       localStorage.setItem(TIMEZONES_KEY, JSON.stringify(rollbackTimezones));
-      
+
       showAlert({
         type: "error",
         title: "Failed to add timezone",
@@ -310,7 +315,7 @@ export default function HomePage() {
 
   const handleEditTimezone = async (id, timezone) => {
     const previousTimezones = [...timezones]; // For rollback
-    
+
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
@@ -330,7 +335,9 @@ export default function HomePage() {
 
       // Optimistic update - update UI immediately
       const optimisticTimezones = timezones.map((tz) =>
-        tz.id === id ? { ...tz, ...timezone, updatedAt: new Date().toISOString() } : tz,
+        tz.id === id
+          ? { ...tz, ...timezone, updatedAt: new Date().toISOString() }
+          : tz,
       );
       setTimezones(optimisticTimezones);
       localStorage.setItem(TIMEZONES_KEY, JSON.stringify(optimisticTimezones));
@@ -358,16 +365,16 @@ export default function HomePage() {
       }
     } catch (error) {
       console.error("Failed to update timezone", error);
-      
+
       // Check if it's an auth error and handle auto-logout
       if (handleAuthError(error, signOut)) {
         return;
       }
-      
+
       // Rollback to previous state
       setTimezones(previousTimezones);
       localStorage.setItem(TIMEZONES_KEY, JSON.stringify(previousTimezones));
-      
+
       showAlert({
         type: "error",
         title: "Failed to update timezone",
@@ -384,7 +391,7 @@ export default function HomePage() {
   const confirmDelete = async () => {
     if (toDeleteTimezone) {
       const previousTimezones = [...timezones]; // For rollback
-      
+
       try {
         const token = localStorage.getItem("accessToken");
         if (!token) {
@@ -408,7 +415,10 @@ export default function HomePage() {
           (tz) => tz.id !== toDeleteTimezone.id,
         );
         setTimezones(optimisticTimezones);
-        localStorage.setItem(TIMEZONES_KEY, JSON.stringify(optimisticTimezones));
+        localStorage.setItem(
+          TIMEZONES_KEY,
+          JSON.stringify(optimisticTimezones),
+        );
         setDeleteConfirmOpen(false);
         setToDeleteTimezone(null);
 
@@ -426,16 +436,16 @@ export default function HomePage() {
         }
       } catch (error) {
         console.error("Failed to delete timezone", error);
-        
+
         // Check if it's an auth error and handle auto-logout
         if (handleAuthError(error, signOut)) {
           return;
         }
-        
+
         // Rollback to previous state
         setTimezones(previousTimezones);
         localStorage.setItem(TIMEZONES_KEY, JSON.stringify(previousTimezones));
-        
+
         showAlert({
           type: "error",
           title: "Failed to delete timezone",
@@ -585,7 +595,7 @@ export default function HomePage() {
 
           {/* Empty state */}
           {timezones && timezones.length === 0 && !isLoading && (
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 text-center">
+            <div className="bg-white dark:bg-slate-900 mb-10 p-8 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 text-center">
               <Clock className="h-12 w-12 mx-auto text-gray-400 dark:text-slate-300 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
                 No timezones added

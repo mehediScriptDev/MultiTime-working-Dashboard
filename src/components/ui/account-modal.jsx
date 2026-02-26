@@ -79,8 +79,8 @@ export function AccountModal({ open, onOpenChange }) {
   }, [open]);
 
   const handleUpgrade = () => {
-    const returnUrl = `${window.location.origin}/?upgrade=success`;
-    const cancelUrl = `${window.location.origin}/?upgrade=cancel`;
+    const returnUrl = `${window.location.origin}/subscription/success?upgrade=success`;
+    const cancelUrl = `${window.location.origin}/subscription/success?upgrade=cancel`;
     upgradeMutation.mutate({ returnUrl, cancelUrl });
   };
 

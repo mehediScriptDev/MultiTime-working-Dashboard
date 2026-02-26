@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
+import SubscriptionSuccess from "@/pages/subscription-success";
+import SubscriptionCancel from "@/pages/subscription-cancel";
 import ResetPasswordPage from "@/pages/reset-password";
 import { ProtectedRoute } from "./lib/protected-route";
 import GuidePage from "@/pages/guide";
@@ -16,12 +18,12 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/">
-        {user ? <HomePage /> : <AuthPage />}
-      </Route>
+      <Route path="/">{user ? <HomePage /> : <AuthPage />}</Route>
       <Route path="/auth" component={AuthPage} />
       <Route path="/reset-password" component={AuthPage} />
       <Route path="/auth/reset-password" component={AuthPage} />
+      <Route path="/subscription/success" component={SubscriptionSuccess} />
+      <Route path="/subscription/cancel" component={SubscriptionCancel} />
       <Route path="/guide" component={GuidePage} />
       <Route component={NotFound} />
     </Switch>

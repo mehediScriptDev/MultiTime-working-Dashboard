@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoginPending, setIsLoginPending] = useState(false);
   const [isRegisterPending, setIsRegisterPending] = useState(false);
-  
+
   // Load user and subscription from localStorage on mount and fetch fresh data from backend
   useEffect(() => {
     const loadUserAndSubscription = async () => {
@@ -37,12 +37,12 @@ export function AuthProvider({ children }) {
         const savedUser = localStorage.getItem(USER_KEY);
         const token = localStorage.getItem(TOKEN_KEY);
         const savedSub = localStorage.getItem(SUBSCRIPTION_KEY);
-        
+
         if (savedUser && token) {
           // Set the saved user first (optimistic UI update)
           const parsedUser = JSON.parse(savedUser);
           setUser(parsedUser);
-          
+
           // Set cached subscription if available
           if (savedSub) {
             try {
@@ -51,7 +51,7 @@ export function AuthProvider({ children }) {
               console.warn("Failed to parse cached subscription");
             }
           }
-          
+
           // Verify token is still valid by fetching fresh profile from backend
           try {
             const profileResponse = await authService.getProfile(token);
@@ -73,7 +73,10 @@ export function AuthProvider({ children }) {
                   usage: usageResponse?.data || null,
                 };
                 try {
-                  localStorage.setItem(SUBSCRIPTION_KEY, JSON.stringify(subData));
+                  localStorage.setItem(
+                    SUBSCRIPTION_KEY,
+                    JSON.stringify(subData),
+                  );
                 } catch (e) {
                   console.warn("Failed to cache subscription");
                 }
@@ -99,7 +102,7 @@ export function AuthProvider({ children }) {
         setIsLoading(false);
       }
     };
-    
+
     loadUserAndSubscription();
   }, []);
 
@@ -127,17 +130,28 @@ export function AuthProvider({ children }) {
       setIsLoginPending(true);
       try {
         const response = await authService.login(credentials);
-        
+
         if (response.success && response.data) {
           const { user: userData, accessToken } = response.data;
           saveUser(userData, accessToken);
-          toast({ title: "Welcome back!", description: "You have successfully logged in." });
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully logged in.",
+          });
           return response;
         } else {
-          toast({ title: "Login failed", description: response.message || "Unable to login", variant: "destructive" });
+          toast({
+            title: "Login failed",
+            description: response.message || "Unable to login",
+            variant: "destructive",
+          });
         }
       } catch (error) {
-        toast({ title: "Login failed", description: error.message, variant: "destructive" });
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive",
+        });
       } finally {
         setIsLoginPending(false);
       }
@@ -155,17 +169,28 @@ export function AuthProvider({ children }) {
       setIsRegisterPending(true);
       try {
         const response = await authService.register(credentials);
-        
+
         if (response.success && response.data) {
           const { user: userData, accessToken } = response.data;
           saveUser(userData, accessToken);
-          toast({ title: "Registration successful!", description: "Your account has been created." });
+          toast({
+            title: "Registration successful!",
+            description: "Your account has been created.",
+          });
           return response;
         } else {
-          toast({ title: "Registration failed", description: response.message || "Unable to register", variant: "destructive" });
+          toast({
+            title: "Registration failed",
+            description: response.message || "Unable to register",
+            variant: "destructive",
+          });
         }
       } catch (error) {
-        toast({ title: "Registration failed", description: error.message, variant: "destructive" });
+        toast({
+          title: "Registration failed",
+          description: error.message,
+          variant: "destructive",
+        });
       } finally {
         setIsRegisterPending(false);
       }
@@ -182,7 +207,10 @@ export function AuthProvider({ children }) {
     mutate: () => {
       authService.logout();
       saveUser(null, null);
-      toast({ title: "Logged out", description: "You have been successfully logged out." });
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      });
     },
     mutateAsync: async () => {
       logoutMutation.mutate();
@@ -204,14 +232,18 @@ export function AuthProvider({ children }) {
       // opts can include returnUrl/cancelUrl for payment gateway
       try {
         const token = localStorage.getItem(TOKEN_KEY);
+        const currentUrl = window.location.origin;
         const response = await subscriptionService.upgrade({
-          returnUrl: opts.returnUrl || window.location.href,
-          cancelUrl: opts.cancelUrl || window.location.href,
+          returnUrl: opts.returnUrl || `${currentUrl}/subscription/success`,
+          cancelUrl: opts.cancelUrl || `${currentUrl}/subscription/cancel`,
           token,
         });
 
         // If backend returns a Stripe checkout URL, redirect to payment
-        if (response?.data && (response.data.checkoutUrl || response.data.url)) {
+        if (
+          response?.data &&
+          (response.data.checkoutUrl || response.data.url)
+        ) {
           const checkoutUrl = response.data.checkoutUrl || response.data.url;
           window.location.href = checkoutUrl;
           return response;
@@ -223,7 +255,7 @@ export function AuthProvider({ children }) {
             const upgraded = { ...user, isPremium: true };
             saveUser(upgraded, token);
           }
-          
+
           // Refresh subscription state from backend
           try {
             const [statusResponse, usageResponse] = await Promise.all([
@@ -240,10 +272,16 @@ export function AuthProvider({ children }) {
               setSubscription(subData);
             }
           } catch (subError) {
-            console.error("Failed to refresh subscription after upgrade:", subError);
+            console.error(
+              "Failed to refresh subscription after upgrade:",
+              subError,
+            );
           }
 
-          toast({ title: "Upgrade successful!", description: "You now have access to premium features." });
+          toast({
+            title: "Upgrade successful!",
+            description: "You now have access to premium features.",
+          });
           return response;
         }
 
@@ -251,19 +289,22 @@ export function AuthProvider({ children }) {
         if (user) {
           const upgraded = { ...user, isPremium: true };
           saveUser(upgraded, token);
-          toast({ title: "Upgrade applied locally", description: "Premium enabled locally (no backend confirmation)." });
+          toast({
+            title: "Upgrade applied locally",
+            description: "Premium enabled locally (no backend confirmation).",
+          });
         }
       } catch (error) {
         // If backend call fails, fallback to previous local-only behavior
         console.error("Upgrade mutation error details:", error);
-        
+
         if (user) {
           const token = localStorage.getItem(TOKEN_KEY);
           const upgraded = { ...user, isPremium: true };
           saveUser(upgraded, token);
-          toast({ 
-            title: "Upgrade (offline)", 
-            description: `Backend unavailable — ${error?.message || "upgrade applied locally"}` 
+          toast({
+            title: "Upgrade (offline)",
+            description: `Backend unavailable — ${error?.message || "upgrade applied locally"}`,
           });
         }
       }
@@ -276,16 +317,16 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ 
-        user, 
+      value={{
+        user,
         subscription,
-        isLoading, 
-        error: null, 
-        loginMutation, 
-        logoutMutation, 
-        registerMutation, 
-        upgradeMutation, 
-        signOut 
+        isLoading,
+        error: null,
+        loginMutation,
+        logoutMutation,
+        registerMutation,
+        upgradeMutation,
+        signOut,
       }}
     >
       {children}

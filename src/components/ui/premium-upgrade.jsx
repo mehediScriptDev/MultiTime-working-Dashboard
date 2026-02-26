@@ -7,10 +7,12 @@ export function PremiumUpgrade({ timezoneCount }) {
   const { upgradeMutation, subscription } = useAuth();
 
   const handleUpgrade = () => {
-    // Use backend-documented return/cancel URLs (backend will handle redirects)
-    const backendBase = import.meta.env.VITE_API_BASE_URL;
-    const returnUrl = `${backendBase}/docs`;
-    const cancelUrl = `${backendBase}/docs`;
+    // Use proper return URLs for success and cancel
+    const returnUrl = `${window.location.origin}/subscription/success`;
+    const cancelUrl = `${window.location.origin}/subscription/cancel`;
+
+    console.log("Upgrade URLs:", { returnUrl, cancelUrl });
+
     upgradeMutation.mutate({ returnUrl, cancelUrl });
   };
 
@@ -24,7 +26,11 @@ export function PremiumUpgrade({ timezoneCount }) {
         <div className="p-6 flex-1">
           <h2 className="text-xl font-bold mb-2">Upgrade to Premium</h2>
           <p className="mb-4">
-            You're currently using <span className="font-semibold">{currentCount} of {maxTimezones}</span> available timezones on the free plan.
+            You're currently using{" "}
+            <span className="font-semibold">
+              {currentCount} of {maxTimezones}
+            </span>{" "}
+            available timezones on the free plan.
           </p>
           <ul className="mb-6 space-y-2">
             <li className="flex items-center">
@@ -52,9 +58,16 @@ export function PremiumUpgrade({ timezoneCount }) {
         </div>
         <div className="md:flex-1 md:flex md:items-center md:justify-center bg-indigo-600/20 p-6 dark:bg-slate-900/40">
           <div className="text-center">
-            <div className="text-5xl xl:text-6xl font-bold mb-2">${subscription?.pricing?.amount || 18}</div>
-            <div className="text-lg mb-6">per {subscription?.pricing?.interval || "year"}</div>
-            <div className="text-sm opacity-80">Billed {subscription?.pricing?.interval || "annually"} • Cancel anytime</div>
+            <div className="text-5xl xl:text-6xl font-bold mb-2">
+              ${subscription?.pricing?.amount || 18}
+            </div>
+            <div className="text-lg mb-6">
+              per {subscription?.pricing?.interval || "year"}
+            </div>
+            <div className="text-sm opacity-80">
+              Billed {subscription?.pricing?.interval || "annually"} • Cancel
+              anytime
+            </div>
           </div>
         </div>
       </div>

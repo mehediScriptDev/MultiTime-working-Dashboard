@@ -5,20 +5,20 @@ export const subscriptionService = {
   async getStatus(token) {
     try {
       const response = await fetch(`${API_BASE_URL}/subscription/status`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch subscription status');
+        throw new Error("Failed to fetch subscription status");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Subscription status error:', error);
+      console.error("Subscription status error:", error);
       return null;
     }
   },
@@ -27,20 +27,20 @@ export const subscriptionService = {
   async getUsage(token) {
     try {
       const response = await fetch(`${API_BASE_URL}/subscription/usage`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch subscription usage');
+        throw new Error("Failed to fetch subscription usage");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Subscription usage error:', error);
+      console.error("Subscription usage error:", error);
       return null;
     }
   },
@@ -49,30 +49,41 @@ export const subscriptionService = {
   async upgrade({ returnUrl, cancelUrl, token }) {
     try {
       const payload = { returnUrl, cancelUrl };
-      console.log("Calling upgrade endpoint with:", { payload, token: token ? "present" : "missing" });
+      console.log("Calling upgrade endpoint with:", {
+        payload,
+        token: token ? "present" : "missing",
+      });
 
       const response = await fetch(`${API_BASE_URL}/subscription/upgrade`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
 
       const data = await response.json();
-      console.log("Upgrade response:", { status: response.status, data, fullData: JSON.stringify(data) });
+      console.log("Upgrade response:", {
+        status: response.status,
+        data,
+        fullData: JSON.stringify(data),
+      });
 
       if (!response.ok) {
         // Build detailed validation message if available
-        let errorMsg = data?.message || data?.error || `HTTP ${response.status}`;
+        let errorMsg =
+          data?.message || data?.error || `HTTP ${response.status}`;
         try {
           if (Array.isArray(data?.errors) && data.errors.length) {
-            const details = data.errors.map(e => `${e.param || e.field || e.key}: ${e.msg || e.message || JSON.stringify(e)}`);
-            errorMsg = `${errorMsg} — ${details.join('; ')}`;
+            const details = data.errors.map(
+              (e) =>
+                `${e.param || e.field || e.key}: ${e.msg || e.message || JSON.stringify(e)}`,
+            );
+            errorMsg = `${errorMsg} — ${details.join("; ")}`;
           }
         } catch (e) {
-          console.warn('Failed to parse validation errors', e);
+          console.warn("Failed to parse validation errors", e);
         }
         console.error("Upgrade validation error details:", data);
         throw new Error(errorMsg);
@@ -80,7 +91,7 @@ export const subscriptionService = {
 
       return data;
     } catch (error) {
-      console.error('Subscription upgrade error:', error);
+      console.error("Subscription upgrade error:", error);
       throw error;
     }
   },
@@ -89,22 +100,22 @@ export const subscriptionService = {
   async fixUpgrade(token) {
     try {
       const response = await fetch(`${API_BASE_URL}/subscription/upgrade/fix`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data?.message || 'Failed to fix upgrade');
+        throw new Error(data?.message || "Failed to fix upgrade");
       }
 
       return data;
     } catch (error) {
-      console.error('Subscription fix error:', error);
+      console.error("Subscription fix error:", error);
       throw error;
     }
   },
@@ -113,22 +124,22 @@ export const subscriptionService = {
   async cancel(token) {
     try {
       const response = await fetch(`${API_BASE_URL}/subscription/cancel`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data?.message || 'Failed to cancel subscription');
+        throw new Error(data?.message || "Failed to cancel subscription");
       }
 
       return data;
     } catch (error) {
-      console.error('Subscription cancel error:', error);
+      console.error("Subscription cancel error:", error);
       throw error;
     }
   },
