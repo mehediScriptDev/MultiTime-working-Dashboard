@@ -483,11 +483,10 @@ export default function HomePage() {
 
   const handleAddOrUpgrade = () => {
     if (isAtFreeLimit) {
-      // Scroll to premium upgrade section
-      const upgradeSection = document.getElementById("upgrade");
-      if (upgradeSection) {
-        upgradeSection.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+      // Directly trigger upgrade instead of just scrolling
+      const returnUrl = `${window.location.origin}/subscription/success`;
+      const cancelUrl = `${window.location.origin}/subscription/cancel`;
+      upgradeMutation.mutate({ returnUrl, cancelUrl });
     } else {
       setEditingTimezone(null);
       setAddDialogOpen(true);
@@ -516,26 +515,35 @@ export default function HomePage() {
                 {/* Upgrade to Premium / Add Timezone Button */}
                 <button
                   onClick={handleAddOrUpgrade}
-                  disabled={isLoading}
+                  disabled={
+                    isLoading || (isAtFreeLimit && upgradeMutation.isPending)
+                  }
                   className="flex items-center gap-2 px-4 py-2 rounded-[10px] font-medium text-sm transition-all duration-300 bg-gradient-to-r from-[#2970f5] to-[#1d5bd6] text-white hover:from-[#3a7ef7] hover:to-[#2568e0] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : isAtFreeLimit ? (
-                    <>
-                      <svg
-                        className="h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
-                      </svg>
-                      <span>Upgrade to Premium</span>
-                    </>
+                    upgradeMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="h-4 w-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
+                        </svg>
+                        <span>Upgrade to Premium</span>
+                      </>
+                    )
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />

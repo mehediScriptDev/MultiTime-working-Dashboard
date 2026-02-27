@@ -17,6 +17,15 @@ export default function SubscriptionSuccess() {
   // Extract session info from URL params
   const urlParams = new URLSearchParams(window.location.search);
   const sessionId = urlParams.get("session_id");
+  const upgradeStatus = urlParams.get("upgrade");
+
+  // If this is a cancel scenario, redirect to the cancel page
+  useEffect(() => {
+    if (upgradeStatus === "cancel") {
+      setLocation("/subscription/cancel");
+      return;
+    }
+  }, [upgradeStatus, setLocation]);
 
   useEffect(() => {
     const fixSubscription = async () => {
@@ -30,8 +39,8 @@ export default function SubscriptionSuccess() {
         }
 
         // Call the subscription fix endpoint
-        const returnUrl = `${window.location.origin}/subscription/success?upgrade=success`;
-        const cancelUrl = `${window.location.origin}/subscription/success?upgrade=cancel`;
+        const returnUrl = `${window.location.origin}/subscription/success`;
+        const cancelUrl = `${window.location.origin}/subscription/cancel`;
 
         const response = await subscriptionService.fixUpgrade(
           token,
@@ -41,12 +50,11 @@ export default function SubscriptionSuccess() {
 
         if (response?.success) {
           setFixComplete(true);
+          console.log(response.message);
           // Navigate to home with a full page reload so AuthProvider re-fetches
           // the fresh subscription/premium status from the backend.
           // Using replace() avoids adding a back-history entry for the success page.
-          setTimeout(() => {
-            window.location.replace("/");
-          }, 2000);
+          window.location.replace("/");
         } else {
           throw new Error(response?.message || "Failed to fix subscription");
         }

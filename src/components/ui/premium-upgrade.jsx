@@ -2,6 +2,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { FiCheck } from "react-icons/fi";
 import { FaPaypal } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export function PremiumUpgrade({ timezoneCount }) {
   const { upgradeMutation, subscription } = useAuth();
@@ -52,8 +53,17 @@ export function PremiumUpgrade({ timezoneCount }) {
             onClick={handleUpgrade}
             disabled={upgradeMutation.isPending}
           >
-            <FaPaypal className="mr-2" />
-            {upgradeMutation.isPending ? "Processing..." : "Upgrade Now"}
+            {upgradeMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <FaPaypal className="mr-2" />
+                Upgrade Now
+              </>
+            )}
           </Button>
         </div>
         <div className="md:flex-1 md:flex md:items-center md:justify-center bg-indigo-600/20 p-6 dark:bg-slate-900/40">
