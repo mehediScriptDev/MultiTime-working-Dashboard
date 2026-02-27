@@ -8,8 +8,8 @@ import { CheckCircle, Loader2, AlertTriangle, Home, Crown } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function SubscriptionSuccess() {
-  const [location, setLocation] = useLocation();
-  const { user, subscription } = useAuth();
+  const [, setLocation] = useLocation();
+  const { user, subscription, refreshSubscription } = useAuth();
   const [isFixing, setIsFixing] = useState(false);
   const [fixComplete, setFixComplete] = useState(false);
   const [fixError, setFixError] = useState(null);
@@ -41,9 +41,11 @@ export default function SubscriptionSuccess() {
 
         if (response?.success) {
           setFixComplete(true);
-          // Refresh the page after a short delay to show updated subscription status
+          // Navigate to home with a full page reload so AuthProvider re-fetches
+          // the fresh subscription/premium status from the backend.
+          // Using replace() avoids adding a back-history entry for the success page.
           setTimeout(() => {
-            window.location.reload();
+            window.location.replace("/");
           }, 2000);
         } else {
           throw new Error(response?.message || "Failed to fix subscription");
@@ -62,7 +64,11 @@ export default function SubscriptionSuccess() {
     }
   }, [sessionId, user, fixComplete, fixError]);
 
-  const handleGoHome = () => {
+  const handleGoHome = async () => {
+    // Refresh subscription state so the dashboard shows premium immediately
+    if (refreshSubscription) {
+      await refreshSubscription();
+    }
     setLocation("/");
   };
 

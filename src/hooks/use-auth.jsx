@@ -227,6 +227,39 @@ export function AuthProvider({ children }) {
     }, 100);
   };
 
+  // Refresh both profile and subscription from backend (callable from any child component)
+  const refreshSubscription = async () => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return;
+    try {
+      const [profileResponse, statusResponse, usageResponse] =
+        await Promise.all([
+          authService.getProfile(token),
+          subscriptionService.getStatus(token),
+          subscriptionService.getUsage(token),
+        ]);
+
+      if (profileResponse?.data) {
+        saveUser(profileResponse.data, token);
+      }
+
+      if (statusResponse?.data) {
+        const subData = {
+          ...statusResponse.data,
+          usage: usageResponse?.data || null,
+        };
+        try {
+          localStorage.setItem(SUBSCRIPTION_KEY, JSON.stringify(subData));
+        } catch (e) {
+          console.warn("Failed to cache subscription", e);
+        }
+        setSubscription(subData);
+      }
+    } catch (error) {
+      console.error("Failed to refresh subscription:", error);
+    }
+  };
+
   const upgradeMutation = {
     mutate: async (opts = {}) => {
       // opts can include returnUrl/cancelUrl for payment gateway
@@ -251,7 +284,12 @@ export function AuthProvider({ children }) {
 
         // If backend immediately marks user premium in response, update local user and subscription
         if (response?.success && response?.data) {
-          if (response.data.isPremium) {
+          // Detect premium grant: direct isPremium flag OR mock upgrade mode
+          const grantedPremium =
+            response.data.isPremium ||
+            response.data.mockUpgrade ||
+            response.data.subscription?.user?.isPremium === true;
+          if (grantedPremium) {
             const upgraded = { ...user, isPremium: true };
             saveUser(upgraded, token);
           }
@@ -326,6 +364,7 @@ export function AuthProvider({ children }) {
         logoutMutation,
         registerMutation,
         upgradeMutation,
+        refreshSubscription,
         signOut,
       }}
     >
