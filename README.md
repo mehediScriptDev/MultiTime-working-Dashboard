@@ -1,8 +1,4 @@
-# TimeZoneCentral
-
-![TimeSync Logo](public/images/timesync-logo.svg)
-
-TimeZoneCentral (a.k.a. TimeSync) is a fast, accessible web app for comparing, converting, and synchronizing times across multiple time zones. It's built for distributed teams and global users who need quick timezone visualization, sharing, and scheduling.
+# Multi Time 
 
 ## Features
 
