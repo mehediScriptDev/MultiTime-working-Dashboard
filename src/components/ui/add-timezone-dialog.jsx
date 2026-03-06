@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import {
   getCommonTimezones,
   getTimeInTimezone,
@@ -36,6 +36,7 @@ export function AddTimezoneDialog({
 }) {
   const { t } = useTranslation();
   const commonTimezones = getCommonTimezones();
+  const listContainerRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTimezone, setSelectedTimezone] = useState(null);
   const [label, setLabel] = useState("");
@@ -100,10 +101,19 @@ export function AddTimezoneDialog({
     onOpenChange(false);
   };
 
-  const filteredTimezones = (() => {
-    const query = searchQuery.toLowerCase().trim();
-    if (!query) {
-      // No search — all countries (A-Z) + top 100 cities by population
+  // Debounce: wait 250 ms after the user stops typing before filtering
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  useEffect(() => {
+    const id = setTimeout(
+      () => setDebouncedQuery(searchQuery.trim().toLowerCase()),
+      250,
+    );
+    return () => clearTimeout(id);
+  }, [searchQuery]);
+
+  // useMemo: only recompute when the debounced query or dataset changes
+  const filteredTimezones = useMemo(() => {
+    if (!debouncedQuery) {
       const countries = commonTimezones.filter((tz) => tz.type === "country");
       const cities = commonTimezones
         .filter((tz) => tz.type !== "country")
@@ -112,10 +122,18 @@ export function AddTimezoneDialog({
     }
     return commonTimezones.filter(
       (tz) =>
-        tz.searchableText.includes(query) ||
-        formatTimezoneOffset(tz.offset).toLowerCase().includes(query),
+        tz.searchableText.includes(debouncedQuery) ||
+        formatTimezoneOffset(tz.offset).toLowerCase().includes(debouncedQuery),
     );
-  })();
+  }, [commonTimezones, debouncedQuery]);
+
+  // Virtualizer: renders only the rows visible in the 200px scroll container
+  const virtualizer = useVirtualizer({
+    count: filteredTimezones.length,
+    getScrollElement: () => listContainerRef.current,
+    estimateSize: () => 66,
+    overscan: 5,
+  });
 
   // Generate time options for select
   const timeOptions = Array.from({ length: 24 }, (_, i) => i);
@@ -170,78 +188,104 @@ export function AddTimezoneDialog({
               </div>
             </div>
 
-            {/* Timezone List */}
+            {/* Timezone List — virtualized so only visible rows render */}
             <div className="rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-50/50 dark:bg-slate-800/50">
-              <ScrollArea className="h-[180px] sm:h-[200px]">
-                <div className="p-2 space-y-1">
-                  {filteredTimezones.map((timezone, index) => {
-                    const { time } = getTimeInTimezone(
-                      timezone.offset,
-                      use24Hour,
-                    );
-                    const isSelected =
-                      selectedTimezone?.name === timezone.name &&
-                      selectedTimezone?.offset === timezone.offset;
-
-                    return (
-                      <div
-                        key={index}
-                        className={`py-3 px-4 hover:bg-white dark:hover:bg-slate-700 cursor-pointer rounded-lg flex items-center justify-between transition-all group ${
-                          isSelected
-                            ? "bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500"
-                            : "border-2 border-transparent"
-                        }`}
-                        onClick={() => setSelectedTimezone(timezone)}
-                      >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          {/* Flag for countries, dot for cities */}
-                          {timezone.type === "country" && timezone.iso2 ? (
-                            <ReactCountryFlag
-                              countryCode={timezone.iso2}
-                              svg
-                              style={{ width: "1.4em", height: "1.4em", flexShrink: 0 }}
-                            />
-                          ) : (
-                            <div
-                              className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isSelected ? "bg-blue-500" : "bg-slate-300 dark:bg-slate-600"}`}
-                            />
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <div
-                              className={`text-sm font-semibold truncate flex items-center gap-1.5 ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-slate-100"}`}
-                            >
-                              {timezone.city}
-                              {timezone.type === "country" && (
-                                <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400 px-1.5 py-0.5 rounded-full">
-                                  Country
-                                </span>
+              {filteredTimezones.length === 0 ? (
+                <div className="p-12 text-center">
+                  <Globe className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600 mb-3" />
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    No timezones found matching your search
+                  </p>
+                </div>
+              ) : (
+                <div
+                  ref={listContainerRef}
+                  className="h-[200px] overflow-y-auto scrollbar-hide"
+                >
+                  <div
+                    style={{ height: virtualizer.getTotalSize(), position: "relative" }}
+                    className="p-1"
+                  >
+                    {virtualizer.getVirtualItems().map((virtualRow) => {
+                      const timezone = filteredTimezones[virtualRow.index];
+                      const { time } = getTimeInTimezone(timezone.offset, use24Hour);
+                      const isSelected =
+                        selectedTimezone?.name === timezone.name &&
+                        selectedTimezone?.offset === timezone.offset;
+                      return (
+                        <div
+                          key={virtualRow.key}
+                          data-index={virtualRow.index}
+                          ref={virtualizer.measureElement}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            transform: `translateY(${virtualRow.start}px)`,
+                          }}
+                          className="px-1 py-0.5"
+                        >
+                          <div
+                            className={`py-2 px-4 hover:bg-white dark:hover:bg-slate-700 cursor-pointer rounded-lg flex items-center justify-between transition-all ${
+                              isSelected
+                                ? "bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500"
+                                : "border-2 border-transparent"
+                            }`}
+                            onClick={() => setSelectedTimezone(timezone)}
+                          >
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              {timezone.type === "country" && timezone.iso2 ? (
+                                <ReactCountryFlag
+                                  countryCode={timezone.iso2}
+                                  svg
+                                  style={{ width: "1.4em", height: "1.4em", flexShrink: 0 }}
+                                />
+                              ) : (
+                                <div
+                                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                    isSelected ? "bg-blue-500" : "bg-slate-300 dark:bg-slate-600"
+                                  }`}
+                                />
                               )}
+                              <div className="min-w-0 flex-1">
+                                <div
+                                  className={`text-sm font-semibold truncate flex items-center gap-1.5 ${
+                                    isSelected
+                                      ? "text-blue-600 dark:text-blue-400"
+                                      : "text-slate-900 dark:text-slate-100"
+                                  }`}
+                                >
+                                  {timezone.city}
+                                  {timezone.type === "country" && (
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400 px-1.5 py-0.5 rounded-full">
+                                      Country
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                                  {timezone.type === "country"
+                                    ? formatTimezoneOffset(timezone.offset)
+                                    : `${timezone.country || timezone.region} • ${formatTimezoneOffset(timezone.offset)}`}
+                                </div>
+                              </div>
                             </div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                              {timezone.type === "country"
-                                ? formatTimezoneOffset(timezone.offset)
-                                : `${timezone.country || timezone.region} • ${formatTimezoneOffset(timezone.offset)}`}
+                            <div
+                              className={`text-sm font-bold flex-shrink-0 ml-3 ${
+                                isSelected
+                                  ? "text-blue-600 dark:text-blue-400"
+                                  : "text-slate-600 dark:text-slate-400"
+                              }`}
+                            >
+                              {time}
                             </div>
                           </div>
                         </div>
-                        <div
-                          className={`text-sm font-bold flex-shrink-0 ml-3 ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
-                        >
-                          {time}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {filteredTimezones.length === 0 && (
-                    <div className="p-12 text-center">
-                      <Globe className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600 mb-3" />
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                        No timezones found matching your search
-                      </p>
-                    </div>
-                  )}
+                      );
+                    })}
+                  </div>
                 </div>
-              </ScrollArea>
+              )}
             </div>
 
             {/* Configuration Section */}
