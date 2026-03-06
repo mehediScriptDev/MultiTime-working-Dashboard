@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { cityMapping } from "city-timezones";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -86,12 +87,270 @@ export function getWorkingHoursPercent(
   return (hoursPassed / totalWorkingHours) * 100;
 }
 
+// Module-level cache — built once per session, free on subsequent calls
+let _cachedTimezones = null;
+
 /**
- * Get all timezones dynamically using the Intl API
- * @returns {Array<{name: string, city: string, region: string, country: string, abbreviation: string, offset: number, timezone: string}>}
+ * Get all timezones from the city-timezones dataset (~7 300 world cities).
+ * Sorted by population (largest first) so the most relevant cities appear at
+ * the top of the unfiltered list. Results are cached after the first call.
+ * @returns {Array<{name, city, region, country, province, abbreviation, offset, timezone, searchableText}>}
  */
 export function getCommonTimezones() {
-  // Mapping of IANA timezone identifiers to country names for searchability
+  if (_cachedTimezones) return _cachedTimezones;
+
+  // Per-IANA-zone caches — avoids redundant Intl / dayjs work for zones
+  // shared by many cities (e.g. hundreds of US cities share America/New_York)
+  const abbrCache = new Map();
+  const offsetCache = new Map();
+
+  const getAbbr = (tz) => {
+    if (!abbrCache.has(tz)) {
+      try {
+        const parts = new Intl.DateTimeFormat("en", {
+          timeZone: tz,
+          timeZoneName: "short",
+        }).formatToParts(new Date());
+        abbrCache.set(
+          tz,
+          parts.find((p) => p.type === "timeZoneName")?.value || "",
+        );
+      } catch {
+        abbrCache.set(tz, "");
+      }
+    }
+    return abbrCache.get(tz);
+  };
+
+  const getOffset = (tz) => {
+    if (!offsetCache.has(tz)) {
+      try {
+        offsetCache.set(tz, dayjs().tz(tz).utcOffset());
+      } catch {
+        offsetCache.set(tz, 0);
+      }
+    }
+    return offsetCache.get(tz);
+  };
+
+  // Sort once by population — used for both city entries and country picking
+  const sorted = cityMapping
+    .filter((c) => Boolean(c.timezone))
+    .sort((a, b) => (b.pop || 0) - (a.pop || 0));
+
+  // ── City entries ───────────────────────────────────────────────────────────
+  const cityEntries = sorted.map((c) => {
+    const tz = c.timezone;
+    const region =
+      tz.split("/").slice(0, -1).join("/").replace(/_/g, " ") || "UTC";
+    const searchableText = [c.city, c.city_ascii, c.country, c.province, region, tz]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return {
+      name: c.city,
+      city: c.city,
+      region,
+      country: c.country || "",
+      province: c.province || "",
+      iso2: c.iso2 || "",
+      abbreviation: getAbbr(tz),
+      offset: getOffset(tz),
+      timezone: tz,
+      type: "city",
+      searchableText,
+    };
+  });
+
+  // ── Country aliases — lets users find countries by alternate / informal names
+  const countryAliases = {
+    "United States of America": ["usa", "us", "united states", "america", "u.s.a", "u.s"],
+    "United Kingdom": ["uk", "britain", "great britain", "england", "scotland", "wales", "northern ireland", "u.k"],
+    "Russia": ["russian federation", "ussr", "soviet"],
+    "South Korea": ["korea", "republic of korea", "rok"],
+    "North Korea": ["dprk", "democratic peoples republic of korea"],
+    "China": ["prc", "peoples republic of china", "zhongguo"],
+    "Taiwan": ["republic of china", "roc", "formosa"],
+    "Vietnam": ["viet nam"],
+    "Czech Republic": ["czechia", "czech"],
+    "Myanmar": ["burma"],
+    "Iran": ["persia", "islamic republic of iran"],
+    "Syria": ["syrian arab republic"],
+    "Bolivia": ["plurinational state of bolivia"],
+    "Venezuela": ["bolivarian republic of venezuela"],
+    "Tanzania": ["united republic of tanzania"],
+    "Congo (Kinshasa)": ["drc", "democratic republic of congo", "zaire", "dr congo"],
+    "Congo (Brazzaville)": ["republic of congo", "congo republic"],
+    "Ivory Coast": ["cote divoire", "côte d'ivoire"],
+    "Swaziland": ["eswatini"],
+    "Macedonia": ["north macedonia", "northern macedonia"],
+    "East Timor": ["timor leste", "timor-leste"],
+    "Bosnia and Herzegovina": ["bosnia", "herzegovina", "bih"],
+    "Trinidad and Tobago": ["trinidad", "tobago"],
+    "Saint Kitts and Nevis": ["st kitts", "st. kitts"],
+    "Saint Lucia": ["st lucia", "st. lucia"],
+    "Saint Vincent and the Grenadines": ["st vincent", "st. vincent", "grenadines"],
+    "Antigua and Barbuda": ["antigua", "barbuda"],
+    "Papua New Guinea": ["png"],
+    "New Zealand": ["nz", "aotearoa"],
+    "Saudi Arabia": ["ksa", "kingdom of saudi arabia"],
+    "United Arab Emirates": ["uae", "emirates"],
+    "Hong Kong S.A.R.": ["hong kong", "hk"],
+    "Macau S.A.R": ["macau", "macao"],
+    "Palestine": ["palestinian territories", "west bank", "gaza"],
+    "Vatican (Holy Sea)": ["vatican", "holy see", "holy sea"],
+    "The Bahamas": ["bahamas"],
+    "The Gambia": ["gambia"],
+    "Federated States of Micronesia": ["micronesia", "fsm"],
+    "Northern Mariana Islands": ["cnmi", "saipan"],
+    "South Georgia and the Islands": ["south georgia"],
+    "Svalbard and Jan Mayen Islands": ["svalbard"],
+    "Kosovo": ["republic of kosovo"],
+    "Somaliland": ["republic of somaliland"],
+    "Northern Cyprus": ["trnc"],
+    "Turks and Caicos Islands": ["turks and caicos", "tci"],
+    "Cape Verde": ["cabo verde"],
+    "Kyrgyzstan": ["kyrgyz republic", "kirghizia"],
+    "Tajikistan": ["tajik"],
+    "Turkmenistan": ["turkmen"],
+    "Kazakhstan": ["kazakh"],
+    "Uzbekistan": ["uzbek"],
+    "Azerbaijan": ["azerbaijani"],
+    "Armenia": ["republic of armenia"],
+    "Georgia": ["republic of georgia"],
+    "Moldova": ["republic of moldova"],
+    "Belarus": ["byelorussia", "belorussia"],
+    "Ukraine": ["ukr"],
+    "Romania": ["roumania", "rumania"],
+    "Bulgaria": ["republic of bulgaria"],
+    "Serbia": ["republic of serbia"],
+    "Montenegro": ["crna gora"],
+    "Croatia": ["hrvatska"],
+    "Slovenia": ["republika slovenija"],
+    "Slovakia": ["slovak republic"],
+    "Luxembourg": ["grand duchy of luxembourg"],
+    "Netherlands": ["holland", "the netherlands"],
+    "Belgium": ["belgique", "belgie"],
+    "Switzerland": ["swiss confederation", "helvetia"],
+    "Austria": ["republic of austria"],
+    "Portugal": ["republic of portugal"],
+    "Spain": ["españa", "espana", "kingdom of spain"],
+    "France": ["french republic", "republique francaise"],
+    "Germany": ["deutschland", "federal republic of germany"],
+    "Italy": ["italia", "italian republic"],
+    "Greece": ["hellenic republic", "hellas"],
+    "Turkey": ["türkiye", "turkiye"],
+    "Israel": ["state of israel"],
+    "Jordan": ["hashemite kingdom of jordan"],
+    "Lebanon": ["lebanese republic"],
+    "Iraq": ["republic of iraq"],
+    "Kuwait": ["state of kuwait"],
+    "Qatar": ["state of qatar"],
+    "Bahrain": ["kingdom of bahrain"],
+    "Oman": ["sultanate of oman"],
+    "Yemen": ["republic of yemen"],
+    "Afghanistan": ["islamic emirate of afghanistan"],
+    "Pakistan": ["islamic republic of pakistan"],
+    "India": ["republic of india", "bharat"],
+    "Nepal": ["federal democratic republic of nepal"],
+    "Sri Lanka": ["ceylon"],
+    "Bangladesh": ["peoples republic of bangladesh", "bangla"],
+    "Thailand": ["kingdom of thailand", "siam"],
+    "Cambodia": ["kingdom of cambodia", "khmer"],
+    "Laos": ["lao", "lao pdr"],
+    "Malaysia": ["federation of malaysia"],
+    "Indonesia": ["republic of indonesia"],
+    "Philippines": ["republic of the philippines", "pilipinas"],
+    "Japan": ["nippon", "nihon"],
+    "Mongolia": ["mongol uls"],
+    "Kenya": ["republic of kenya"],
+    "Ethiopia": ["federal democratic republic of ethiopia"],
+    "Nigeria": ["federal republic of nigeria"],
+    "Ghana": ["republic of ghana"],
+    "Egypt": ["arab republic of egypt"],
+    "Morocco": ["kingdom of morocco", "maroc"],
+    "Algeria": ["peoples democratic republic of algeria", "algerie"],
+    "Tunisia": ["republic of tunisia"],
+    "Libya": ["state of libya"],
+    "Sudan": ["republic of sudan"],
+    "South Africa": ["rsa", "republic of south africa"],
+    "Zimbabwe": ["republic of zimbabwe"],
+    "Zambia": ["republic of zambia"],
+    "Uganda": ["republic of uganda"],
+    "Tanzania": ["united republic of tanzania"],
+    "Rwanda": ["republic of rwanda"],
+    "Mozambique": ["republic of mozambique"],
+    "Madagascar": ["republic of madagascar"],
+    "Cameroon": ["republic of cameroon"],
+    "Senegal": ["republic of senegal"],
+    "Mexico": ["mexican united states", "mejico"],
+    "Colombia": ["republic of colombia"],
+    "Peru": ["republic of peru"],
+    "Chile": ["republic of chile"],
+    "Argentina": ["argentine republic"],
+    "Brazil": ["federative republic of brazil", "brasil"],
+    "Ecuador": ["republic of ecuador"],
+    "Bolivia": ["plurinational state of bolivia"],
+    "Paraguay": ["republic of paraguay"],
+    "Uruguay": ["oriental republic of uruguay"],
+    "Guatemala": ["republic of guatemala"],
+    "Honduras": ["republic of honduras"],
+    "Nicaragua": ["republic of nicaragua"],
+    "Costa Rica": ["republic of costa rica"],
+    "Panama": ["republic of panama"],
+    "Cuba": ["republic of cuba"],
+    "Jamaica": ["commonwealth of jamaica"],
+    "Haiti": ["republic of haiti"],
+    "Dominican Republic": ["dr", "dominican rep"],
+    "Puerto Rico": ["pr", "estado libre asociado"],
+    "Canada": ["ca", "cdn"],
+    "Australia": ["commonwealth of australia", "aus", "oz"],
+    "Fiji": ["republic of fiji"],
+    "Samoa": ["independent state of samoa"],
+    "Tonga": ["kingdom of tonga"],
+    "Vanuatu": ["republic of vanuatu"],
+    "Brunei": ["brunei darussalam"],
+    "Singapore": ["republic of singapore", "sg"],
+  };
+
+  // ── Country entries (one per country, using highest-pop city's timezone) ──
+  const countryMap = new Map();
+  sorted.forEach((c) => {
+    if (c.country && !countryMap.has(c.country)) countryMap.set(c.country, c);
+  });
+  const countryEntries = [...countryMap.values()]
+    .sort((a, b) => a.country.localeCompare(b.country))
+    .map((c) => {
+      const tz = c.timezone;
+      const region =
+        tz.split("/").slice(0, -1).join("/").replace(/_/g, " ") || "UTC";
+      const aliases = countryAliases[c.country] || [];
+      const searchableText = [c.country, c.iso2, c.iso3, ...aliases]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return {
+        name: c.country,
+        city: c.country,
+        region,
+        country: c.country,
+        province: "",
+        iso2: c.iso2 || "",
+        abbreviation: getAbbr(tz),
+        offset: getOffset(tz),
+        timezone: tz,
+        type: "country",
+        searchableText,
+      };
+    });
+
+  // Countries first (A-Z), then cities (population desc)
+  _cachedTimezones = [...countryEntries, ...cityEntries];
+  return _cachedTimezones;
+}
+
+// ── Legacy Intl-only path (kept only for the timezoneToCountry reference) ──
+function _unusedIntlFallback() {
   const timezoneToCountry = {
     // Asia
     "Asia/Dhaka": "Bangladesh",
@@ -300,9 +559,7 @@ export function getCommonTimezones() {
   };
 
   try {
-    // Get all supported IANA timezone identifiers from the browser
     const allTimezones = Intl.supportedValuesOf("timeZone");
-
     return allTimezones.map((tz) => {
       // Parse the IANA string to extract region and city
       // Format is typically "Region/City" or "Region/Subregion/City"
@@ -323,116 +580,33 @@ export function getCommonTimezones() {
       const abbreviation =
         parts2.find((p) => p.type === "timeZoneName")?.value || "";
 
-      // Get country from mapping, or derive from region for unmapped timezones
       const country =
         timezoneToCountry[tz] || region.split("/")[0] || "Unknown";
-
-      // Get aliases for this timezone to enable alternative name searches
       const aliases = cityAliases[tz] || [];
-
-      // Create searchable text that includes all alternative names
       const searchableText = [city, country, region, ...aliases]
         .join(" ")
         .toLowerCase();
-
       return {
         name: city,
         city: city,
         region: region || "UTC",
-        country: country,
-        aliases: aliases, // Alternative city names for search
-        searchableText: searchableText, // Pre-computed for faster search
-        abbreviation: abbreviation,
+        country,
+        province: "",
+        aliases,
+        searchableText,
+        abbreviation,
         offset: offsetMinutes,
-        timezone: tz, // IANA timezone string for accurate calculations
+        timezone: tz,
       };
     });
   } catch (error) {
-    // Fallback for browsers that don't support Intl.supportedValuesOf
-    console.warn(
-      "Intl.supportedValuesOf not supported, using fallback timezones",
-    );
+    console.warn("Intl.supportedValuesOf not supported");
     return [
-      {
-        name: "New York",
-        city: "New York",
-        region: "America",
-        abbreviation: "EST",
-        offset: -300,
-        timezone: "America/New_York",
-      },
-      {
-        name: "Los Angeles",
-        city: "Los Angeles",
-        region: "America",
-        abbreviation: "PST",
-        offset: -480,
-        timezone: "America/Los_Angeles",
-      },
-      {
-        name: "Chicago",
-        city: "Chicago",
-        region: "America",
-        abbreviation: "CST",
-        offset: -360,
-        timezone: "America/Chicago",
-      },
-      {
-        name: "London",
-        city: "London",
-        region: "Europe",
-        abbreviation: "GMT",
-        offset: 0,
-        timezone: "Europe/London",
-      },
-      {
-        name: "Paris",
-        city: "Paris",
-        region: "Europe",
-        abbreviation: "CET",
-        offset: 60,
-        timezone: "Europe/Paris",
-      },
-      {
-        name: "Berlin",
-        city: "Berlin",
-        region: "Europe",
-        abbreviation: "CET",
-        offset: 60,
-        timezone: "Europe/Berlin",
-      },
-      {
-        name: "Tokyo",
-        city: "Tokyo",
-        region: "Asia",
-        abbreviation: "JST",
-        offset: 540,
-        timezone: "Asia/Tokyo",
-      },
-      {
-        name: "Sydney",
-        city: "Sydney",
-        region: "Australia",
-        abbreviation: "AEST",
-        offset: 600,
-        timezone: "Australia/Sydney",
-      },
-      {
-        name: "Dubai",
-        city: "Dubai",
-        region: "Asia",
-        abbreviation: "GST",
-        offset: 240,
-        timezone: "Asia/Dubai",
-      },
-      {
-        name: "Singapore",
-        city: "Singapore",
-        region: "Asia",
-        abbreviation: "SGT",
-        offset: 480,
-        timezone: "Asia/Singapore",
-      },
+      { name: "New York", city: "New York", region: "America", country: "United States", province: "", abbreviation: "EST", offset: -300, timezone: "America/New_York", searchableText: "new york america united states" },
+      { name: "Los Angeles", city: "Los Angeles", region: "America", country: "United States", province: "", abbreviation: "PST", offset: -480, timezone: "America/Los_Angeles", searchableText: "los angeles america united states" },
+      { name: "London", city: "London", region: "Europe", country: "United Kingdom", province: "", abbreviation: "GMT", offset: 0, timezone: "Europe/London", searchableText: "london europe united kingdom" },
+      { name: "Tokyo", city: "Tokyo", region: "Asia", country: "Japan", province: "", abbreviation: "JST", offset: 540, timezone: "Asia/Tokyo", searchableText: "tokyo asia japan" },
+      { name: "Sydney", city: "Sydney", region: "Australia", country: "Australia", province: "", abbreviation: "AEST", offset: 600, timezone: "Australia/Sydney", searchableText: "sydney australia" },
     ];
   }
 }

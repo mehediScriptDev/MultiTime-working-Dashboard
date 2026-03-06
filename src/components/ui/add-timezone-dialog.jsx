@@ -23,7 +23,8 @@ import {
   getTimeInTimezone,
   formatTimezoneOffset,
 } from "@/lib/utils";
-import { Search, Globe, Clock, Users, Tag } from "lucide-react";
+import { Search, Globe, Clock, Users, Tag, MapPin } from "lucide-react";
+import ReactCountryFlag from "react-country-flag";
 
 export function AddTimezoneDialog({
   open,
@@ -99,15 +100,22 @@ export function AddTimezoneDialog({
     onOpenChange(false);
   };
 
-  const filteredTimezones = commonTimezones.filter(
-    (tz) =>
-      tz.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tz.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tz.region.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      formatTimezoneOffset(tz.offset)
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()),
-  );
+  const filteredTimezones = (() => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) {
+      // No search — all countries (A-Z) + top 100 cities by population
+      const countries = commonTimezones.filter((tz) => tz.type === "country");
+      const cities = commonTimezones
+        .filter((tz) => tz.type !== "country")
+        .slice(0, 100);
+      return [...countries, ...cities];
+    }
+    return commonTimezones.filter(
+      (tz) =>
+        tz.searchableText.includes(query) ||
+        formatTimezoneOffset(tz.offset).toLowerCase().includes(query),
+    );
+  })();
 
   // Generate time options for select
   const timeOptions = Array.from({ length: 24 }, (_, i) => i);
@@ -186,18 +194,33 @@ export function AddTimezoneDialog({
                         onClick={() => setSelectedTimezone(timezone)}
                       >
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div
-                            className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isSelected ? "bg-blue-500" : "bg-slate-300 dark:bg-slate-600"}`}
-                          />
+                          {/* Flag for countries, dot for cities */}
+                          {timezone.type === "country" && timezone.iso2 ? (
+                            <ReactCountryFlag
+                              countryCode={timezone.iso2}
+                              svg
+                              style={{ width: "1.4em", height: "1.4em", flexShrink: 0 }}
+                            />
+                          ) : (
+                            <div
+                              className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isSelected ? "bg-blue-500" : "bg-slate-300 dark:bg-slate-600"}`}
+                            />
+                          )}
                           <div className="min-w-0 flex-1">
                             <div
-                              className={`text-sm font-semibold truncate ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-slate-100"}`}
+                              className={`text-sm font-semibold truncate flex items-center gap-1.5 ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-slate-100"}`}
                             >
                               {timezone.city}
+                              {timezone.type === "country" && (
+                                <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400 px-1.5 py-0.5 rounded-full">
+                                  Country
+                                </span>
+                              )}
                             </div>
                             <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                              {timezone.region} •{" "}
-                              {formatTimezoneOffset(timezone.offset)}
+                              {timezone.type === "country"
+                                ? formatTimezoneOffset(timezone.offset)
+                                : `${timezone.country || timezone.region} • ${formatTimezoneOffset(timezone.offset)}`}
                             </div>
                           </div>
                         </div>
@@ -229,8 +252,17 @@ export function AddTimezoneDialog({
                   <div className="flex items-center gap-2 text-blue-900 dark:text-blue-100">
                     <Globe className="sm:h-5 sm:w-5 h-4 w-4" />
                     <span className="font-semibold text-sm">Selected:</span>
-                    <span className="font-semibold text-sm">
-                      {selectedTimezone.city}, {selectedTimezone.region}
+                    <span className="font-semibold text-sm flex items-center gap-2">
+                      {selectedTimezone.iso2 && (
+                        <ReactCountryFlag
+                          countryCode={selectedTimezone.iso2}
+                          svg
+                          style={{ width: "1.2em", height: "1.2em" }}
+                        />
+                      )}
+                      {selectedTimezone.type === "country"
+                        ? selectedTimezone.city
+                        : `${selectedTimezone.city}, ${selectedTimezone.country || selectedTimezone.region}`}
                     </span>
                   </div>
                 </div>
