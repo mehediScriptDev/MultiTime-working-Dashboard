@@ -83,13 +83,13 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
 
   const chartContent = (
     <>
-      {/* Desktop/Tablet View - Original horizontal layout */}
-      <div className="hidden md:block -mx-2 sm:mx-0">
-        <div className="min-w-[700px] md:min-w-[800px] px-2">
+      {/* Desktop (large) View - Original horizontal layout (shows at lg+) */}
+      <div className="hidden lg:block -mx-2 sm:mx-0">
+        <div className="min-w-[700px] lg:min-w-[800px] px-2">
             {/* Header row: logo only */}
-            <div className="flex items-center mb-4 md:mb-5">
+            <div className="flex items-center mb-4 lg:mb-5">
               {/* Logo cell — same width as the timezone label column */}
-              <div className="w-40 md:w-52 pr-4 md:pr-6 shrink-0 flex items-center gap-2">
+              <div className="w-40 lg:w-52 pr-4 lg:pr-6 shrink-0 flex items-center gap-2">
                 <img src="/Logo.png" alt="TimeSync" className="h-10 w-auto" />
                 <span className="text-xl font-black tracking-tighter text-gray-900 dark:text-white">
                   Time
@@ -98,7 +98,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
               </div>
             </div>
 
-            {/* Timezone rows - Desktop */}
+            {/* Timezone rows - Desktop (lg+) */}
             {timezones.map((timezone, idx) => {
               const now = currentTime.utcOffset(timezone.offset / 60);
               const hour = now.hour();
@@ -159,10 +159,10 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
               return (
                 <div
                   key={timezone.id}
-                  className="flex items-center mb-4 md:mb-6 group"
+                  className="flex items-center mb-4 lg:mb-6 group"
                 >
-                  <div className="w-40 md:w-52 pr-4 md:pr-6 shrink-0">
-                    <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-800/80 rounded-lg md:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 group-hover:scale-[1.02]">
+                  <div className="w-40 lg:w-52 pr-4 lg:pr-6 shrink-0">
+                    <div className="flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-800/80 rounded-lg lg:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 group-hover:scale-[1.02]">
                       <div
                         title={isActive ? "Active Now" : "Inactive"}
                         className={`w-2.5 md:w-3.5 h-2.5 md:h-3.5 rounded-full flex-shrink-0 ${isActive ? "bg-green-500 shadow-lg shadow-green-500/50 animate-pulse" : "bg-gray-300 dark:bg-slate-600"}`}
@@ -195,7 +195,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
                       setHoverPosition(pct);
                     }}
                     onMouseLeave={() => setHoverPosition(null)}
-                    className="flex-1 h-7 md:h-8 bg-gray-100/50 dark:bg-slate-800/50 rounded-lg md:rounded-xl relative shadow-inner border border-gray-200/50 dark:border-slate-700/50"
+                    className="flex-1 h-7 lg:h-8 bg-gray-100/50 dark:bg-slate-800/50 rounded-lg lg:rounded-xl relative shadow-inner border border-gray-200/50 dark:border-slate-700/50"
                   >
                     {/* Grid lines */}
                     <div className="absolute inset-0 flex">
@@ -263,8 +263,8 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
           </div>
         </div>
 
-        {/* Mobile View - Card layout like the reference image */}
-        <div className="md:hidden space-y-4 ">
+        {/* Mobile View - Card layout like the reference image (shows below lg) */}
+        <div className="lg:hidden space-y-4 ">
           {timezones.map((timezone, idx) => {
             const now = currentTime.utcOffset(timezone.offset / 60);
             const hour = now.hour();
@@ -413,7 +413,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
         </div>
 
         {/* Legend - only show on desktop */}
-        <div className="hidden md:flex mt-7 md:mt-8 pt-5 md:pt-6 border-t border-gray-100 dark:border-slate-800 flex-wrap gap-6 text-xs font-bold uppercase tracking-widest text-gray-400">
+        <div className="hidden lg:flex mt-7 lg:mt-8 pt-5 lg:pt-6 border-t border-gray-100 dark:border-slate-800 flex-wrap gap-6 text-xs font-bold uppercase tracking-widest text-gray-400">
           <div className="flex items-center">
             <div className="w-4 h-4 bg-blue-600/20 border border-blue-600/30 rounded-md mr-2.5"></div>
             <span>{t("common.workingHoursLabel")}</span>
@@ -452,7 +452,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
           </div>
           {/* Fullscreen content */}
           <div className="px-4 sm:px-6 py-6 overflow-x-auto">
-            <div className="max-w-7xl mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-6 py-6">
+            <div className="max-w-7xl mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-xl lg:border lg:border-gray-100 lg:dark:border-slate-800 px-2 lg:px-6 py-3 lg:py-6">
               {chartContent}
             </div>
           </div>
