@@ -452,7 +452,7 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
           </div>
           {/* Fullscreen content */}
           <div className="px-4 sm:px-6 py-6 overflow-x-auto">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-6 py-6">
               {chartContent}
             </div>
           </div>
