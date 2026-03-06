@@ -115,24 +115,20 @@ export default function AuthPage() {
           transition={transition}
           style={{ zIndex: tabValue === "register" ? 20 : 5 }}
         >
-          <div className="w-full max-w-[360px] sm:max-w-sm md:max-w-md lg:max-w-[380px] xl:max-w-[420px] 2xl:max-w-md">
-            {/* Mobile & Tablet Header - Always visible on mobile/tablet, hidden on lg, visible on xl+ */}
-            {/* <div className="text-center mb-2 sm:mb-4 lg:hidden xl:block xl:mb-2">
-              <div className="flex items-center justify-center gap-2 sm:gap-2.5">
+          <div className="w-full max-w-[360px]  sm:max-w-md lg:max-w-[380px] xl:max-w-[420px] 2xl:max-w-md">
+            {/* Mobile logo — visible only below lg, sits above the card */}
+            <div className="flex lg:hidden flex-col items-center sm:mb-5">
+              <div className="flex items-center gap-1 mr-3">
                 <img
                   src="/Logo.png"
                   alt="TimeSync"
-                  className="h-9 sm:h-10 lg:h-9 xl:h-10 2xl:h-11 w-auto"
+                  className="h-12 w-auto animate-[spin_10s_linear_infinite]"
                 />
-                <h2 className="text-xl sm:text-2xl lg:text-xl xl:text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
-                  Time
-                  <span className="text-blue-600 dark:text-blue-400">Sync</span>
-                </h2>
+                <span className="text-2xl sm:text-3xl font-black tracking-tighter text-gray-900 dark:text-white">
+                  Time<span className="text-blue-600 dark:text-blue-400">Sync</span>
+                </span>
               </div>
-              <p className="mt-1.5 sm:mt-2 text-[10px] sm:text-[11px] lg:text-[10px] xl:text-[11px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                Master your global schedule
-              </p>
-            </div> */}
+            </div>
 
             <AuthForm 
               mode={tabValue} 

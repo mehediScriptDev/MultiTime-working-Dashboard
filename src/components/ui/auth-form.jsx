@@ -128,17 +128,13 @@ export default function AuthForm({
 
   return (
 
-    <div className="min-h-[520px] flex items-center justify-center px-4 py-8">
+    <div className="min-h-[520px] flex items-center justify-center px-2 py-4 lg:py-8">
 
       <div className="w-full max-w-md">
 
         <Card className="rounded-3xl shadow-2xl border border-slate-200/60 dark:border-slate-700/60 overflow-visible bg-white dark:bg-slate-900 w-full">
 
           <CardHeader className="relative pt-6 sm:pt-8 px-6 sm:px-8 pb-4 sm:pb-6">
-
-            {/* Tabs/segmented control moved to the right-side panel; header kept minimal */}
-
-
 
             <CardTitle className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
 
