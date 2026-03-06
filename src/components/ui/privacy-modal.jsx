@@ -112,7 +112,7 @@ export function PrivacyModal({ children }) {
                 <h3 className="font-semibold text-base mb-2">{t('privacy.section10Title')}</h3>
                 <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
                   {t('privacy.section10Content')}{' '}
-                  <a href="mailto:privacy@timesync.com" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  <a href="mailto:timesync.mgmt@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">
                     {t('privacy.contactEmail')}
                   </a>
                 </p>
