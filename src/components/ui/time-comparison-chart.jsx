@@ -451,8 +451,10 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
             </button>
           </div>
           {/* Fullscreen content */}
-          <div className="px-6 py-6 overflow-x-auto">
-            {chartContent}
+          <div className="px-4 sm:px-6 py-6 overflow-x-auto">
+            <div className="max-w-7xl mx-auto">
+              {chartContent}
+            </div>
           </div>
         </div>
       )}
@@ -467,10 +469,11 @@ export function TimeComparisonChart({ timezones, use24Hour }) {
           </div>
           <button
             onClick={() => setIsFullscreen(true)}
-            className="md:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-            title="Fullscreen"
+            className="p-1.5 sm:p-2 rounded-lg text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group"
+            title="Expand to fullscreen"
+            aria-label="Expand time comparison to fullscreen"
           >
-            <Maximize2 className="w-4 h-4" />
+            <Maximize2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 group-hover:scale-110 transition-transform duration-150" />
           </button>
         </CardTitle>
       </CardHeader>
